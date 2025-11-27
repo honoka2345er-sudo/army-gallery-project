@@ -11,13 +11,11 @@ const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// ❌ เอา helmet ออกชั่วคราว เพื่อแก้ปัญหา CSP Error
-// const helmet = require('helmet'); 
 const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-// app.use(helmet(...)); // ปิดไว้ก่อน
+// app.use(helmet(...)); // ปิดไว้ก่อนแก้ปัญหา CSP
 app.use(cors());
 app.use(express.json());
 
@@ -28,14 +26,14 @@ app.use('/api/', limiter);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'army_secret_key_1234';
 
-// ✅ ตั้งค่า Cloudinary (เอาค่ามาจาก .env)
+// ✅ ตั้งค่า Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ✅ เปลี่ยนจากเก็บลงเครื่อง เป็นส่งไป Cloudinary
+// ✅ ตั้งค่าที่เก็บไฟล์ (Cloudinary)
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
@@ -67,6 +65,11 @@ const pool = mysql.createPool({
     try {
         const connection = await pool.getConnection();
         console.log('✅ Connected to TiDB Cloud (MySQL Compatible) Successfully!');
+        
+        // 🔥 Auto Cleanup: ลบหมวดหมู่ที่ไม่มีรูปภาพทิ้งทันทีที่เปิด Server
+        await connection.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
+        console.log('🧹 Auto-cleaned empty categories on startup');
+
         connection.release();
     } catch (err) {
         console.error('❌ Database Connection Failed:', err);
@@ -151,7 +154,6 @@ app.post('/upload', upload.array('photos', 20), async (req, res) => {
     }
 });
 
-// 🔥 แก้ส่วนดึงรูป ให้ส่ง URL ตรงๆ
 app.get('/photos', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 1000;
@@ -236,9 +238,25 @@ app.put('/photos/:id/restore', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// 🔥 แก้ส่วนลบถาวร ให้มี Auto Cleanup
 app.delete('/photos/:id/permanent', async (req, res) => {
+    const photoId = req.params.id;
     try {
-        await pool.query('DELETE FROM Photos WHERE photo_id = ?', [req.params.id]);
+        const [results] = await pool.query('SELECT category_id FROM Photos WHERE photo_id = ?', [photoId]);
+        if (results.length === 0) return res.status(404).json({ message: 'Not found' });
+        const f = results[0];
+
+        await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
+
+        // 🔥 ระบบ Auto Cleanup: ถ้าลบแล้วหมวดหมู่ว่าง ให้ลบทิ้งด้วย
+        if (f.category_id) {
+            const [countRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE category_id = ?', [f.category_id]);
+            if (countRes[0].count === 0) {
+                await pool.query('DELETE FROM Categories WHERE category_id = ?', [f.category_id]);
+                console.log('🧹 Auto-cleaned empty category:', f.category_id);
+            }
+        }
+
         res.json({ message: 'Deleted permanently' });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -313,7 +331,6 @@ app.put('/users/:id/username', async (req, res) => {
     }
 });
 
-// ส่วน Download ZIP ต้องใช้ logic ใหม่ (แต่ปิดไว้ก่อนได้ครับ เพื่อให้ระบบหลักทำงานได้)
 app.get('/download-zip/:categoryName', async (req, res) => {
     res.status(501).send('ฟีเจอร์ ZIP ยังไม่เปิดใช้งานบน Cloudinary');
 });
