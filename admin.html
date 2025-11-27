@@ -21,40 +21,12 @@
         .approval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
         
         .approval-item { 
-            border: 2px solid transparent; 
-            padding: 10px; 
-            border-radius: 8px; 
-            text-align: center; 
-            background: #fff; 
-            position: relative; 
-            cursor: pointer; 
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 2px solid transparent; padding: 10px; border-radius: 8px; text-align: center; 
+            background: #fff; position: relative; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .approval-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; pointer-events: none; }
-        
-        .approval-item.selected {
-            border-color: #27ae60;
-            background-color: #e8f8f5;
-            transform: scale(0.98);
-        }
-        .approval-item.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #27ae60;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
+        .approval-item.selected { border-color: #27ae60; background-color: #e8f8f5; transform: scale(0.98); }
+        .approval-item.selected::after { content: '✓'; position: absolute; top: 5px; right: 5px; background: #27ae60; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .check-overlay { display: none; }
 
         .bulk-toolbar { background: #f8f9fa; padding: 10px; margin-bottom: 15px; border-radius: 5px; display: flex; align-items: center; gap: 15px; border: 1px solid #ddd; }
@@ -71,7 +43,6 @@
         .btn-bulk-approve { background: #27ae60; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
         .btn-bulk-reject { background: #f39c12; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
         .btn-bulk-delete { background: #c0392b; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
-        /* 🔥 เพิ่มปุ่มกู้คืนกลุ่ม */
         .btn-bulk-restore { background: #3498db; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -93,37 +64,18 @@
     <div class="main-content">
         
         <div class="stats-grid">
-            <div class="stat-card" style="border-color: #3498db;">
-                <div class="stat-label">รูปภาพทั้งหมด</div>
-                <div class="stat-number" id="statTotal">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #f39c12;">
-                <div class="stat-label">รอตรวจสอบ</div>
-                <div class="stat-number" id="statPending">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #27ae60;">
-                <div class="stat-label">หมวดหมู่กิจกรรม</div>
-                <div class="stat-number" id="statCats">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #e74c3c;">
-                <div class="stat-label">ในถังขยะ</div>
-                <div class="stat-number" id="statTrash">0</div>
-            </div>
+            <div class="stat-card" style="border-color: #3498db;"><div class="stat-label">รูปภาพทั้งหมด</div><div class="stat-number" id="statTotal">0</div></div>
+            <div class="stat-card" style="border-color: #f39c12;"><div class="stat-label">รอตรวจสอบ</div><div class="stat-number" id="statPending">0</div></div>
+            <div class="stat-card" style="border-color: #27ae60;"><div class="stat-label">หมวดหมู่กิจกรรม</div><div class="stat-number" id="statCats">0</div></div>
+            <div class="stat-card" style="border-color: #e74c3c;"><div class="stat-label">ในถังขยะ</div><div class="stat-number" id="statTrash">0</div></div>
         </div>
 
         <div class="card">
             <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label><b>1. ชื่อกิจกรรม / หัวข้อข่าว</b></label>
-                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรมใหม่ หรือเลือกจากรายการ..." required>
-                        <datalist id="categoryList"></datalist>
-                    </div>
-                    <div>
-                        <label><b>2. เลือกไฟล์รูปภาพ</b></label>
-                        <input type="file" id="fileInput" multiple accept="image/*">
-                    </div>
+                    <div><label><b>1. ชื่อกิจกรรม / หัวข้อข่าว</b></label><input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรมใหม่ หรือเลือกจากรายการ..." required><datalist id="categoryList"></datalist></div>
+                    <div><label><b>2. เลือกไฟล์รูปภาพ</b></label><input type="file" id="fileInput" multiple accept="image/*"></div>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;">📤 บันทึกและส่งรูปภาพ</button>
             </form>
@@ -160,7 +112,6 @@
                 <h3 style="border:none; margin:0; padding:0;">🗑️ ถังขยะ (แตะเพื่อเลือก)</h3>
                 <button onclick="loadTrash()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
             </div>
-            
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllTrash" class="btn-primary" style="width:auto; padding:6px 15px; font-size:14px; background:#34495e; margin-right:10px;">เลือกทั้งหมด</button>
                 <div style="margin-left:auto; display:flex; gap:10px;">
@@ -168,7 +119,6 @@
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
                 </div>
             </div>
-
             <div id="trashList" class="approval-grid"><p>ไม่มีไฟล์ในถังขยะ</p></div>
         </div>
 
@@ -178,6 +128,11 @@
                 <thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead>
                 <tbody id="logTableBody"><tr><td colspan="4" style="text-align:center;">กำลังโหลด...</td></tr></tbody>
             </table>
+            <div style="text-align:center; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                <button id="btnToggleLogs" onclick="toggleLogs()" style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">
+                    ⬇️ ดูเพิ่มเติม
+                </button>
+            </div>
         </div>
 
         <div class="card" style="border-top: 5px solid #8e44ad;">
@@ -185,10 +140,7 @@
             <div style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center;">
                 <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1;">
-                <select id="newRole" style="margin:0; flex:1;">
-                    <option value="uploader">Uploader (ช่างภาพ)</option>
-                    <option value="admin">Admin (หัวหน้า)</option>
-                </select>
+                <select id="newRole" style="margin:0; flex:1;"><option value="uploader">Uploader (ช่างภาพ)</option><option value="admin">Admin (หัวหน้า)</option></select>
                 <button onclick="addUser()" class="btn-primary" style="background:#8e44ad; width:auto;">+ เพิ่ม</button>
             </div>
             <table style="width:100%; border-collapse:collapse;">
@@ -203,6 +155,10 @@
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) window.location.href = 'login.html';
         document.getElementById('showUsername').innerText = user.username;
+
+        // ตัวแปรสำหรับ Logs
+        let allLogsData = [];
+        let logLimit = 5; // เริ่มต้นโชว์แค่ 5 บรรทัด
 
         loadStats(); loadCategories(); loadPendingPhotos(); loadApprovedPhotos(); loadLogs(); loadTrash(); loadUsers();
 
@@ -223,22 +179,56 @@
             cats.forEach(c => datalist.innerHTML += `<option value="${c.name}"></option>`);
         }
 
+        // 🔥 ฟังก์ชันโหลด Logs แบบใหม่ (เก็บข้อมูลไว้ก่อน แล้วค่อยแสดงตามจำนวน)
         async function loadLogs() {
             try {
                 const res = await fetch('/logs');
-                const logs = await res.json();
-                const tbody = document.getElementById('logTableBody');
-                tbody.innerHTML = '';
-                logs.forEach(log => {
-                    const row = `<tr>
-                        <td style="color:#7f8c8d; font-size:12px;">${new Date(log.created_at).toLocaleString('th-TH')}</td>
-                        <td style="font-weight:bold;">${log.username}</td>
-                        <td><span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px;">${log.action}</span></td>
-                        <td>${log.details}</td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                });
+                allLogsData = await res.json();
+                renderLogs();
             } catch (e) { console.error(e); }
+        }
+
+        // 🔥 ฟังก์ชันวาดตาราง Logs ตามจำนวนที่กำหนด
+        function renderLogs() {
+            const tbody = document.getElementById('logTableBody');
+            const btn = document.getElementById('btnToggleLogs');
+            tbody.innerHTML = '';
+
+            // ตัดข้อมูลมาแสดงตาม limit
+            const logsToShow = allLogsData.slice(0, logLimit);
+
+            logsToShow.forEach(log => {
+                const row = `<tr>
+                    <td style="color:#7f8c8d; font-size:12px;">${new Date(log.created_at).toLocaleString('th-TH')}</td>
+                    <td style="font-weight:bold;">${log.username}</td>
+                    <td><span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px;">${log.action}</span></td>
+                    <td>${log.details}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+
+            // จัดการปุ่ม ดูเพิ่มเติม / ย่อกลับ
+            if (allLogsData.length > 5) {
+                btn.style.display = 'inline-block';
+                if (logLimit < allLogsData.length) {
+                    btn.innerHTML = `⬇️ ดูเพิ่มเติม (${allLogsData.length - logLimit} รายการ)`;
+                } else {
+                    btn.innerHTML = `⬆️ ย่อรายการกลับ`;
+                }
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        // 🔥 ฟังก์ชันกดปุ่มย่อ/ขยาย
+        function toggleLogs() {
+            if (logLimit < allLogsData.length) {
+                logLimit += 10; // กดทีนึงเพิ่ม 10 บรรทัด
+                if (logLimit > allLogsData.length) logLimit = allLogsData.length;
+            } else {
+                logLimit = 5; // ถ้ายาวสุดแล้วกดอีกที จะย่อเหลือ 5
+            }
+            renderLogs();
         }
 
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
@@ -314,7 +304,6 @@
                 div.className = `approval-item ${type}-item`;
                 div.setAttribute('data-id', id);
                 
-                // 🔥 อนุญาตให้คลิกเลือกได้ทุกประเภท (รวมถึงถังขยะด้วย)
                 div.onclick = function() {
                     this.classList.toggle('selected');
                     const chk = this.querySelector('input[type="checkbox"]');
@@ -332,26 +321,20 @@
                 container.appendChild(div);
             });
 
-            // จัดการปุ่มเลือกทั้งหมด
             const selectAllBtn = document.getElementById(type === 'pending' ? 'btnSelectAllPending' : (type === 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash'));
             if(selectAllBtn) {
                 selectAllBtn.onclick = function() {
                     const items = document.querySelectorAll(`.${type}-item`);
                     const checks = document.querySelectorAll(`.${type}-check`);
                     const hasUnchecked = Array.from(checks).some(c => !c.checked);
-                    
-                    items.forEach(item => {
-                        if(hasUnchecked) item.classList.add('selected');
-                        else item.classList.remove('selected');
-                    });
+                    items.forEach(item => { if(hasUnchecked) item.classList.add('selected'); else item.classList.remove('selected'); });
                     checks.forEach(c => c.checked = hasUnchecked);
-                    
                     this.innerText = hasUnchecked ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด';
                 }
             }
         }
 
-        // --- Bulk Actions (Pending/Approved) ---
+        // --- Bulk Actions ---
         async function bulkAction(status) {
             const checks = document.querySelectorAll('.pending-check:checked');
             if (checks.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาแตะเลือกรูปก่อน', 'warning');
@@ -377,7 +360,6 @@
             });
         }
 
-        // --- 🔥 Bulk Actions สำหรับถังขยะ (เพิ่มใหม่) ---
         async function bulkRestoreTrash() {
             const checks = document.querySelectorAll('.trash-check:checked');
             if (checks.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาแตะเลือกรูปก่อน', 'warning');
