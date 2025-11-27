@@ -20,7 +20,6 @@
         
         .approval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
         
-        /* 🔥 ปรับสไตล์รายการรูปภาพให้รองรับการคลิกเลือก */
         .approval-item { 
             border: 2px solid transparent; 
             padding: 10px; 
@@ -72,6 +71,8 @@
         .btn-bulk-approve { background: #27ae60; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
         .btn-bulk-reject { background: #f39c12; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
         .btn-bulk-delete { background: #c0392b; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        /* 🔥 เพิ่มปุ่มกู้คืนกลุ่ม */
+        .btn-bulk-restore { background: #3498db; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
@@ -132,7 +133,6 @@
             <h3>🛡️ รอการอนุมัติ (แตะเพื่อเลือก)</h3>
             <div class="bulk-toolbar" id="pendingToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllPending" class="btn-primary" style="width:auto; padding:6px 15px; font-size:14px; background:#34495e; margin-right:10px;">เลือกทั้งหมด</button>
-                
                 <div style="margin-left:auto; display:flex; gap:10px;">
                     <button onclick="bulkAction('approved')" class="btn-bulk-approve">✅ อนุมัติที่เลือก</button>
                     <button onclick="bulkAction('rejected')" class="btn-bulk-reject">❌ ปัดตกที่เลือก</button>
@@ -156,8 +156,19 @@
         </div>
 
         <div class="card" style="border-top: 5px solid #e74c3c;">
-            <h3>🗑️ ถังขยะ (Recycle Bin)</h3>
-            <button onclick="loadTrash()" style="margin-bottom:15px; cursor:pointer;">🔄 รีเฟรชถังขยะ</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+                <h3 style="border:none; margin:0; padding:0;">🗑️ ถังขยะ (แตะเพื่อเลือก)</h3>
+                <button onclick="loadTrash()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+            </div>
+            
+            <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
+                <button type="button" id="btnSelectAllTrash" class="btn-primary" style="width:auto; padding:6px 15px; font-size:14px; background:#34495e; margin-right:10px;">เลือกทั้งหมด</button>
+                <div style="margin-left:auto; display:flex; gap:10px;">
+                    <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืนที่เลือก</button>
+                    <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
+                </div>
+            </div>
+
             <div id="trashList" class="approval-grid"><p>ไม่มีไฟล์ในถังขยะ</p></div>
         </div>
 
@@ -195,7 +206,6 @@
 
         loadStats(); loadCategories(); loadPendingPhotos(); loadApprovedPhotos(); loadLogs(); loadTrash(); loadUsers();
 
-        // 🔥 แก้ไข URL เป็น Relative Path ทั้งหมด (ตัด http://localhost:3001 ออก)
         async function loadStats() {
             const res = await fetch('/stats');
             const data = await res.json();
@@ -240,23 +250,17 @@
 
             const formData = new FormData();
             formData.append('category_name', categoryName);
-            if (user) {
-                const uid = user.user_id || user.id; 
-                formData.append('user_id', uid);
-            }
+            if (user) { const uid = user.user_id || user.id; formData.append('user_id', uid); }
             for (let i = 0; i < files.length; i++) formData.append('photos', files[i]);
 
             Swal.fire({ title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const res = await fetch('/upload', { method: 'POST', body: formData });
             const data = await res.json();
-            
             if (res.ok) {
                 Swal.fire('สำเร็จ!', 'ส่งรูปเข้าตรวจสอบเรียบร้อย', 'success');
                 loadStats(); loadPendingPhotos(); loadCategories(); loadLogs();
                 document.getElementById('fileInput').value = '';
-            } else { 
-                Swal.fire('ผิดพลาด', data.message || data.error, 'error');
-            }
+            } else { Swal.fire('ผิดพลาด', data.message || data.error, 'error'); }
         });
 
         async function loadUsers() {
@@ -265,99 +269,26 @@
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
             users.forEach(u => {
-                const row = `<tr>
-                    <td style="padding:10px;">${u.username}</td>
-                    <td>${u.role}</td>
-                    <td>
-                        <button onclick="changeUsername(${u.user_id}, '${u.username}')" style="background:#9b59b6; border:none; color:white; padding:5px; cursor:pointer;">✏️ เปลี่ยนชื่อ</button>
-                        <button onclick="resetPass(${u.user_id})" style="background:#f39c12; border:none; color:white; padding:5px; cursor:pointer;">🔒 รีเซ็ต</button>
-                        <button onclick="deleteUser(${u.user_id})" style="background:#c0392b; border:none; color:white; padding:5px; cursor:pointer;">🗑️ ลบ</button>
-                    </td>
-                </tr>`;
+                const row = `<tr><td style="padding:10px;">${u.username}</td><td>${u.role}</td><td><button onclick="changeUsername(${u.user_id}, '${u.username}')" style="background:#9b59b6; border:none; color:white; padding:5px; cursor:pointer;">✏️ เปลี่ยนชื่อ</button> <button onclick="resetPass(${u.user_id})" style="background:#f39c12; border:none; color:white; padding:5px; cursor:pointer;">🔒 รีเซ็ต</button> <button onclick="deleteUser(${u.user_id})" style="background:#c0392b; border:none; color:white; padding:5px; cursor:pointer;">🗑️ ลบ</button></td></tr>`;
                 tbody.innerHTML += row;
             });
         }
+        async function addUser() { const username = document.getElementById('newUsername').value; const password = document.getElementById('newPassword').value; const role = document.getElementById('newRole').value; if(!username || !password) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning'); const res = await fetch('/users', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username, password, role }) }); if(res.ok) { Swal.fire('สำเร็จ', 'เพิ่มผู้ใช้แล้ว', 'success'); loadUsers(); document.getElementById('newUsername').value=''; document.getElementById('newPassword').value=''; } }
+        async function deleteUser(id) { if(id === user.user_id) return Swal.fire('ไม่ได้', 'ลบตัวเองไม่ได้', 'error'); if(!confirm('ยืนยันลบผู้ใช้นี้?')) return; const res = await fetch(`/users/${id}`, { method: 'DELETE' }); if(res.ok) loadUsers(); }
+        async function resetPass(id) { const { value: newPass } = await Swal.fire({ title: 'ตั้งรหัสผ่านใหม่', input: 'text', showCancelButton: true }); if (newPass) { await fetch(`/users/${id}/reset`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ newPassword: newPass }) }); Swal.fire('เรียบร้อย', 'เปลี่ยนรหัสผ่านสำเร็จ', 'success'); } }
+        async function changeUsername(id, currentName) { const { value: newName } = await Swal.fire({ title: 'เปลี่ยนชื่อผู้ใช้', input: 'text', inputValue: currentName, showCancelButton: true, confirmButtonText: 'บันทึก' }); if (newName && newName !== currentName) { const res = await fetch(`/users/${id}/username`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ newUsername: newName }) }); const data = await res.json(); if(res.ok) { Swal.fire('สำเร็จ', 'เปลี่ยนชื่อผู้ใช้แล้ว', 'success'); loadUsers(); } else { Swal.fire('ผิดพลาด', data.message, 'error'); } } }
 
-        async function addUser() {
-            const username = document.getElementById('newUsername').value;
-            const password = document.getElementById('newPassword').value;
-            const role = document.getElementById('newRole').value;
-            if(!username || !password) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
-
-            const res = await fetch('/users', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username, password, role })
-            });
-            if(res.ok) { Swal.fire('สำเร็จ', 'เพิ่มผู้ใช้แล้ว', 'success'); loadUsers(); document.getElementById('newUsername').value=''; document.getElementById('newPassword').value=''; }
-        }
-
-        async function deleteUser(id) {
-            if(id === user.user_id) return Swal.fire('ไม่ได้', 'ลบตัวเองไม่ได้', 'error');
-            if(!confirm('ยืนยันลบผู้ใช้นี้?')) return;
-            const res = await fetch(`/users/${id}`, { method: 'DELETE' });
-            if(res.ok) loadUsers();
-        }
-
-        async function resetPass(id) {
-            const { value: newPass } = await Swal.fire({ title: 'ตั้งรหัสผ่านใหม่', input: 'text', showCancelButton: true });
-            if (newPass) {
-                await fetch(`/users/${id}/reset`, {
-                    method: 'PUT', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ newPassword: newPass })
-                });
-                Swal.fire('เรียบร้อย', 'เปลี่ยนรหัสผ่านสำเร็จ', 'success');
-            }
-        }
-
-        async function changeUsername(id, currentName) {
-            const { value: newName } = await Swal.fire({ 
-                title: 'เปลี่ยนชื่อผู้ใช้', 
-                input: 'text', 
-                inputValue: currentName,
-                showCancelButton: true,
-                confirmButtonText: 'บันทึก'
-            });
-            if (newName && newName !== currentName) {
-                const res = await fetch(`/users/${id}/username`, {
-                    method: 'PUT', 
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ newUsername: newName })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    Swal.fire('สำเร็จ', 'เปลี่ยนชื่อผู้ใช้แล้ว', 'success');
-                    loadUsers();
-                } else {
-                    Swal.fire('ผิดพลาด', data.message, 'error');
-                }
-            }
-        }
-
-        // --- 🔥 ส่วน Render Grid ที่ปรับปรุงใหม่สำหรับการเลือกด้วยการแตะ ---
-        async function loadPendingPhotos() {
-            const res = await fetch('/photos/pending');
-            const photos = await res.json();
-            renderGrid('pendingList', photos, 'pending');
-        }
-
-        async function loadApprovedPhotos() {
-            const res = await fetch('/photos');
-            const photos = await res.json();
-            renderGrid('approvedList', photos, 'approved');
-        }
-
-        async function loadTrash() {
-            const res = await fetch('/photos/trash');
-            const photos = await res.json();
-            renderGrid('trashList', photos, 'trash');
-        }
+        // --- Grid Functions ---
+        async function loadPendingPhotos() { const res = await fetch('/photos/pending'); const photos = await res.json(); renderGrid('pendingList', photos, 'pending'); }
+        async function loadApprovedPhotos() { const res = await fetch('/photos'); const photos = await res.json(); renderGrid('approvedList', photos, 'approved'); }
+        async function loadTrash() { const res = await fetch('/photos/trash'); const photos = await res.json(); renderGrid('trashList', photos, 'trash'); }
 
         function renderGrid(elemId, photos, type) {
             const container = document.getElementById(elemId);
             container.innerHTML = '';
             
-            const toolbarId = type === 'pending' ? 'pendingToolbar' : (type === 'approved' ? 'approvedToolbar' : null);
+            // จัดการ Toolbar ของแต่ละประเภท
+            const toolbarId = type === 'pending' ? 'pendingToolbar' : (type === 'approved' ? 'approvedToolbar' : 'trashToolbar');
             if (toolbarId) {
                 const toolbar = document.getElementById(toolbarId);
                 if (photos.length === 0) toolbar.style.display = 'none';
@@ -371,12 +302,10 @@
 
             photos.forEach(p => {
                 const id = p.id || p.photo_id;
-                // 🔥 แก้ไข: ใช้ URL จาก Cloudinary ที่ backend ส่งมา (p.url) หรือใช้ /uploads/ ถ้าเป็นของเก่า
                 const url = p.url || `/uploads/${p.file_path}`;
                 const name = p.filename || 'No Name';
 
                 let btns = '';
-                // event.stopPropagation() ใส่ไว้เพื่อไม่ให้การกดปุ่มไป trig การเลือกรูป
                 if(type=='pending') btns = `<button onclick="event.stopPropagation(); updateStatus(${id},'approved')" class="btn-approve">✅</button><button onclick="event.stopPropagation(); updateStatus(${id},'rejected')" class="btn-reject">❌</button>`;
                 else if(type=='approved') btns = `<button onclick="event.stopPropagation(); renamePhoto(${id}, '${name.replace(/'/g, "\\'")}')" class="btn-rename" style="margin-right:5px;">✏️</button><button onclick="event.stopPropagation(); softDelete(${id})" class="btn-delete">🗑️</button>`;
                 else btns = `<button onclick="event.stopPropagation(); restorePhoto(${id})" class="btn-restore">♻️</button><button onclick="event.stopPropagation(); permanentDelete(${id})" class="btn-delete">💥</button>`;
@@ -385,16 +314,14 @@
                 div.className = `approval-item ${type}-item`;
                 div.setAttribute('data-id', id);
                 
-                // 🔥 ฟังก์ชันแตะเพื่อเลือก
-                if (type !== 'trash') {
-                    div.onclick = function() {
-                        this.classList.toggle('selected');
-                        const chk = this.querySelector('input[type="checkbox"]');
-                        if(chk) chk.checked = !chk.checked;
-                    }
+                // 🔥 อนุญาตให้คลิกเลือกได้ทุกประเภท (รวมถึงถังขยะด้วย)
+                div.onclick = function() {
+                    this.classList.toggle('selected');
+                    const chk = this.querySelector('input[type="checkbox"]');
+                    if(chk) chk.checked = !chk.checked;
                 }
 
-                const checkboxHTML = type !== 'trash' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">` : '';
+                const checkboxHTML = `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">`;
 
                 div.innerHTML = `
                     ${checkboxHTML}
@@ -405,40 +332,35 @@
                 container.appendChild(div);
             });
 
-            // ปุ่มเลือกทั้งหมด
-            if (type !== 'trash') {
-                const selectAllBtn = document.getElementById(type === 'pending' ? 'btnSelectAllPending' : 'btnSelectAllApproved');
-                if(selectAllBtn) {
-                    selectAllBtn.onclick = function() {
-                        const items = document.querySelectorAll(`.${type}-item`);
-                        const checks = document.querySelectorAll(`.${type}-check`);
-                        // ถ้ามีตัวไหนยังไม่เลือก -> เลือกหมด
-                        const hasUnchecked = Array.from(checks).some(c => !c.checked);
-                        
-                        items.forEach(item => {
-                            if(hasUnchecked) item.classList.add('selected');
-                            else item.classList.remove('selected');
-                        });
-                        checks.forEach(c => c.checked = hasUnchecked);
-                        
-                        this.innerText = hasUnchecked ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด';
-                    }
+            // จัดการปุ่มเลือกทั้งหมด
+            const selectAllBtn = document.getElementById(type === 'pending' ? 'btnSelectAllPending' : (type === 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash'));
+            if(selectAllBtn) {
+                selectAllBtn.onclick = function() {
+                    const items = document.querySelectorAll(`.${type}-item`);
+                    const checks = document.querySelectorAll(`.${type}-check`);
+                    const hasUnchecked = Array.from(checks).some(c => !c.checked);
+                    
+                    items.forEach(item => {
+                        if(hasUnchecked) item.classList.add('selected');
+                        else item.classList.remove('selected');
+                    });
+                    checks.forEach(c => c.checked = hasUnchecked);
+                    
+                    this.innerText = hasUnchecked ? 'ยกเลิกทั้งหมด' : 'เลือกทั้งหมด';
                 }
             }
         }
 
+        // --- Bulk Actions (Pending/Approved) ---
         async function bulkAction(status) {
             const checks = document.querySelectorAll('.pending-check:checked');
             if (checks.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาแตะเลือกรูปก่อน', 'warning');
-            
             const actionName = status === 'approved' ? 'อนุมัติ' : 'ปัดตก';
             Swal.fire({ title: `ยืนยัน${actionName}?`, showCancelButton: true, confirmButtonText: 'ใช่' }).then(async (result) => {
                 if (result.isConfirmed) {
                     const promises = Array.from(checks).map(cb => fetch(`/photos/${cb.value}/status`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status}) }));
                     await Promise.all(promises);
-                    loadStats(); loadPendingPhotos(); loadApprovedPhotos(); loadLogs();
-                    // รีเซ็ตปุ่มเลือกทั้งหมด
-                    document.getElementById('btnSelectAllPending').innerText = 'เลือกทั้งหมด';
+                    reload(); document.getElementById('btnSelectAllPending').innerText = 'เลือกทั้งหมด';
                 }
             });
         }
@@ -446,44 +368,46 @@
         async function bulkDelete() {
             const checks = document.querySelectorAll('.approved-check:checked');
             if (checks.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาแตะเลือกรูปก่อน', 'warning');
-            
             Swal.fire({ title: 'ย้ายลงถังขยะ?', showCancelButton: true, confirmButtonText: 'ใช่', confirmButtonColor:'#d33' }).then(async (result) => {
                 if (result.isConfirmed) {
                     const promises = Array.from(checks).map(cb => fetch(`/photos/${cb.value}`, { method: 'DELETE' }));
                     await Promise.all(promises);
-                    loadStats(); loadApprovedPhotos(); loadTrash(); loadLogs();
-                    document.getElementById('btnSelectAllApproved').innerText = 'เลือกทั้งหมด';
+                    reload(); document.getElementById('btnSelectAllApproved').innerText = 'เลือกทั้งหมด';
                 }
             });
         }
 
-        async function updateStatus(id, status) {
-            await fetch(`/photos/${id}/status`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status}) });
-            loadStats(); loadPendingPhotos(); loadApprovedPhotos(); loadLogs();
-        }
-
-        function softDelete(id) {
-            Swal.fire({ title: 'ย้ายลงถังขยะ?', showCancelButton: true, confirmButtonText: 'ลบ', confirmButtonColor: '#d33' }).then(async (result) => {
-                if(result.isConfirmed) { await fetch(`/photos/${id}`, { method: 'DELETE' }); loadStats(); loadApprovedPhotos(); loadTrash(); loadLogs(); }
+        // --- 🔥 Bulk Actions สำหรับถังขยะ (เพิ่มใหม่) ---
+        async function bulkRestoreTrash() {
+            const checks = document.querySelectorAll('.trash-check:checked');
+            if (checks.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาแตะเลือกรูปก่อน', 'warning');
+            Swal.fire({ title: 'กู้คืนรูปที่เลือก?', showCancelButton: true, confirmButtonText: 'ใช่' }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const promises = Array.from(checks).map(cb => fetch(`/photos/${cb.value}/restore`, { method: 'PUT' }));
+                    await Promise.all(promises);
+                    reload(); document.getElementById('btnSelectAllTrash').innerText = 'เลือกทั้งหมด';
+                }
             });
         }
 
-        function restorePhoto(id) {
-            Swal.fire({ title: 'กู้คืน?', showCancelButton: true, confirmButtonText: 'ใช่' }).then(async (result) => {
-                if(result.isConfirmed) { await fetch(`/photos/${id}/restore`, { method: 'PUT' }); loadStats(); loadTrash(); loadApprovedPhotos(); loadLogs(); }
+        async function bulkDeleteTrash() {
+            const checks = document.querySelectorAll('.trash-check:checked');
+            if (checks.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาแตะเลือกรูปก่อน', 'warning');
+            Swal.fire({ title: 'ลบถาวร (กู้ไม่ได้)?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย', confirmButtonColor:'#d33' }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const promises = Array.from(checks).map(cb => fetch(`/photos/${cb.value}/permanent`, { method: 'DELETE' }));
+                    await Promise.all(promises);
+                    reload(); document.getElementById('btnSelectAllTrash').innerText = 'เลือกทั้งหมด';
+                }
             });
         }
 
-        function permanentDelete(id) {
-            Swal.fire({ title: 'ลบถาวร?', text: 'กู้ไม่ได้แล้วนะ', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย', confirmButtonColor: '#d33' }).then(async (result) => {
-                if(result.isConfirmed) { await fetch(`/photos/${id}/permanent`, { method: 'DELETE' }); loadStats(); loadTrash(); loadLogs(); }
-            });
-        }
-        
-        async function renamePhoto(id, old) {
-            const {value:n} = await Swal.fire({title:'เปลี่ยนชื่อรูป', input:'text', inputValue:old, showCancelButton:true});
-            if(n) { await fetch(`/photos/${id}/rename`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({new_name:n})}); reload(); }
-        }
+        // --- Individual Actions ---
+        async function updateStatus(id, status) { await fetch(`/photos/${id}/status`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status}) }); reload(); }
+        function softDelete(id) { Swal.fire({ title: 'ย้ายลงถังขยะ?', showCancelButton: true, confirmButtonText: 'ลบ', confirmButtonColor: '#d33' }).then(async (result) => { if(result.isConfirmed) { await fetch(`/photos/${id}`, { method: 'DELETE' }); reload(); } }); }
+        function restorePhoto(id) { Swal.fire({ title: 'กู้คืน?', showCancelButton: true, confirmButtonText: 'ใช่' }).then(async (result) => { if(result.isConfirmed) { await fetch(`/photos/${id}/restore`, { method: 'PUT' }); reload(); } }); }
+        function permanentDelete(id) { Swal.fire({ title: 'ลบถาวร?', text: 'กู้ไม่ได้แล้วนะ', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย', confirmButtonColor: '#d33' }).then(async (result) => { if(result.isConfirmed) { await fetch(`/photos/${id}/permanent`, { method: 'DELETE' }); reload(); } }); }
+        async function renamePhoto(id, old) { const {value:n} = await Swal.fire({title:'เปลี่ยนชื่อรูป', input:'text', inputValue:old, showCancelButton:true}); if(n) { await fetch(`/photos/${id}/rename`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({new_name:n})}); reload(); } }
 
         function reload() { loadStats(); loadPendingPhotos(); loadApprovedPhotos(); loadTrash(); loadLogs(); }
         function logout() { localStorage.clear(); window.location.href = 'login.html'; }
