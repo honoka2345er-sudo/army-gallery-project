@@ -11,11 +11,11 @@ const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
+// ❌ เอา helmet ออกชั่วคราว เพื่อแก้ปัญหา CSP Error
 const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-// app.use(helmet(...)); // ปิดไว้ก่อนแก้ปัญหา CSP
 app.use(cors());
 app.use(express.json());
 
@@ -82,6 +82,21 @@ async function logAction(userId, username, action, details, req) {
         const sql = 'INSERT INTO Logs (user_id, username, action, details, ip_address) VALUES (?, ?, ?, ?, ?)';
         await pool.query(sql, [userId, username, action, details, ip]);
     } catch (err) { console.error('Log Error:', err.message); }
+}
+
+// 🔥 ฟังก์ชันช่วยแกะ Public ID จาก URL เพื่อเอาไปลบ
+function getPublicIdFromUrl(url) {
+    try {
+        // ตัวอย่าง URL: .../upload/v1234/army_gallery/photo123.jpg
+        const parts = url.split('/');
+        const filename = parts.pop(); // photo123.jpg
+        const folder = parts.pop();   // army_gallery
+        const publicId = folder + '/' + filename.split('.')[0]; // army_gallery/photo123
+        return publicId;
+    } catch (e) {
+        console.error('Error parsing Public ID:', e);
+        return null;
+    }
 }
 
 app.get('/', (req, res) => {
@@ -238,17 +253,28 @@ app.put('/photos/:id/restore', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔥 แก้ส่วนลบถาวร ให้มี Auto Cleanup
+// 🔥 แก้ส่วนลบถาวร ให้มี Auto Cleanup และลบไฟล์จริงจาก Cloudinary
 app.delete('/photos/:id/permanent', async (req, res) => {
     const photoId = req.params.id;
     try {
-        const [results] = await pool.query('SELECT category_id FROM Photos WHERE photo_id = ?', [photoId]);
+        // 1. หาข้อมูลรูปก่อนลบ
+        const [results] = await pool.query('SELECT file_path, category_id FROM Photos WHERE photo_id = ?', [photoId]);
         if (results.length === 0) return res.status(404).json({ message: 'Not found' });
         const f = results[0];
 
+        // 2. 🔥 ลบไฟล์จริงบน Cloudinary (เพิ่มใหม่)
+        const publicId = getPublicIdFromUrl(f.file_path);
+        if (publicId) {
+            cloudinary.uploader.destroy(publicId, (error, result) => {
+                if (error) console.error('Cloudinary Delete Error:', error);
+                else console.log('Cloudinary Deleted:', publicId, result);
+            });
+        }
+
+        // 3. ลบจาก Database
         await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
 
-        // 🔥 ระบบ Auto Cleanup: ถ้าลบแล้วหมวดหมู่ว่าง ให้ลบทิ้งด้วย
+        // 4. Auto Cleanup: ถ้าหมวดหมู่ว่าง ให้ลบทิ้ง
         if (f.category_id) {
             const [countRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE category_id = ?', [f.category_id]);
             if (countRes[0].count === 0) {
@@ -257,7 +283,7 @@ app.delete('/photos/:id/permanent', async (req, res) => {
             }
         }
 
-        res.json({ message: 'Deleted permanently' });
+        res.json({ message: 'Deleted permanently and freed up space' });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
