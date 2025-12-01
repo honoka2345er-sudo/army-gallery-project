@@ -433,8 +433,8 @@
                 <button type="button" id="btnSelectAllPending" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
                 
                 <div style="margin-left:auto; display:flex; gap:10px;">
-                    <button onclick="bulkAction('approved')" class="btn-bulk-approve">✅ อนุมัติ</button>
-                    <button onclick="bulkAction('rejected')" class="btn-bulk-reject">❌ ปัดตก</button>
+                    <button onclick="bulkAction('approved')" class="btn-bulk-approve">✅ อนุมัติที่เลือก</button>
+                    <button onclick="bulkAction('rejected')" class="btn-bulk-reject">❌ ปัดตกที่เลือก</button>
                 </div>
             </div>
             <div id="pendingList" class="approval-grid"><p>กำลังโหลด...</p></div>
@@ -462,7 +462,7 @@
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllTrash" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
                 <div style="margin-left:auto; display:flex; gap:10px;">
-                    <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืน</button>
+                    <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืนที่เลือก</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
                 </div>
             </div>
@@ -490,8 +490,8 @@
                 <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1; min-width: 120px;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1; min-width: 120px;">
                 <select id="newRole" style="margin:0; flex:1; min-width: 120px;">
-                    <option value="uploader">Uploader</option>
-                    <option value="admin">Admin</option>
+                    <option value="uploader">Uploader (ช่างภาพ)</option>
+                    <option value="admin">Admin (หัวหน้า)</option>
                 </select>
                 <button onclick="addUser()" class="btn-primary" style="background:#8e44ad; width:auto;">+ เพิ่ม</button>
             </div>
@@ -797,7 +797,7 @@
         async function bulkDeleteTrash() {
             const checks = document.querySelectorAll('.trash-check:checked');
             if (!checks.length) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูป', 'warning');
-            if (await cf('ลบถาวร?')) {
+            if (await cf('ลบถาวร (กู้ไม่ได้)?')) {
                 await Promise.all([...checks].map(c => fetch(`/photos/${c.value}/permanent`, { method: 'DELETE' })));
                 reload();
                 document.getElementById('btnSelectAllTrash').innerText = 'เลือกทั้งหมด';
