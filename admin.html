@@ -31,6 +31,7 @@
             flex-shrink: 0; 
             overflow-y: auto; 
             transition: 0.3s;
+            z-index: 1000;
         }
 
         .sidebar-header { 
@@ -55,6 +56,16 @@
             color: white; 
             font-size: 24px; 
             cursor: pointer; 
+        }
+
+        /* ปุ่มปิดเมนู (ซ่อนในจอคอม) */
+        .close-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
         }
         
         .menu-items { 
@@ -90,6 +101,7 @@
             margin-top: auto; 
             font-family: 'Sarabun', sans-serif; 
             font-size: 14px;
+            width: 100%;
         }
 
         .btn-logout:hover {
@@ -102,6 +114,30 @@
             padding: 30px; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
+        }
+
+        /* --- Mobile Navbar (แถบบนสุดในมือถือ) --- */
+        .mobile-nav {
+            display: none; /* ซ่อนในคอม */
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* --- Overlay (ฉากหลังดำตอนเปิดเมนู) --- */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
         }
         
         /* --- Card (กล่องสีขาว) --- */
@@ -286,43 +322,26 @@
                 overflow: auto; 
             }
             
-            /* เปลี่ยน Sidebar เป็น Topbar */
+            /* 1. แสดงแถบบน Mobile */
+            .mobile-nav { display: flex; }
+
+            /* 2. ซ่อน Sidebar ไว้ทางซ้าย (Slide Menu) */
             .sidebar { 
-                width: auto; 
-                height: auto;
-                padding: 15px 20px; 
-                position: sticky; 
-                top: 0; 
-                z-index: 1000; 
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            }
-            
-            .sidebar-header { 
-                margin-bottom: 0; 
-                border-bottom: none; 
-                padding-bottom: 0; 
-                width: 100%; 
+                position: fixed;
+                left: -260px; /* ดันออกนอกจอ */
+                top: 0;
+                height: 100vh;
+                width: 250px;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.2);
             }
 
-            .sidebar-header h2 { font-size: 18px; }
+            /* คลาส active เพื่อเลื่อน Sidebar ออกมา */
+            .sidebar.active { left: 0; }
             
-            /* โชว์ปุ่ม Hamburger */
-            .hamburger { display: block; }
-            
-            /* ซ่อนเมนูไว้ก่อน */
-            .menu-items { 
-                display: none; 
-                margin-top: 15px; 
-                border-top: 1px solid rgba(255,255,255,0.1);
-                padding-top: 15px;
-                text-align: center;
-            }
-            
-            /* คลาสสำหรับเปิดเมนู */
-            .menu-items.show { display: flex; }
-            
-            .btn-logout { margin-top: 10px; width: 100%; }
-            
+            /* แสดงปุ่มปิดเมนู */
+            .close-btn { display: block; }
+            .hamburger { display: none; } /* ซ่อน hamburger ใน sidebar (เพราะมีข้างบนแล้ว) */
+
             .main-content { padding: 15px; }
             
             /* ปรับ Stats Grid เป็น 2 คอลัมน์ */
@@ -344,16 +363,25 @@
 </head>
 <body>
 
-    <div class="sidebar">
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="mobile-nav">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <button class="hamburger" style="display:block;" onclick="toggleSidebar()">☰</button>
+            <span style="font-weight:bold; font-size:18px;">Admin Panel</span>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:24px;">📸</span>
                 <h2>Admin Panel</h2>
             </div>
-            <button class="hamburger" onclick="toggleMenu()">☰</button>
+            <button class="close-btn" onclick="toggleSidebar()">✕</button>
         </div>
 
-        <div class="menu-items" id="mobileMenu">
+        <div class="menu-items">
             <p class="user-info">ผู้ใช้: <span id="showUsername">...</span></p>
             <a href="index.html" target="_blank" class="menu-link">🔗 ไปหน้าแกลเลอรี</a>
             <button onclick="logout()" class="btn-logout">ออกจากระบบ</button>
@@ -363,18 +391,37 @@
     <div class="main-content">
         
         <div class="stats-grid">
-            <div class="stat-card" style="border-color: #3498db;"><div class="stat-label">รูปทั้งหมด</div><div class="stat-number" id="statTotal">0</div></div>
-            <div class="stat-card" style="border-color: #f39c12;"><div class="stat-label">รอตรวจสอบ</div><div class="stat-number" id="statPending">0</div></div>
-            <div class="stat-card" style="border-color: #27ae60;"><div class="stat-label">หมวดหมู่</div><div class="stat-number" id="statCats">0</div></div>
-            <div class="stat-card" style="border-color: #e74c3c;"><div class="stat-label">ในถังขยะ</div><div class="stat-number" id="statTrash">0</div></div>
+            <div class="stat-card" style="border-color: #3498db;">
+                <div class="stat-label">รูปทั้งหมด</div>
+                <div class="stat-number" id="statTotal">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #f39c12;">
+                <div class="stat-label">รอตรวจสอบ</div>
+                <div class="stat-number" id="statPending">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #27ae60;">
+                <div class="stat-label">หมวดหมู่</div>
+                <div class="stat-number" id="statCats">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #e74c3c;">
+                <div class="stat-label">ในถังขยะ</div>
+                <div class="stat-number" id="statTrash">0</div>
+            </div>
         </div>
 
         <div class="card">
             <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label><b>1. ชื่อกิจกรรม / หัวข้อข่าว</b></label><input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรมใหม่ หรือเลือกจากรายการ..." required><datalist id="categoryList"></datalist></div>
-                    <div><label><b>2. เลือกไฟล์รูปภาพ</b></label><input type="file" id="fileInput" multiple accept="image/*"></div>
+                    <div>
+                        <label><b>1. ชื่อกิจกรรม / หัวข้อข่าว</b></label>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรมใหม่ หรือเลือกจากรายการ..." required>
+                        <datalist id="categoryList"></datalist>
+                    </div>
+                    <div>
+                        <label><b>2. เลือกไฟล์รูปภาพ</b></label>
+                        <input type="file" id="fileInput" multiple accept="image/*">
+                    </div>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;">📤 บันทึกและส่งรูปภาพ</button>
             </form>
@@ -384,7 +431,8 @@
             <h3>🛡️ รอการอนุมัติ (แตะเพื่อเลือก)</h3>
             <div class="bulk-toolbar" id="pendingToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllPending" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
-                <div>
+                
+                <div style="margin-left:auto; display:flex; gap:10px;">
                     <button onclick="bulkAction('approved')" class="btn-bulk-approve">✅ อนุมัติ</button>
                     <button onclick="bulkAction('rejected')" class="btn-bulk-reject">❌ ปัดตก</button>
                 </div>
@@ -399,7 +447,9 @@
             </div>
             <div class="bulk-toolbar" id="approvedToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllApproved" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
-                <div><button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button></div>
+                <div style="margin-left:auto;">
+                    <button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button>
+                </div>
             </div>
             <div id="approvedList" class="approval-grid"><p>กำลังโหลด...</p></div>
         </div>
@@ -411,7 +461,7 @@
             </div>
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllTrash" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
-                <div>
+                <div style="margin-left:auto; display:flex; gap:10px;">
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
                 </div>
@@ -437,9 +487,12 @@
         <div class="card" style="border-top: 5px solid #8e44ad;">
             <h3>👥 จัดการเจ้าหน้าที่ (User Management)</h3>
             <div style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
-                <input type="text" id="newUsername" placeholder="Username" style="margin:0; flex:1; min-width: 120px;">
+                <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1; min-width: 120px;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1; min-width: 120px;">
-                <select id="newRole" style="margin:0; flex:1; min-width: 120px;"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>
+                <select id="newRole" style="margin:0; flex:1; min-width: 120px;">
+                    <option value="uploader">Uploader</option>
+                    <option value="admin">Admin</option>
+                </select>
                 <button onclick="addUser()" class="btn-primary" style="background:#8e44ad; width:auto;">+ เพิ่ม</button>
             </div>
             <div style="overflow-x: auto;">
@@ -457,13 +510,19 @@
         if (!user) window.location.href = 'login.html';
         document.getElementById('showUsername').innerText = user.username;
 
-        // ฟังก์ชันเปิด/ปิดเมนูบนมือถือ
-        function toggleMenu() {
-            const menu = document.getElementById('mobileMenu');
-            if (menu.style.display === 'flex') {
-                menu.style.display = 'none';
+        // 🔥 ฟังก์ชันเปิด/ปิด Sidebar (Slide-in)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            // สลับ class 'active' เพื่อเลื่อนเข้า/ออก
+            sidebar.classList.toggle('active');
+            
+            // แสดง/ซ่อน ฉากหลังดำ
+            if (sidebar.classList.contains('active')) {
+                overlay.style.display = 'block';
             } else {
-                menu.style.display = 'flex';
+                overlay.style.display = 'none';
             }
         }
 
@@ -609,7 +668,8 @@
         async function resetPass(id) {
             const { value: p } = await Swal.fire({ title: 'รหัสใหม่', input: 'text', showCancelButton: true });
             if (p) await fetch(`/users/${id}/reset`, {
-                method: 'PUT', headers: {'Content-Type': 'application/json'},
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({newPassword: p})
             });
         }
@@ -618,7 +678,8 @@
             const { value: n } = await Swal.fire({ title: 'ชื่อใหม่', input: 'text', inputValue: o, showCancelButton: true });
             if (n && n != o) {
                 await fetch(`/users/${id}/username`, {
-                    method: 'PUT', headers: {'Content-Type': 'application/json'},
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({newUsername: n})
                 });
                 loadUsers();
@@ -647,7 +708,6 @@
                 const url = p.url || `/uploads/${p.file_path}`;
                 let btns = '';
 
-                // สร้างปุ่มตามประเภท
                 if (type == 'pending') {
                     btns = `<button onclick="evt(event,updateStatus,${id},'approved')" class="btn-approve">✅</button>
                             <button onclick="evt(event,updateStatus,${id},'rejected')" class="btn-reject">❌</button>`;
@@ -668,7 +728,6 @@
                     </div>`;
             });
 
-            // ปุ่มเลือกทั้งหมด
             const allBtn = document.getElementById(type === 'pending' ? 'btnSelectAllPending' : (type === 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash'));
             if (allBtn) {
                 allBtn.onclick = () => {
@@ -738,7 +797,7 @@
         async function bulkDeleteTrash() {
             const checks = document.querySelectorAll('.trash-check:checked');
             if (!checks.length) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูป', 'warning');
-            if (await cf('ลบถาวร (กู้ไม่ได้)?')) {
+            if (await cf('ลบถาวร?')) {
                 await Promise.all([...checks].map(c => fetch(`/photos/${c.value}/permanent`, { method: 'DELETE' })));
                 reload();
                 document.getElementById('btnSelectAllTrash').innerText = 'เลือกทั้งหมด';
@@ -770,7 +829,7 @@
         }
 
         async function permanentDelete(id) {
-            if (await cf('ลบถาวร?')) {
+            if (await cf('ลบถาวร (กู้ไม่ได้)?')) {
                 await fetch(`/photos/${id}/permanent`, { method: 'DELETE' });
                 reload();
             }
