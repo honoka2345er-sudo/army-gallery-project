@@ -13,37 +13,37 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script> 
     
     <style>
-        /* CSS จัดหน้าจอ */
+        /* ตั้งค่าพื้นฐานให้หน้าจอเลื่อนได้ปกติ */
         body {
             font-family: 'Sarabun', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #ffffff;
-            display: block !important;
-            height: auto !important;
+            display: block; /* ให้เรียงลงมาตามธรรมชาติ */
+            overflow-y: auto; /* ให้มี Scrollbar ปกติ */
         }
 
-        /* ส่วนหัวเว็บ (กลับไปแบบเดิม) */
+        /* ส่วนหัวเว็บ (Header) */
         .header-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 25px 20px; /* เพิ่มความสูงให้เท่าเดิม */
             background-color: white;
+            /* 🔥 สำคัญ: position relative จะทำให้มันเลื่อนหายไปเมื่อไถจอลง */
+            position: relative; 
             border-bottom: 1px solid #eee;
-            gap: 20px; /* ระยะห่างระหว่างโลโก้กับตัวหนังสือ */
+            gap: 20px;
         }
 
         .header-logo { 
-            width: 80px; /* ปรับขนาดโลโก้ให้พอดี */
+            width: 80px; 
             height: auto; 
             cursor: pointer; 
             transition: transform 0.2s;
         }
         
-        .header-logo:hover {
-            transform: scale(1.05); /* ลูกเล่นเล็กน้อยตอนเอาเมาส์ชี้โลโก้ */
-        }
+        .header-logo:hover { transform: scale(1.05); }
 
         .header-title {
             font-size: 28px;
@@ -55,12 +55,13 @@
         /* ส่วนค้นหา */
         .search-section {
             background: #f8f9fa; 
-            padding: 20px; 
+            padding: 25px; /* เพิ่มความสูงให้ดูสมส่วน */
             border-bottom: 1px solid #ddd; 
             display: flex; 
             justify-content: center; 
             gap: 10px; 
             flex-wrap: wrap;
+            position: relative; /* ให้เลื่อนตาม Header ไป */
         }
 
         /* Grid แสดงรูป */
@@ -90,18 +91,18 @@
         
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .header-container { flex-direction: column; text-align: center; gap: 10px; padding: 15px; }
-            .header-logo { width: 60px; }
+            .header-container { flex-direction: column; text-align: center; gap: 10px; padding: 20px; }
+            .header-logo { width: 70px; }
             .header-title { font-size: 22px; }
             
-            .search-section { flex-direction: column; padding: 15px; }
-            .search-input { width: 100% !important; margin: 0; box-sizing: border-box; height: 40px; }
+            .search-section { flex-direction: column; padding: 20px; }
+            .search-input { width: 100% !important; margin: 0; box-sizing: border-box; height: 45px; }
             
-            .gallery { grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-            .news-img-wrapper { height: 120px; }
+            .gallery { grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+            .news-img-wrapper { height: 130px; }
             .news-title { padding: 8px; font-size: 11px; }
             
-            #loadMoreContainer button { width: 100%; padding: 12px; }
+            #loadMoreContainer button { width: 100%; padding: 15px; }
         }
     </style>
 </head>
@@ -115,17 +116,17 @@
     </header>
 
     <div class="search-section">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..." onkeyup="resetAndFetch()" style="width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-        <input type="text" id="dateRange" class="search-input" placeholder="📅 เลือกช่วงเวลา..." style="width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; text-align: center;">
-        <button onclick="resetFilter()" style="padding: 10px 20px; border: none; background: #95a5a6; color: white; border-radius: 5px; cursor: pointer;">ล้างค่า</button>
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..." onkeyup="resetAndFetch()" style="width: 350px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+        <input type="text" id="dateRange" class="search-input" placeholder="📅 เลือกช่วงเวลา..." style="width: 220px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-size: 14px;">
+        <button onclick="resetFilter()" style="padding: 12px 25px; border: none; background: #95a5a6; color: white; border-radius: 5px; cursor: pointer; font-size: 14px;">ล้างค่า</button>
     </div>
 
     <div id="gallery">
         <p style="text-align: center; padding: 20px; color: #666; width: 100%;">กำลังโหลดข้อมูลข่าวสาร...</p>
     </div>
 
-    <div id="loadMoreContainer" style="text-align:center; margin: 30px; display:none;">
-        <button onclick="loadMore()" style="padding:10px 30px; background:#2c3e50; color:white; border:none; border-radius:20px; cursor:pointer; font-size:14px; transition:0.3s;">⬇️ ดูเพิ่มเติม</button>
+    <div id="loadMoreContainer" style="text-align:center; margin: 40px; display:none;">
+        <button onclick="loadMore()" style="padding:12px 40px; background:#2c3e50; color:white; border:none; border-radius:30px; cursor:pointer; font-size:16px; transition:0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">⬇️ ดูเพิ่มเติม</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.js"></script>
@@ -196,7 +197,7 @@
                     const title = document.createElement('h2'); 
                     title.className = 'activity-title'; 
                     title.style.margin = '0'; 
-                    title.style.color = '#c0392b';
+                    title.style.color = '#333333';
                     title.innerText = activityName; 
                     
                     const zipBtn = document.createElement('a');
