@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTA3 Gallery - คลังภาพประชาสัมพันธ์ ทภ.3</title>
+    <title>ข่าวประชาสัมพันธ์ ทภ.3</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -13,48 +13,43 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script> 
     
     <style>
-        /* 🔥 แก้ไข CSS เพื่อบังคับตำแหน่งให้ถูกต้อง */
+        /* CSS จัดหน้าจอ */
         body {
             font-family: 'Sarabun', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #ffffff;
-            display: block !important; /* บังคับไม่ให้จัดกึ่งกลางเหมือนหน้า Login */
+            display: block !important;
             height: auto !important;
         }
 
-        /* ส่วนหัวเว็บ */
+        /* ส่วนหัวเว็บ (กลับไปแบบเดิม) */
         .header-container {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
             background-color: white;
-            position: relative; /* ให้ไหลตามธรรมชาติ ไม่ลอย */
             border-bottom: 1px solid #eee;
-            gap: 15px;
+            gap: 20px; /* ระยะห่างระหว่างโลโก้กับตัวหนังสือ */
         }
 
-        .header-logo { width: 60px; height: auto; cursor: pointer; }
+        .header-logo { 
+            width: 80px; /* ปรับขนาดโลโก้ให้พอดี */
+            height: auto; 
+            cursor: pointer; 
+            transition: transform 0.2s;
+        }
         
-        .header-title-box {
-            display: flex; 
-            flex-direction: column; 
-            align-items: flex-start;
+        .header-logo:hover {
+            transform: scale(1.05); /* ลูกเล่นเล็กน้อยตอนเอาเมาส์ชี้โลโก้ */
         }
 
         .header-title {
-            font-size: 24px;
+            font-size: 28px;
             margin: 0;
             color: #333;
             font-weight: bold;
-        }
-
-        .header-subtitle {
-            font-size: 14px; 
-            color: #666; 
-            font-weight: 400; 
-            letter-spacing: 1px;
         }
 
         /* ส่วนค้นหา */
@@ -68,7 +63,7 @@
             flex-wrap: wrap;
         }
 
-        /* ส่วนแสดงรูป (Grid) */
+        /* Grid แสดงรูป */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -93,11 +88,11 @@
         .news-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
         .news-card:hover img { transform: scale(1.05); }
         
-        /* 🔥 MOBILE RESPONSIVE (ปรับให้สวยในมือถือ) */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .header-container { flex-direction: column; text-align: center; gap: 10px; }
-            .header-title-box { align-items: center; }
-            .header-title { font-size: 20px; }
+            .header-container { flex-direction: column; text-align: center; gap: 10px; padding: 15px; }
+            .header-logo { width: 60px; }
+            .header-title { font-size: 22px; }
             
             .search-section { flex-direction: column; padding: 15px; }
             .search-input { width: 100% !important; margin: 0; box-sizing: border-box; height: 40px; }
@@ -113,14 +108,10 @@
 <body>
 
     <header class="header-container">
-        <a href="login.html" title="สำหรับเจ้าหน้าที่">
+        <a href="login.html" title="เข้าสู่ระบบเจ้าหน้าที่">
             <img src="Royal_Thai_Army_3_Logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
         </a>
-        
-        <div class="header-title-box">
-            <h1 class="header-title">ข่าวประชาสัมพันธ์ ทภ.3</h1>
-            <span class="header-subtitle">RTA3 Gallery</span>
-        </div>
+        <h1 class="header-title">ข่าวประชาสัมพันธ์ ทภ.3</h1>
     </header>
 
     <div class="search-section">
@@ -136,11 +127,6 @@
     <div id="loadMoreContainer" style="text-align:center; margin: 30px; display:none;">
         <button onclick="loadMore()" style="padding:10px 30px; background:#2c3e50; color:white; border:none; border-radius:20px; cursor:pointer; font-size:14px; transition:0.3s;">⬇️ ดูเพิ่มเติม</button>
     </div>
-
-    <footer style="text-align: center; padding: 30px; margin-top: 50px; border-top: 1px solid #eee; background-color: #fafafa; color: #999; font-size: 13px;">
-        <p style="margin-bottom: 10px;">&copy; 2025 กองทัพภาคที่ 3</p>
-        <a href="login.html" style="color: #bbb; text-decoration: none;">Admin Login</a>
-    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.js"></script>
 
@@ -201,11 +187,8 @@
                 let section = document.getElementById(`sec-${activityName}`);
                 let grid;
                 if (!section) {
-                    // สร้างส่วนหัวข้อกิจกรรม (พาดเต็มความกว้าง)
-                    section = document.createElement('div'); 
-                    section.className = 'activity-section'; 
-                    section.id = `sec-${activityName}`;
-                    section.style.gridColumn = "1 / -1"; // 🔥 บังคับให้หัวข้อกว้างเต็มจอเสมอ
+                    section = document.createElement('div'); section.className = 'activity-section'; section.id = `sec-${activityName}`;
+                    section.style.gridColumn = "1 / -1"; 
                     
                     const headerDiv = document.createElement('div'); 
                     headerDiv.style.cssText = 'display:flex; align-items:center; gap:15px; margin: 30px 0 15px 0; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;';
@@ -223,7 +206,6 @@
                     
                     headerDiv.appendChild(title); headerDiv.appendChild(zipBtn); section.appendChild(headerDiv);
                     
-                    // สร้าง Grid สำหรับรูปภาพ
                     grid = document.createElement('div'); 
                     grid.style.display = "grid";
                     grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(280px, 1fr))";
