@@ -6,14 +6,16 @@
     <title>ข่าวประชาสัมพันธ์ ทภ.3</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script> 
     
     <style>
-        /* ตั้งค่าพื้นฐานให้หน้าจอเลื่อนได้ปกติ */
+        /* --- ตั้งค่าพื้นฐาน --- */
         body {
             font-family: 'Sarabun', sans-serif;
             margin: 0;
@@ -23,14 +25,13 @@
             overflow-y: auto; /* ให้มี Scrollbar ปกติ */
         }
 
-        /* ส่วนหัวเว็บ (Header) */
+        /* --- ส่วนหัวเว็บ (Header) --- */
         .header-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 25px 20px; /* เพิ่มความสูงให้เท่าเดิม */
+            padding: 25px 20px;
             background-color: white;
-            /* 🔥 สำคัญ: position relative จะทำให้มันเลื่อนหายไปเมื่อไถจอลง */
             position: relative; 
             border-bottom: 1px solid #eee;
             gap: 20px;
@@ -43,7 +44,9 @@
             transition: transform 0.2s;
         }
         
-        .header-logo:hover { transform: scale(1.05); }
+        .header-logo:hover { 
+            transform: scale(1.05); 
+        }
 
         .header-title {
             font-size: 28px;
@@ -52,19 +55,26 @@
             font-weight: bold;
         }
 
-        /* ส่วนค้นหา */
+        /* --- ส่วนค้นหา --- */
         .search-section {
             background: #f8f9fa; 
-            padding: 25px; /* เพิ่มความสูงให้ดูสมส่วน */
+            padding: 25px; 
             border-bottom: 1px solid #ddd; 
             display: flex; 
             justify-content: center; 
             gap: 10px; 
             flex-wrap: wrap;
-            position: relative; /* ให้เลื่อนตาม Header ไป */
+            position: relative; 
         }
 
-        /* Grid แสดงรูป */
+        .search-input {
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-size: 14px;
+        }
+
+        /* --- Grid แสดงรูป --- */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -84,25 +94,79 @@
             text-decoration: none; 
             color: #333; 
         }
-        .news-card:hover { transform: translateY(-5px); }
-        .news-img-wrapper { width: 100%; height: 200px; overflow: hidden; }
-        .news-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-        .news-card:hover img { transform: scale(1.05); }
+
+        .news-card:hover { 
+            transform: translateY(-5px); 
+        }
+
+        .news-img-wrapper { 
+            width: 100%; 
+            height: 200px; 
+            overflow: hidden; 
+        }
+
+        .news-img-wrapper img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.3s; 
+        }
+
+        .news-card:hover img { 
+            transform: scale(1.05); 
+        }
+
+        /* ปุ่มโหลดเพิ่มเติม */
+        #loadMoreContainer button {
+            padding: 12px 40px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
         
-        /* Mobile Responsive */
+        /* --- Mobile Responsive (ปรับให้สวยในมือถือ) --- */
         @media (max-width: 768px) {
-            .header-container { flex-direction: column; text-align: center; gap: 10px; padding: 20px; }
+            .header-container { 
+                flex-direction: column; 
+                text-align: center; 
+                gap: 10px; 
+                padding: 20px; 
+            }
+
             .header-logo { width: 70px; }
             .header-title { font-size: 22px; }
             
-            .search-section { flex-direction: column; padding: 20px; }
-            .search-input { width: 100% !important; margin: 0; box-sizing: border-box; height: 45px; }
+            .search-section { 
+                flex-direction: column; 
+                padding: 20px; 
+            }
+
+            .search-input { 
+                width: 100% !important; 
+                margin: 0; 
+                box-sizing: border-box; 
+                height: 45px; 
+            }
             
-            .gallery { grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+            /* ปรับ Grid เป็น 2 คอลัมน์ในมือถือ */
+            .gallery { 
+                grid-template-columns: 1fr 1fr; 
+                gap: 10px; 
+                padding: 15px; 
+            }
+
             .news-img-wrapper { height: 130px; }
             .news-title { padding: 8px; font-size: 11px; }
             
             #loadMoreContainer button { width: 100%; padding: 15px; }
+            
+            /* ปรับหัวข้อกิจกรรมให้ตัวไม่ใหญ่เกินไป */
+            .activity-title { font-size: 18px !important; }
         }
     </style>
 </head>
@@ -116,8 +180,8 @@
     </header>
 
     <div class="search-section">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..." onkeyup="resetAndFetch()" style="width: 350px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
-        <input type="text" id="dateRange" class="search-input" placeholder="📅 เลือกช่วงเวลา..." style="width: 220px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-size: 14px;">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..." onkeyup="resetAndFetch()" style="width: 350px;">
+        <input type="text" id="dateRange" class="search-input" placeholder="📅 เลือกช่วงเวลา..." style="width: 220px; text-align: center;">
         <button onclick="resetFilter()" style="padding: 12px 25px; border: none; background: #95a5a6; color: white; border-radius: 5px; cursor: pointer; font-size: 14px;">ล้างค่า</button>
     </div>
 
@@ -126,7 +190,7 @@
     </div>
 
     <div id="loadMoreContainer" style="text-align:center; margin: 40px; display:none;">
-        <button onclick="loadMore()" style="padding:12px 40px; background:#2c3e50; color:white; border:none; border-radius:30px; cursor:pointer; font-size:16px; transition:0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">⬇️ ดูเพิ่มเติม</button>
+        <button onclick="loadMore()">⬇️ ดูเพิ่มเติม</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.js"></script>
@@ -139,21 +203,44 @@
         let lightbox;
         let selectedDates = [];
 
-        const datePicker = flatpickr("#dateRange", { mode: "range", dateFormat: "Y-m-d", locale: "th", onClose: function(dates) { selectedDates = dates; resetAndFetch(); } });
+        // ตั้งค่าปฏิทินเลือกวันที่
+        const datePicker = flatpickr("#dateRange", { 
+            mode: "range", 
+            dateFormat: "Y-m-d", 
+            locale: "th", 
+            onClose: function(dates) { 
+                selectedDates = dates; 
+                resetAndFetch(); 
+            } 
+        });
+
+        // ฟังก์ชันย่อรูปให้โหลดเร็ว (ใช้เฉพาะตอนแสดงผล)
+        function getThumbnailUrl(url) {
+            if (!url) return '';
+            if (!url.includes('cloudinary.com')) return url;
+            // สั่ง Cloudinary ให้ส่งรูปขนาดเล็ก (w_450)
+            return url.replace('/upload/', '/upload/w_450,c_scale,q_auto,f_auto/');
+        }
 
         async function fetchPhotos() {
             try {
-                const response = await fetch('/photos?limit=1000'); 
+                // เติม timestamp เพื่อป้องกัน Cache
+                const response = await fetch('/photos?limit=1000&t=' + new Date().getTime()); 
                 allPhotos = await response.json();
                 filteredPhotos = allPhotos;
                 resetGallery(); 
-            } catch (error) { console.error('Error:', error); document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:red;">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</p>'; }
+            } catch (error) { 
+                console.error('Error:', error); 
+                document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:red;">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</p>'; 
+            }
         }
 
         function resetAndFetch() {
             const keyword = document.getElementById('searchInput').value.toLowerCase();
+            
             filteredPhotos = allPhotos.filter(photo => {
                 const matchName = photo.filename.toLowerCase().includes(keyword) || (photo.activity && photo.activity.toLowerCase().includes(keyword));
+                
                 let matchDate = true;
                 if (selectedDates.length > 0) {
                     const photoDate = new Date(photo.date).setHours(0,0,0,0);
@@ -167,16 +254,24 @@
         }
 
         function resetGallery() {
-            document.getElementById('gallery').innerHTML = ''; currentDisplayCount = 0;
-            if (filteredPhotos.length === 0) { document.getElementById('gallery').innerHTML = '<p style="text-align: center; padding: 40px; color: #999; width: 100%;">ไม่พบข้อมูลรูปภาพตามเงื่อนไข</p>'; document.getElementById('loadMoreContainer').style.display = 'none'; } 
-            else loadMore(); 
+            document.getElementById('gallery').innerHTML = ''; 
+            currentDisplayCount = 0;
+            
+            if (filteredPhotos.length === 0) { 
+                document.getElementById('gallery').innerHTML = '<p style="text-align: center; padding: 40px; color: #999; width: 100%;">ไม่พบข้อมูลรูปภาพตามเงื่อนไข</p>'; 
+                document.getElementById('loadMoreContainer').style.display = 'none'; 
+            } else { 
+                loadMore(); 
+            }
         }
 
         function loadMore() {
             const galleryContainer = document.getElementById('gallery');
             const nextPhotos = filteredPhotos.slice(currentDisplayCount, currentDisplayCount + ITEMS_PER_PAGE);
+            
             if (nextPhotos.length === 0) return;
 
+            // จัดกลุ่มรูปภาพตามชื่อกิจกรรม
             const groupedPhotos = {};
             nextPhotos.forEach(photo => {
                 const activityName = photo.activity || 'กิจกรรมทั่วไป';
@@ -184,11 +279,16 @@
                 groupedPhotos[activityName].push(photo);
             });
 
+            // วนลูปสร้างส่วนแสดงผลทีละกลุ่ม
             for (const [activityName, activityPhotos] of Object.entries(groupedPhotos)) {
                 let section = document.getElementById(`sec-${activityName}`);
                 let grid;
+                
                 if (!section) {
-                    section = document.createElement('div'); section.className = 'activity-section'; section.id = `sec-${activityName}`;
+                    // สร้างหัวข้อกิจกรรม (เต็มความกว้าง)
+                    section = document.createElement('div'); 
+                    section.className = 'activity-section'; 
+                    section.id = `sec-${activityName}`;
                     section.style.gridColumn = "1 / -1"; 
                     
                     const headerDiv = document.createElement('div'); 
@@ -197,7 +297,7 @@
                     const title = document.createElement('h2'); 
                     title.className = 'activity-title'; 
                     title.style.margin = '0'; 
-                    title.style.color = '#333333';
+                    title.style.color = '#c0392b';
                     title.innerText = activityName; 
                     
                     const zipBtn = document.createElement('a');
@@ -205,8 +305,11 @@
                     zipBtn.innerHTML = '📥 โหลด ZIP';
                     zipBtn.style.cssText = 'font-size:12px; color:#fff; background:#c0392b; padding:5px 15px; border-radius:20px; text-decoration:none; transition:0.2s; white-space: nowrap;';
                     
-                    headerDiv.appendChild(title); headerDiv.appendChild(zipBtn); section.appendChild(headerDiv);
+                    headerDiv.appendChild(title); 
+                    headerDiv.appendChild(zipBtn); 
+                    section.appendChild(headerDiv);
                     
+                    // สร้าง Grid รูปภาพ
                     grid = document.createElement('div'); 
                     grid.style.display = "grid";
                     grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(280px, 1fr))";
@@ -215,25 +318,58 @@
                     
                     section.appendChild(grid); 
                     galleryContainer.appendChild(section);
-                } else { grid = section.querySelector('.sub-gallery'); }
+                } else { 
+                    grid = section.querySelector('.sub-gallery'); 
+                }
 
+                // สร้างการ์ดรูปภาพ
                 activityPhotos.forEach(photo => {
                     const rawName = photo.filename || photo.file_name || "ไม่มีชื่อภาพ";
                     const newsTitle = rawName.replace ? rawName.replace(/\.[^/.]+$/, "") : rawName;
                     const dateObj = new Date(photo.date);
                     const dateStr = dateObj.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
-                    const card = document.createElement('a'); card.className = 'news-card'; card.href = photo.original_url;  
-                    card.innerHTML = `<div class="news-img-wrapper"><img src="${photo.url}" alt="${newsTitle}" loading="lazy"></div><div class="news-title" style="text-align:left; padding:15px; height:auto;"><span style="font-size:14px; color:#7f8c8d;">📅 ${dateStr}</span></div>`;
+                    
+                    const card = document.createElement('a'); 
+                    card.className = 'news-card'; 
+                    
+                    // ลิงก์ไปรูปต้นฉบับ (ชัดเป๊ะ)
+                    card.href = photo.original_url;  
+                    
+                    // รูปที่โชว์เป็นรูปย่อ (โหลดไว)
+                    const thumbUrl = getThumbnailUrl(photo.url);
+
+                    card.innerHTML = `
+                        <div class="news-img-wrapper">
+                            <img src="${thumbUrl}" alt="${newsTitle}" loading="lazy">
+                        </div>
+                        <div class="news-title" style="text-align:left; padding:15px; height:auto;">
+                            <span style="font-size:14px; color:#7f8c8d;">📅 ${dateStr}</span>
+                        </div>
+                    `;
                     grid.appendChild(card);
                 });
             }
+            
             currentDisplayCount += nextPhotos.length;
-            if (currentDisplayCount >= filteredPhotos.length) document.getElementById('loadMoreContainer').style.display = 'none'; 
-            else document.getElementById('loadMoreContainer').style.display = 'block'; 
-            if(lightbox) lightbox.refresh(); else lightbox = new SimpleLightbox('.sub-gallery a', { captionsData: 'alt', captionDelay: 250, animationSpeed: 200 });
+            
+            // จัดการปุ่มโหลดเพิ่ม
+            if (currentDisplayCount >= filteredPhotos.length) {
+                document.getElementById('loadMoreContainer').style.display = 'none'; 
+            } else { 
+                document.getElementById('loadMoreContainer').style.display = 'block'; 
+            }
+            
+            // Refresh Lightbox
+            if(lightbox) lightbox.refresh(); 
+            else lightbox = new SimpleLightbox('.sub-gallery a', { captionsData: 'alt', captionDelay: 250, animationSpeed: 200 });
         }
 
-        function resetFilter() { document.getElementById('searchInput').value = ''; datePicker.clear(); resetAndFetch(); }
+        function resetFilter() { 
+            document.getElementById('searchInput').value = ''; 
+            datePicker.clear(); 
+            resetAndFetch(); 
+        }
+
         fetchPhotos();
     </script>
 </body>
