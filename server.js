@@ -18,7 +18,6 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
 app.use(express.static(__dirname));
 
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 1000 });
@@ -33,12 +32,17 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ✅ ตั้งค่าที่เก็บไฟล์ (Cloudinary)
+// ✅ ตั้งค่าที่เก็บไฟล์ (Cloudinary) + บีบอัดภาพอัตโนมัติ
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'army_gallery',
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+        // 🔥 เพิ่มบรรทัดนี้: บีบอัดไฟล์อัตโนมัติ (ไฟล์เล็กแต่ชัดเท่าเดิม)
+        transformation: [
+            { quality: "auto" },      // ปรับคุณภาพอัตโนมัติ
+            { fetch_format: "auto" }  // แปลงเป็น webp อัตโนมัติถ้าทำได้
+        ]
     },
 });
 
@@ -64,7 +68,7 @@ const pool = mysql.createPool({
 (async () => {
     try {
         const connection = await pool.getConnection();
-        console.log('✅ Connected to TiDB Cloud (MySQL Compatible) Successfully!');
+        console.log('✅ Connected to TiDB Cloud Successfully!');
         
         // 🔥 Auto Cleanup: ลบหมวดหมู่ที่ไม่มีรูปภาพทิ้งทันทีที่เปิด Server
         await connection.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
@@ -84,19 +88,15 @@ async function logAction(userId, username, action, details, req) {
     } catch (err) { console.error('Log Error:', err.message); }
 }
 
-// 🔥 ฟังก์ชันช่วยแกะ Public ID จาก URL เพื่อเอาไปลบ
+// 🔥 ฟังก์ชันช่วยแกะ Public ID จาก URL เพื่อเอาไปลบไฟล์จริง
 function getPublicIdFromUrl(url) {
     try {
         // ตัวอย่าง URL: .../upload/v1234/army_gallery/photo123.jpg
         const parts = url.split('/');
         const filename = parts.pop(); // photo123.jpg
         const folder = parts.pop();   // army_gallery
-        const publicId = folder + '/' + filename.split('.')[0]; // army_gallery/photo123
-        return publicId;
-    } catch (e) {
-        console.error('Error parsing Public ID:', e);
-        return null;
-    }
+        return folder + '/' + filename.split('.')[0];
+    } catch (e) { return null; }
 }
 
 app.get('/', (req, res) => {
