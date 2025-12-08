@@ -74,7 +74,7 @@ const pool = mysql.createPool({
     try {
         const connection = await pool.getConnection();
         console.log('✅ Connected to TiDB Cloud Successfully!');
-
+        
         // 🔥 Auto Cleanup: ลบหมวดหมู่ที่ไม่มีรูปภาพทิ้งทันทีที่เปิด Server
         await connection.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         console.log('🧹 Auto-cleaned empty categories on startup');
@@ -209,7 +209,7 @@ app.delete('/photos/:id/permanent', async (req, res) => {
         const f = results[0];
 
         const publicId = getPublicIdFromUrl(f.file_path);
-        if (publicId) cloudinary.uploader.destroy(publicId, (e, r) => { });
+        if (publicId) cloudinary.uploader.destroy(publicId, (e,r)=>{});
 
         await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
 
@@ -221,7 +221,7 @@ app.delete('/photos/:id/permanent', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔥 แก้ไขส่วนนี้: แยก Query เพื่อความแม่นยำ 100% (แก้ปัญหาเลขไม่ตรง/ไม่รีเซ็ต)
+// 🔥 แก้ไขสำคัญ: แยก Query ให้นับทีละตัว เพื่อแก้ปัญหา TiDB ส่งค่าผิด/แคช
 app.get('/stats', async (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     try {
