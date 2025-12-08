@@ -557,28 +557,56 @@
             renderLogs();
         }
 
-        // --- ฟังก์ชันอัปโหลด ---
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const categoryName = document.getElementById('categoryName').value;
-            const files = document.getElementById('fileInput').files;
-            if (!categoryName || files.length === 0) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
+        // 🔥 แทนที่ฟังก์ชัน uploadForm ทั้งหมดด้วยโค้ดนี้
 
-            const formData = new FormData();
-            formData.append('category_name', categoryName);
-            if (user) formData.append('user_id', user.user_id || user.id);
-            for (let i = 0; i < files.length; i++) formData.append('photos', files[i]);
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const categoryName = document.getElementById('categoryName').value;
+    const fileInput = document.getElementById('fileInput');
+    const files = fileInput.files;
+    
+    if (!categoryName || files.length === 0) {
+        return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
+    }
 
-            Swal.fire({ title: 'กำลังอัปโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            const res = await fetch('/upload', { method: 'POST', body: formData });
+    const formData = new FormData();
+    formData.append('category_name', categoryName);
+    if (user) formData.append('user_id', user.user_id || user.id);
+    for (let i = 0; i < files.length; i++) {
+        formData.append('photos', files[i]);
+    }
+
+    Swal.fire({ 
+        title: 'กำลังอัปโหลด...', 
+        allowOutsideClick: false, 
+        didOpen: () => Swal.showLoading() 
+    });
+    
+    try {
+        const res = await fetch('/upload', { method: 'POST', body: formData });
+        
+        if (res.ok) { 
+            // 🔥 รีเซ็ทฟอร์มทันที
+            document.getElementById('categoryName').value = '';
+            fileInput.value = '';
             
-            if (res.ok) { 
-                Swal.fire('สำเร็จ!', 'อัปโหลดเรียบร้อย (ขึ้นทันที)', 'success'); 
-                setTimeout(() => window.location.reload(), 1000);
-            } else { 
-                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error'); 
-            }
-        });
+            // 🔥 รีโหลดข้อมูลทั้งหมดโดยไม่รีโหลดหน้า
+            await loadStats();
+            await loadCategories();
+            await loadApprovedPhotos();
+            await loadLogs();
+            if(user.role === 'admin') await loadTrash();
+            
+            Swal.fire('สำเร็จ!', 'อัปโหลดเรียบร้อย (ขึ้นทันที)', 'success'); 
+        } else { 
+            const error = await res.text();
+            Swal.fire('ผิดพลาด', error || 'เกิดข้อผิดพลาด', 'error'); 
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    }
+});
 
         // --- ฟังก์ชันจัดการ Users ---
         async function loadUsers() {
