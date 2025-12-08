@@ -704,37 +704,45 @@
             const categoryName = document.getElementById('categoryName').value.trim();
             const files = document.getElementById('fileInput').files;
 
+            // 1. เช็คก่อนว่ามีข้อมูลครบไหม
             if (!categoryName || files.length === 0) {
                 return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปและตั้งชื่อ', 'warning');
             }
 
-            // 🔥 ดักจับจำนวนไฟล์
+            // 2. เช็คจำนวนไฟล์ไม่เกิน 30
             if (files.length > 30) {
                 return Swal.fire('ไฟล์เยอะเกินไป', 'กรุณาอัปโหลดทีละไม่เกิน 30 รูป', 'warning');
             }
 
+            // 3. สร้าง formData
             const formData = new FormData();
             formData.append('category_name', categoryName);
             if (user) formData.append('user_id', user.user_id || user.id);
-            for (let i = 0; i < files.length; i++) formData.append('photos', files[i]);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('photos', files[i]);
+            }
 
+            // 4. แสดง Loading
             Swal.fire({
                 title: 'กำลังอัปโหลด...',
-                html: `<div style="font-size:18px; margin-top:10px;">กำลังอัปโหลด ${files.length} รูป</div>`,
+                html: `<div style="font-size:18px;">กำลังอัปโหลด ${files.length} รูป</div>`,
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
 
+            // 5. ส่งข้อมูลไปที่ server
             try {
                 const res = await fetch('/upload', { method: 'POST', body: formData });
 
                 if (res.ok) {
+                    // 6. เคลียร์ form
                     document.getElementById('fileInput').value = '';
                     document.getElementById('categoryName').value = '';
 
-                    // 🔥 รอให้โหลดข้อมูลเสร็จก่อนแสดง Success
+                    // 7. รอให้โหลดข้อมูลเสร็จ
                     await reload();
 
+                    // 8. แสดงความสำเร็จ
                     Swal.fire({
                         icon: 'success',
                         title: 'สำเร็จ!',
