@@ -141,14 +141,14 @@ app.post('/upload', upload.array('photos', 30), async (req, res) => {
             const [result] = await pool.query('INSERT INTO Categories (name) VALUES (?)', [category_name]);
             catId = result.insertId;
         }
-
+        
         const values = [];
         for (const file of req.files) {
             values.push([file.originalname, file.path, file.path, uploader_id, catId, 'approved']);
         }
-
+        
         await pool.query('INSERT INTO Photos (file_name, file_path, thumbnail_path, uploader_id, category_id, status) VALUES ?', [values]);
-
+        
         logAction(uploader_id, uploaderName, 'Upload', `อัปโหลด ${req.files.length} รูป (Auto Approve)`, req);
         res.status(201).json({ message: `อัปโหลดสำเร็จ ${req.files.length} รูป` });
     } catch (err) { console.error(err); res.status(500).json({ error: 'Server Error' }); }
@@ -221,14 +221,20 @@ app.delete('/photos/:id/permanent', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// 🔥 แก้ไขส่วนนี้: แยก Query เพื่อความแม่นยำ 100% (แก้ปัญหาเลขไม่ตรง/ไม่รีเซ็ต)
 app.get('/stats', async (req, res) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     try {
-        const sql = `SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0; 
-                     SELECT 0 as pending; 
-                     SELECT COUNT(*) as cats FROM Categories; 
-                     SELECT COUNT(*) as trash FROM Photos WHERE is_deleted = 1;`;
-        const [results] = await pool.query(sql);
-        res.json({ total_photos: results[0][0].total, pending_photos: 0, total_categories: results[2][0].cats, trash_count: results[3][0].trash });
+        const [totalRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0');
+        const [catRes] = await pool.query('SELECT COUNT(*) as count FROM Categories');
+        const [trashRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1');
+
+        res.json({ 
+            total_photos: totalRes[0].count, 
+            pending_photos: 0, 
+            total_categories: catRes[0].count, 
+            trash_count: trashRes[0].count 
+        });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -245,7 +251,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
     try {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Not found');
-
+        
         const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
         if (photos.length === 0) return res.status(404).send('No photos');
 
