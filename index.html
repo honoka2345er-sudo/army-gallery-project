@@ -243,26 +243,6 @@
             // สั่ง Cloudinary ให้ส่งรูปขนาดเล็ก (w_450)
             return url.replace('/upload/', '/upload/w_450,c_scale,q_auto,f_auto/');
         }
-
-        async function fetchPhotos() {
-            try {
-                // เพิ่ม timestamp เพื่อป้องกัน Cache
-                const response = await fetch('/photos?limit=1000&t=' + Date.now());
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                allPhotos = await response.json();
-                console.log('✅ โหลดข้อมูลสำเร็จ:', allPhotos.length, 'รูป');
-
-                filteredPhotos = allPhotos;
-                resetGallery();
-            } catch (error) {
-                console.error('❌ Error loading photos:', error);
-                document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:red;">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</p>';
-            }
-        }
         async function fetchPhotos() {
             try {
                 // เพิ่ม timestamp เพื่อป้องกัน Cache

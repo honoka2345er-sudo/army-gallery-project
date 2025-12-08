@@ -20,16 +20,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
-app.use((req, res, next) => {
-    if (req.path.endsWith('.html') || req.path.endsWith('.js') || req.path === '/') {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-    }
-    next();
-});
 
-// 🔥 Middleware ป้องกัน Cache (ใส่ไว้กันเหนียว)
+// 🔥 Middleware ป้องกัน Cache (เก็บแค่อันเดียว)
 app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
@@ -230,8 +222,6 @@ app.delete('/photos/:id/permanent', async (req, res) => {
 });
 
 app.get('/stats', async (req, res) => {
-    // 🔥 สั่งห้าม Cache ตรงนี้อีกทีเพื่อความชัวร์ 100%
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     try {
         const sql = `SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0; 
                      SELECT 0 as pending; 

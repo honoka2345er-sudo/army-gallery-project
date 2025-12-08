@@ -628,14 +628,6 @@
             cats.forEach(c => datalist.innerHTML += `<option value="${c.name}"></option>`);
         }
 
-        async function loadLogs() {
-            try {
-                const res = await fetch('/logs?t=' + Date.now()); // เพิ่ม ?t=
-                allLogsData = await res.json();
-                renderLogs();
-            } catch (e) { console.error(e); }
-        }
-
         function renderLogs() {
             const tbody = document.getElementById('logTableBody');
             const btn = document.getElementById('btnToggleLogs');
@@ -867,8 +859,15 @@
             fn(...args);
         }
 
-        async function loadApprovedPhotos() { const res = await fetch('/photos'); renderGrid('approvedList', await res.json(), 'approved'); }
-        async function loadTrash() { const res = await fetch('/photos/trash'); renderGrid('trashList', await res.json(), 'trash'); }
+        async function loadApprovedPhotos() {
+            const res = await fetch('/photos?t=' + Date.now());
+            renderGrid('approvedList', await res.json(), 'approved');
+        }
+
+        async function loadTrash() {
+            const res = await fetch('/photos/trash?t=' + Date.now());
+            renderGrid('trashList', await res.json(), 'trash');
+        }
 
         // --- Actions ---
         async function bulkDelete() {
