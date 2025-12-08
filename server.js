@@ -6,8 +6,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
-const https = require('https'); 
-const archiver = require('archiver'); 
+const https = require('https');
+const archiver = require('archiver');
 
 // 🔥 เพิ่มส่วนของ Cloudinary
 const cloudinary = require('cloudinary').v2;
@@ -20,6 +20,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html') || req.path.endsWith('.js') || req.path === '/') {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
 
 // 🔥 Middleware ป้องกัน Cache (ใส่ไว้กันเหนียว)
 app.use((req, res, next) => {
@@ -74,7 +82,7 @@ const pool = mysql.createPool({
     try {
         const connection = await pool.getConnection();
         console.log('✅ Connected to TiDB Cloud Successfully!');
-        
+
         // 🔥 Auto Cleanup: ลบหมวดหมู่ที่ไม่มีรูปภาพทิ้งทันทีที่เปิด Server
         await connection.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         console.log('🧹 Auto-cleaned empty categories on startup');
@@ -141,14 +149,14 @@ app.post('/upload', upload.array('photos', 30), async (req, res) => {
             const [result] = await pool.query('INSERT INTO Categories (name) VALUES (?)', [category_name]);
             catId = result.insertId;
         }
-        
+
         const values = [];
         for (const file of req.files) {
             values.push([file.originalname, file.path, file.path, uploader_id, catId, 'approved']);
         }
-        
+
         await pool.query('INSERT INTO Photos (file_name, file_path, thumbnail_path, uploader_id, category_id, status) VALUES ?', [values]);
-        
+
         logAction(uploader_id, uploaderName, 'Upload', `อัปโหลด ${req.files.length} รูป (Auto Approve)`, req);
         res.status(201).json({ message: `อัปโหลดสำเร็จ ${req.files.length} รูป` });
     } catch (err) { console.error(err); res.status(500).json({ error: 'Server Error' }); }
@@ -209,7 +217,7 @@ app.delete('/photos/:id/permanent', async (req, res) => {
         const f = results[0];
 
         const publicId = getPublicIdFromUrl(f.file_path);
-        if (publicId) cloudinary.uploader.destroy(publicId, (e,r)=>{});
+        if (publicId) cloudinary.uploader.destroy(publicId, (e, r) => { });
 
         await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
 
@@ -247,7 +255,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
     try {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Not found');
-        
+
         const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
         if (photos.length === 0) return res.status(404).send('No photos');
 
