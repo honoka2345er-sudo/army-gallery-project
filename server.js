@@ -74,11 +74,6 @@ const pool = mysql.createPool({
     try {
         const connection = await pool.getConnection();
         console.log('✅ Connected to TiDB Cloud Successfully!');
-        
-        // 🔥 Auto Cleanup: ลบหมวดหมู่ที่ไม่มีรูปภาพทิ้งทันทีที่เปิด Server
-        await connection.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
-        console.log('🧹 Auto-cleaned empty categories on startup');
-
         connection.release();
     } catch (err) { console.error('❌ Database Connection Failed:', err); }
 })();
@@ -201,6 +196,7 @@ app.put('/photos/:id/restore', async (req, res) => {
     try { await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id = ?', [req.params.id]); res.json({ message: 'Restored' }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// 🔥 ลบถาวร: ลบไฟล์จริง + ลบ DB + ลบหมวดหมู่
 app.delete('/photos/:id/permanent', async (req, res) => {
     const photoId = req.params.id;
     try {
@@ -213,18 +209,19 @@ app.delete('/photos/:id/permanent', async (req, res) => {
 
         await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
 
-        if (f.category_id) {
-            const [countRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE category_id = ?', [f.category_id]);
-            if (countRes[0].count === 0) await pool.query('DELETE FROM Categories WHERE category_id = ?', [f.category_id]);
-        }
+        // (Auto Cleanup ถูกย้ายไปทำใน /stats แล้วเพื่อความชัวร์)
         res.json({ message: 'Deleted' });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔥 แก้ไขสำคัญ: แยก Query ให้นับทีละตัว เพื่อแก้ปัญหา TiDB ส่งค่าผิด/แคช
+// 🔥 แก้ไขแบบไม้ตาย: สั่งล้างหมวดหมู่เปล่าทุกครั้งที่เรียกดูสถิติ (เลขตรงเป๊ะแน่นอน)
 app.get('/stats', async (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     try {
+        // 1. ล้างหมวดหมู่ขยะทิ้งก่อนนับ
+        await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
+
+        // 2. แยก Query นับทีละตัวเพื่อความแม่นยำ
         const [totalRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0');
         const [catRes] = await pool.query('SELECT COUNT(*) as count FROM Categories');
         const [trashRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1');
