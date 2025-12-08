@@ -387,33 +387,17 @@
     <div class="main-content">
         
         <div class="stats-grid">
-            <div class="stat-card" style="border-color: #3498db;">
-                <div class="stat-label">รูปทั้งหมด</div>
-                <div class="stat-number" id="statTotal">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #27ae60;">
-                <div class="stat-label">หมวดหมู่</div>
-                <div class="stat-number" id="statCats">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #e74c3c;">
-                <div class="stat-label">ในถังขยะ</div>
-                <div class="stat-number" id="statTrash">0</div>
-            </div>
+            <div class="stat-card" style="border-color: #3498db;"><div class="stat-label">รูปทั้งหมด</div><div class="stat-number" id="statTotal">0</div></div>
+            <div class="stat-card" style="border-color: #27ae60;"><div class="stat-label">หมวดหมู่</div><div class="stat-number" id="statCats">0</div></div>
+            <div class="stat-card" style="border-color: #e74c3c;"><div class="stat-label">ในถังขยะ</div><div class="stat-number" id="statTrash">0</div></div>
         </div>
 
         <div class="card">
             <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label><b>1. ชื่อกิจกรรม</b></label>
-                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required>
-                        <datalist id="categoryList"></datalist>
-                    </div>
-                    <div>
-                        <label><b>2. เลือกรูป</b></label>
-                        <input type="file" id="fileInput" multiple accept="image/*">
-                    </div>
+                    <div><label><b>1. ชื่อกิจกรรม</b></label><input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required><datalist id="categoryList"></datalist></div>
+                    <div><label><b>2. เลือกรูป</b></label><input type="file" id="fileInput" multiple accept="image/*"></div>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;">📤 อัปโหลด (ขึ้นทันที)</button>
             </form>
@@ -426,9 +410,7 @@
             </div>
             <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllApproved" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
-                <div>
-                    <button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button>
-                </div>
+                <div><button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button></div>
             </div>
             <div id="approvedList" class="approval-grid"><p>กำลังโหลด...</p></div>
         </div>
@@ -452,23 +434,12 @@
             <h3>📝 ประวัติการใช้งาน</h3>
             <div style="overflow-x: auto;">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>เวลา</th>
-                            <th>ผู้ใช้</th>
-                            <th>การกระทำ</th>
-                            <th>รายละเอียด</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logTableBody">
-                        <tr><td colspan="4" style="text-align:center;">กำลังโหลด...</td></tr>
-                    </tbody>
+                    <thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead>
+                    <tbody id="logTableBody"><tr><td colspan="4" style="text-align:center;">กำลังโหลด...</td></tr></tbody>
                 </table>
             </div>
             <div style="text-align:center; margin-top:15px;">
-                <button id="btnToggleLogs" onclick="toggleLogs()" style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">
-                    ⬇️ ดูเพิ่มเติม
-                </button>
+                <button id="btnToggleLogs" onclick="toggleLogs()" style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️ ดูเพิ่มเติม</button>
             </div>
         </div>
 
@@ -477,10 +448,7 @@
             <div style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
                 <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1; min-width: 120px;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1; min-width: 120px;">
-                <select id="newRole" style="margin:0; flex:1; min-width: 120px;">
-                    <option value="uploader">Uploader</option>
-                    <option value="admin">Admin</option>
-                </select>
+                <select id="newRole" style="margin:0; flex:1; min-width: 120px;"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>
                 <button onclick="addUser()" class="btn-primary" style="background:#8e44ad; width:auto;">+ เพิ่ม</button>
             </div>
             <div style="overflow-x: auto;">
@@ -511,7 +479,6 @@
             overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
         }
 
-        // ตัวแปรสำหรับ Logs
         let allLogsData = [];
         let logLimit = 5;
 
@@ -528,7 +495,7 @@
 
         // --- Functions โหลดข้อมูล ---
         async function loadStats() {
-            const res = await fetch('/stats');
+            const res = await fetch('/stats?t=' + new Date().getTime());
             const data = await res.json();
             document.getElementById('statTotal').innerText = data.total_photos;
             document.getElementById('statCats').innerText = data.total_categories;

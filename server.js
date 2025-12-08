@@ -6,13 +6,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
-const https = require('https'); // เพิ่มสำหรับโหลด ZIP
-const archiver = require('archiver'); // เพิ่มสำหรับโหลด ZIP
+const https = require('https');
+const archiver = require('archiver');
 
-// 🔥 เพิ่มส่วนของ Cloudinary
+// ส่วนของ Cloudinary
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-
 const rateLimit = require('express-rate-limit');
 
 const app = express();
@@ -26,19 +25,20 @@ app.use('/api/', limiter);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'army_secret_key_1234';
 
-// ✅ ตั้งค่า Cloudinary
+// ตั้งค่า Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ✅ ตั้งค่าที่เก็บไฟล์ + บีบอัดภาพ
+// ตั้งค่าการเก็บไฟล์ (Cloudinary)
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'army_gallery',
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+        // บีบอัดไฟล์อัตโนมัติ (ประหยัดพื้นที่)
         transformation: [
             { quality: "auto" },
             { fetch_format: "auto" }
@@ -48,7 +48,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-// เชื่อมต่อ TiDB Cloud
+// เชื่อมต่อ Database
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 4000,
@@ -62,12 +62,16 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+// เริ่มต้น Server + Auto Cleanup
 (async () => {
     try {
         const connection = await pool.getConnection();
         console.log('✅ Connected to TiDB Cloud Successfully!');
+        
+        // ลบหมวดหมู่ที่ไม่มีรูปภาพทิ้งทันทีที่เปิด Server
         await connection.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         console.log('🧹 Auto-cleaned empty categories on startup');
+
         connection.release();
     } catch (err) { console.error('❌ Database Connection Failed:', err); }
 })();
@@ -113,8 +117,8 @@ app.post('/login', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔥 แก้ไข: อัปโหลดแล้วเป็น Approved ทันที (Auto Approve)
-app.post('/upload', upload.array('photos', 20), async (req, res) => {
+// 🔥 ปรับให้รับได้สูงสุด 30 รูป (upload.array('photos', 30))
+app.post('/upload', upload.array('photos', 30), async (req, res) => {
     if (!req.files || req.files.length === 0) return res.status(400).json({ message: 'เลือกรูปก่อน' });
     const uploader_id = req.body.user_id || 0;
     const category_name = req.body.category_name;
@@ -133,11 +137,10 @@ app.post('/upload', upload.array('photos', 20), async (req, res) => {
         
         const values = [];
         for (const file of req.files) {
-            // 🔥 ใส่สถานะ 'approved' เข้าไปเลย
+            // Auto Approve: ใส่สถานะ 'approved' ทันที
             values.push([file.originalname, file.path, file.path, uploader_id, catId, 'approved']);
         }
         
-        // 🔥 เพิ่ม column status ในคำสั่ง SQL
         await pool.query('INSERT INTO Photos (file_name, file_path, thumbnail_path, uploader_id, category_id, status) VALUES ?', [values]);
         
         logAction(uploader_id, uploaderName, 'Upload', `อัปโหลด ${req.files.length} รูป (Auto Approve)`, req);
@@ -192,6 +195,7 @@ app.put('/photos/:id/restore', async (req, res) => {
     try { await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id = ?', [req.params.id]); res.json({ message: 'Restored' }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// 🔥 ลบถาวร: ลบไฟล์จริง + ลบ DB + ลบหมวดหมู่
 app.delete('/photos/:id/permanent', async (req, res) => {
     const photoId = req.params.id;
     try {
@@ -213,6 +217,8 @@ app.delete('/photos/:id/permanent', async (req, res) => {
 });
 
 app.get('/stats', async (req, res) => {
+    // ป้องกัน Cache เพื่อให้เลขลดทันทีที่ลบ
+    res.set('Cache-Control', 'no-store'); 
     try {
         const sql = `SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0; 
                      SELECT 0 as pending; 
@@ -231,7 +237,7 @@ app.delete('/users/:id', async (req, res) => { try { await pool.query('DELETE FR
 app.put('/users/:id/reset', async (req, res) => { try { const hashedPassword = await bcrypt.hash(req.body.newPassword, 10); await pool.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, req.params.id]); res.json({ message: 'Reset' }); } catch (err) { res.status(500).json({ error: err.message }); } });
 app.put('/users/:id/username', async (req, res) => { try { await pool.query('UPDATE Users SET username = ? WHERE user_id = ?', [req.body.newUsername, req.params.id]); res.json({ message: 'Username changed' }); } catch (err) { res.status(500).json({ message: 'Error' }); } });
 
-// 🔥 กู้คืนระบบ ZIP
+// ฟังก์ชัน ZIP (ใช้งานได้จริงแล้ว)
 app.get('/download-zip/:categoryName', async (req, res) => {
     try {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
