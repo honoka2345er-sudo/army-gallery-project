@@ -21,6 +21,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// 🔥 เพิ่ม Cache Control สำหรับทุก Response (แก้ปัญหาตัวเลขไม่อัปเดต)
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
+
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 1000 });
 app.use('/api/', limiter);
 
@@ -214,7 +222,6 @@ app.delete('/photos/:id/permanent', async (req, res) => {
 });
 
 app.get('/stats', async (req, res) => {
-    res.set('Cache-Control', 'no-store'); // ป้องกัน Cache
     try {
         const sql = `SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0; 
                      SELECT 0 as pending; 
@@ -225,7 +232,15 @@ app.get('/stats', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/categories', async (req, res) => { try { const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC'); res.json(results); } catch (err) { res.status(500).json({ error: err.message }); } });
+app.get('/categories', async (req, res) => { 
+    try { 
+        const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC'); 
+        res.json(results); 
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
+    } 
+});
+
 app.get('/logs', async (req, res) => { try { const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 50'); res.json(results); } catch (err) { res.status(500).json({ error: err.message }); } });
 app.get('/users', async (req, res) => { try { const [results] = await pool.query('SELECT user_id, username, role, created_at FROM Users ORDER BY created_at DESC'); res.json(results); } catch (err) { res.status(500).json({ error: err.message }); } });
 app.post('/users', async (req, res) => { try { const hashedPassword = await bcrypt.hash(req.body.password, 10); await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, hashedPassword, req.body.role]); res.json({ message: 'Added' }); } catch (err) { res.status(500).json({ error: 'Error' }); } });
