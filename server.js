@@ -6,8 +6,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
-const https = require('https');
-const archiver = require('archiver');
+const https = require('https'); 
+const archiver = require('archiver'); 
 
 // 🔥 เพิ่มส่วนของ Cloudinary
 const cloudinary = require('cloudinary').v2;
@@ -21,7 +21,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🔥 เพิ่ม Cache Control สำหรับทุก Response (แก้ปัญหาตัวเลขไม่อัปเดต)
+// 🔥 Middleware ป้องกัน Cache (ใส่ไว้กันเหนียว)
 app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
@@ -124,7 +124,7 @@ app.post('/login', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔥 ปรับให้รับได้สูงสุด 30 รูป (จากเดิม 20) + Auto Approve
+// 🔥 ปรับให้รับได้สูงสุด 30 รูป + Auto Approve
 app.post('/upload', upload.array('photos', 30), async (req, res) => {
     if (!req.files || req.files.length === 0) return res.status(400).json({ message: 'เลือกรูปก่อน' });
     const uploader_id = req.body.user_id || 0;
@@ -222,6 +222,8 @@ app.delete('/photos/:id/permanent', async (req, res) => {
 });
 
 app.get('/stats', async (req, res) => {
+    // 🔥 สั่งห้าม Cache ตรงนี้อีกทีเพื่อความชัวร์ 100%
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     try {
         const sql = `SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0; 
                      SELECT 0 as pending; 
@@ -232,15 +234,7 @@ app.get('/stats', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/categories', async (req, res) => { 
-    try { 
-        const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC'); 
-        res.json(results); 
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
-    } 
-});
-
+app.get('/categories', async (req, res) => { try { const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC'); res.json(results); } catch (err) { res.status(500).json({ error: err.message }); } });
 app.get('/logs', async (req, res) => { try { const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 50'); res.json(results); } catch (err) { res.status(500).json({ error: err.message }); } });
 app.get('/users', async (req, res) => { try { const [results] = await pool.query('SELECT user_id, username, role, created_at FROM Users ORDER BY created_at DESC'); res.json(results); } catch (err) { res.status(500).json({ error: err.message }); } });
 app.post('/users', async (req, res) => { try { const hashedPassword = await bcrypt.hash(req.body.password, 10); await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, hashedPassword, req.body.role]); res.json({ message: 'Added' }); } catch (err) { res.status(500).json({ error: 'Error' }); } });
