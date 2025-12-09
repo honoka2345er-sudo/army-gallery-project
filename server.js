@@ -488,7 +488,7 @@ app.get('/categories', async (req, res) => {
 });
 
 // ✅ Get Logs (Admin Only)
-app.get('/logs', authenticateToken, adminOnly, async (req, res) => { 
+app.get('/logs', async (req, res) => {  // ✅ ลบ authenticateToken, adminOnly
     try { 
         const [results] = await pool.query(
             'SELECT * FROM Logs ORDER BY created_at DESC LIMIT 50'
