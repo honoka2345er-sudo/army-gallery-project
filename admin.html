@@ -1,91 +1,430 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบจัดการคลังภาพ (Admin)</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         /* --- ตั้งค่าพื้นฐาน --- */
-        body { font-family: 'Sarabun', sans-serif; margin: 0; background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* --- Sidebar --- */
-        .sidebar { width: 250px; background-color: #2c3e50; color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; transition: 0.3s; z-index: 1000; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #465a6e; }
-        .sidebar-header h2 { margin: 0; font-size: 20px; }
-        .hamburger { display: none; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-        .close-btn { display: none; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-        
-        .menu-items { display: flex; flex-direction: column; gap: 15px; }
-        .user-info { margin: 0; color: #bdc3c7; font-size: 14px; }
-        .user-info span { color: #f1c40f; font-weight: bold; }
-        .menu-link { color: #3498db; text-decoration: none; font-size: 16px; }
-        
-        .btn-logout { background: #c0392b; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; margin-top: auto; font-family: 'Sarabun', sans-serif; width: 100%; }
-        .btn-logout:hover { background-color: #e74c3c; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            background-color: #f4f6f9;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-        /* 🔥 เพิ่มสไตล์ปุ่มรีเซ็ต */
-        .btn-reset-sys { background: #e74c3c; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; margin-top: 10px; width: 100%; font-size: 14px; font-weight: bold; font-family: 'Sarabun', sans-serif; }
-        .btn-reset-sys:hover { background: #c0392b; }
+        /* --- Sidebar (เมนูด้านซ้ายสำหรับ PC) --- */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+            transition: 0.3s;
+            z-index: 1000;
+        }
 
-        /* --- Main Content --- */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .mobile-nav { display: none; background-color: #2c3e50; color: white; padding: 15px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
-        
-        /* --- Card & Grid --- */
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .card h3 { border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #2c3e50; margin-top: 0; }
-        
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid; }
-        .stat-number { font-size: 36px; font-weight: bold; margin: 10px 0; color: #333; }
-        .stat-label { color: #7f8c8d; font-size: 14px; }
-        
-        /* Grid รูปภาพ */
-        .approval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .approval-item { border: 2px solid transparent; padding: 10px; border-radius: 8px; text-align: center; background: #fff; position: relative; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .approval-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; pointer-events: none; }
-        .approval-item.selected { border-color: #27ae60; background-color: #e8f8f5; transform: scale(0.98); }
-        .approval-item.selected::after { content: '✓'; position: absolute; top: 5px; right: 5px; background: #27ae60; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .check-overlay { display: none; }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #465a6e;
+        }
 
-        /* Toolbar */
-        .bulk-toolbar { background: #f8f9fa; padding: 10px; margin-bottom: 15px; border-radius: 5px; display: flex; align-items: center; gap: 10px; border: 1px solid #ddd; flex-wrap: wrap; }
-        .btn-primary { background: #27ae60; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; transition: 0.3s; }
-        .btn-delete, .btn-restore, .btn-rename { border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin: 2px; color: white; }
-        .btn-delete { background: #c0392b; } .btn-restore { background: #3498db; } .btn-rename { background: #9b59b6; }
-        .btn-bulk-delete { background: #c0392b; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 13px; }
-        .btn-bulk-restore { background: #3498db; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 13px; }
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
-        th { background: #f8f9fa; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px; font-family: 'Sarabun', sans-serif; }
+        /* ปุ่ม Hamburger (ซ่อนในจอคอม) */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
 
-        /* Mobile Responsive */
+        /* ปุ่มปิดเมนู (ซ่อนในจอคอม) */
+        .close-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .user-info {
+            margin: 0;
+            color: #bdc3c7;
+            font-size: 14px;
+        }
+
+        .user-info span {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .menu-link {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .btn-logout {
+            background: #c0392b;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: auto;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .btn-logout:hover {
+            background-color: #e74c3c;
+        }
+
+        /* --- Main Content (เนื้อหาหลักขวามือ) --- */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* --- Mobile Navbar (แถบบนสุดในมือถือ) --- */
+        .mobile-nav {
+            display: none;
+            /* ซ่อนในคอม */
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Overlay (ฉากหลังดำตอนเปิดเมนู) --- */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* --- Card (กล่องสีขาว) --- */
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .card h3 {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        /* --- Stats Grid (กล่องสถิติ) --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* เหลือ 3 ช่อง */
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        /* --- Approval Grid (ตารางรูปภาพ) --- */
+        .approval-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .approval-item {
+            border: 2px solid transparent;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            background: #fff;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .approval-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        /* สไตล์ตอนเลือกรูป */
+        .approval-item.selected {
+            border-color: #27ae60;
+            background-color: #e8f8f5;
+            transform: scale(0.98);
+        }
+
+        .approval-item.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #27ae60;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .check-overlay {
+            display: none;
+        }
+
+        /* --- Toolbar & Buttons --- */
+        .bulk-toolbar {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* ปุ่มเล็กๆ รายตัว */
+        .btn-delete,
+        .btn-restore,
+        .btn-rename {
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 2px;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #c0392b;
+        }
+
+        .btn-restore {
+            background: #3498db;
+        }
+
+        .btn-rename {
+            background: #9b59b6;
+        }
+
+        /* ปุ่มกลุ่ม (Bulk Actions) */
+        .btn-bulk-delete,
+        .btn-bulk-restore {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 13px;
+        }
+
+        .btn-bulk-delete {
+            background: #c0392b;
+        }
+
+        .btn-bulk-restore {
+            background: #3498db;
+        }
+
+        /* --- Table & Inputs --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        /* 🔥🔥🔥 MOBILE RESPONSIVE CSS 🔥🔥🔥 */
         @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; overflow: auto; }
-            .mobile-nav { display: flex; }
-            .sidebar { position: fixed; left: -260px; top: 0; height: 100%; width: 250px; box-shadow: 2px 0 5px rgba(0,0,0,0.3); }
-            .sidebar.active { left: 0; }
-            .close-btn { display: block; }
-            .hamburger { display: block; }
-            .main-content { padding: 80px 15px 20px 15px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .stat-number { font-size: 24px; }
-            #uploadForm > div { grid-template-columns: 1fr !important; gap: 0 !important; }
-            .bulk-toolbar { flex-direction: column; align-items: stretch; }
-            .bulk-toolbar > div { display: flex; justify-content: space-between; margin-top: 5px; }
-            .card { padding: 15px; overflow-x: auto; }
-            table { min-width: 600px; }
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+
+            /* 1. แสดงแถบบน Mobile */
+            .mobile-nav {
+                display: flex;
+            }
+
+            /* 2. ปรับ Sidebar ให้เป็น Slide Menu ซ่อนไว้ทางซ้าย */
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                /* ดันออกนอกจอ */
+                top: 0;
+                height: 100vh;
+                width: 250px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            }
+
+            /* คลาส active เพื่อเลื่อน Sidebar ออกมา */
+            .sidebar.active {
+                left: 0;
+            }
+
+            /* แสดงปุ่มปิดเมนู */
+            .close-btn {
+                display: block;
+            }
+
+            .hamburger {
+                display: none;
+            }
+
+            /* ซ่อน hamburger ใน sidebar */
+
+            .main-content {
+                padding: 80px 15px 20px 15px;
+            }
+
+            /* ปรับ Stats Grid เป็น 2 คอลัมน์ */
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+
+            /* ปรับ Form เป็น 1 คอลัมน์ */
+            #uploadForm>div {
+                grid-template-columns: 1fr !important;
+                gap: 0 !important;
+            }
+
+            /* ปรับ Toolbar ให้ปุ่มเรียงสวย */
+            .bulk-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .bulk-toolbar>div {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 5px;
+            }
+
+            /* ให้ตารางเลื่อนซ้ายขวาได้ */
+            .card {
+                padding: 15px;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -110,78 +449,132 @@
             <p class="user-info">ผู้ใช้: <span id="showUsername">...</span></p>
             <a href="index.html" target="_blank" class="menu-link">🔗 ไปหน้าแกลเลอรี</a>
             <button onclick="logout()" class="btn-logout">ออกจากระบบ</button>
-            
-            <button onclick="resetSystem()" class="btn-reset-sys admin-only">⚠️ รีเซ็ตระบบ (ล้างข้อมูล)</button>
         </div>
     </div>
 
     <div class="main-content">
-        
+
         <div class="stats-grid">
-            <div class="stat-card" style="border-color: #3498db;"><div class="stat-label">รูปทั้งหมด</div><div class="stat-number" id="statTotal">0</div></div>
-            <div class="stat-card" style="border-color: #27ae60;"><div class="stat-label">หมวดหมู่</div><div class="stat-number" id="statCats">0</div></div>
-            <div class="stat-card" style="border-color: #e74c3c;"><div class="stat-label">ในถังขยะ</div><div class="stat-number" id="statTrash">0</div></div>
+            <div class="stat-card" style="border-color: #3498db;">
+                <div class="stat-label">รูปทั้งหมด</div>
+                <div class="stat-number" id="statTotal">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #27ae60;">
+                <div class="stat-label">หมวดหมู่</div>
+                <div class="stat-number" id="statCats">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #e74c3c;">
+                <div class="stat-label">ในถังขยะ</div>
+                <div class="stat-number" id="statTrash">0</div>
+            </div>
         </div>
 
         <div class="card">
             <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label><b>1. ชื่อกิจกรรม</b></label><input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required><datalist id="categoryList"></datalist></div>
-                    <div><label><b>2. เลือกรูป</b></label><input type="file" id="fileInput" multiple accept="image/*"></div>
+                    <div>
+                        <label><b>1. ชื่อกิจกรรม</b></label>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..."
+                            required>
+                        <datalist id="categoryList"></datalist>
+                    </div>
+                    <div>
+                        <label><b>2. เลือกรูป</b></label>
+                        <input type="file" id="fileInput" multiple accept="image/*">
+                    </div>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;">📤 อัปโหลด (ขึ้นทันที)</button>
             </form>
         </div>
 
         <div class="card" style="border-top: 5px solid #2c3e50;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">📚 จัดการรูปภาพ (แก้ไข/ลบ)</h3>
-                <button onclick="loadApprovedPhotos()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+                <button onclick="loadApprovedPhotos()"
+                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
+                    รีเฟรช</button>
             </div>
             <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllApproved" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllApproved" class="btn-primary"
+                    style="background:#34495e;">เลือกทั้งหมด</button>
                 <div><button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button></div>
             </div>
-            <div id="approvedList" class="approval-grid"><p>กำลังโหลด...</p></div>
+            <div id="approvedList" class="approval-grid">
+                <p>กำลังโหลด...</p>
+            </div>
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">🗑️ ถังขยะ</h3>
-                <button onclick="loadTrash()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+                <button onclick="loadTrash()"
+                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
+                    รีเฟรช</button>
             </div>
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllTrash" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllTrash" class="btn-primary"
+                    style="background:#34495e;">เลือกทั้งหมด</button>
                 <div>
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
                 </div>
             </div>
-            <div id="trashList" class="approval-grid"><p>ไม่มีไฟล์ในถังขยะ</p></div>
+            <div id="trashList" class="approval-grid">
+                <p>ไม่มีไฟล์ในถังขยะ</p>
+            </div>
         </div>
 
         <div class="card">
             <h3>📝 ประวัติการใช้งาน</h3>
             <div style="overflow-x: auto;">
-                <table><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead><tbody id="logTableBody"><tr><td colspan="4" style="text-align:center;">กำลังโหลด...</td></tr></tbody></table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>เวลา</th>
+                            <th>ผู้ใช้</th>
+                            <th>การกระทำ</th>
+                            <th>รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align:center;">กำลังโหลด...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div style="text-align:center; margin-top:15px;">
-                <button id="btnToggleLogs" onclick="toggleLogs()" style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️ ดูเพิ่มเติม</button>
+                <button id="btnToggleLogs" onclick="toggleLogs()"
+                    style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️
+                    ดูเพิ่มเติม</button>
             </div>
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
             <h3>👥 จัดการเจ้าหน้าที่</h3>
-            <div style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
-                <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1; min-width: 120px;">
+            <div
+                style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
+                <input type="text" id="newUsername" placeholder="Username ใหม่"
+                    style="margin:0; flex:1; min-width: 120px;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1; min-width: 120px;">
-                <select id="newRole" style="margin:0; flex:1; min-width: 120px;"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>
+                <select id="newRole" style="margin:0; flex:1; min-width: 120px;">
+                    <option value="uploader">Uploader</option>
+                    <option value="admin">Admin</option>
+                </select>
                 <button onclick="addUser()" class="btn-primary" style="background:#8e44ad; width:auto;">+ เพิ่ม</button>
             </div>
             <div style="overflow-x: auto;">
                 <table style="width:100%; border-collapse:collapse;">
-                    <thead><tr style="background:#eee;"><th style="padding:10px;">Username</th><th>Role</th><th>จัดการ</th></tr></thead>
+                    <thead>
+                        <tr style="background:#eee;">
+                            <th style="padding:10px;">Username</th>
+                            <th>Role</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
                     <tbody id="userTableBody"></tbody>
                 </table>
             </div>
@@ -193,11 +586,13 @@
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) window.location.href = 'login.html';
         document.getElementById('showUsername').innerText = user.username;
-        
+
+        // ซ่อนเมนู Admin ถ้าไม่ใช่ Admin
         if (user.role !== 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
         }
 
+        // ฟังก์ชันเปิด/ปิด Sidebar (Mobile)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
@@ -205,10 +600,11 @@
             overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
         }
 
+
         let allLogsData = [];
         let logLimit = 5;
 
-        // 🔥 โหลดข้อมูลเริ่มต้น
+        // 🔥 โหลดข้อมูลเริ่มต้น - เพิ่ม async/await เพื่อให้แน่ใจว่าโหลดเสร็จ
         (async function initLoad() {
             try {
                 await loadStats();
@@ -219,109 +615,414 @@
                     await loadTrash();
                     await loadUsers();
                 }
-            } catch (error) { console.error(error); }
+                console.log('✅ โหลดข้อมูลเริ่มต้นสำเร็จ');
+            } catch (error) {
+                console.error('❌ เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
+            }
         })();
 
-        // --- Functions ---
+        // --- Functions โหลดข้อมูล (ใส่ timestamp + เพิ่ม error handling) ---
         async function loadStats() {
-            const res = await fetch('/stats?t=' + Date.now());
-            const data = await res.json();
-            document.getElementById('statTotal').innerText = data.total_photos;
-            document.getElementById('statCats').innerText = data.total_categories;
-            document.getElementById('statTrash').innerText = data.trash_count;
-        }
-
-        async function loadCategories() { const res=await fetch('/categories?t='+Date.now()); const c=await res.json(); const dl=document.getElementById('categoryList'); dl.innerHTML=''; c.forEach(i=>dl.innerHTML+=`<option value="${i.name}"></option>`); }
-        async function loadLogs() { const res=await fetch('/logs?t='+Date.now()); allLogsData=await res.json(); renderLogs(); }
-        
-        function renderLogs() {
-            const tb = document.getElementById('logTableBody'); tb.innerHTML='';
-            const show = allLogsData.slice(0, logLimit);
-            show.forEach(l => tb.innerHTML+=`<tr><td>${new Date(l.created_at).toLocaleString('th-TH')}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`);
-            const btn = document.getElementById('btnToggleLogs');
-            if(allLogsData.length>5) { btn.style.display='inline-block'; btn.innerText = logLimit < allLogsData.length ? '⬇️ ดูเพิ่มเติม' : '⬆️ ย่อกลับ'; } else btn.style.display='none';
-        }
-        function toggleLogs() { logLimit = logLimit < allLogsData.length ? logLimit + 10 : 5; renderLogs(); }
-
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const cat = document.getElementById('categoryName').value;
-            const files = document.getElementById('fileInput').files;
-            if(!cat || !files.length) return Swal.fire('แจ้งเตือน','กรอกข้อมูลให้ครบ','warning');
-            if(files.length > 30) return Swal.fire('เตือน','อัปโหลดได้ทีละ 30 รูป','warning');
-            
-            const fd = new FormData(); fd.append('category_name', cat);
-            if(user) fd.append('user_id', user.user_id);
-            for(let i=0; i<files.length; i++) fd.append('photos', files[i]);
-            
-            Swal.fire({ title:'กำลังอัปโหลด...', allowOutsideClick:false, didOpen:()=>Swal.showLoading() });
-            const res = await fetch('/upload', { method:'POST', body:fd });
-            if(res.ok) { Swal.fire('สำเร็จ','เรียบร้อย','success'); reload(); document.getElementById('fileInput').value=''; }
-            else Swal.fire('ผิดพลาด','เกิดข้อผิดพลาด','error');
-        });
-
-        // 🔥 ฟังก์ชัน Reset System (ต้องกดปุ่มแดงถึงจะล้างค่า)
-        async function resetSystem() {
-            const r = await Swal.fire({ title:'ยืนยันล้างระบบ?', text:'รูปทั้งหมดจะหายไป!', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33', confirmButtonText:'ลบเดี๋ยวนี้!' });
-            if(r.isConfirmed) {
-                Swal.fire({ title:'กำลังล้าง...', didOpen:()=>Swal.showLoading() });
-                await fetch('/reset-system', { method:'POST' });
-                Swal.fire('สำเร็จ','ระบบว่างเปล่าแล้ว','success');
-                reload();
+            try {
+                const res = await fetch('/stats?t=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load stats');
+                const data = await res.json();
+                document.getElementById('statTotal').innerText = data.total_photos;
+                document.getElementById('statCats').innerText = data.total_categories;
+                document.getElementById('statTrash').innerText = data.trash_count;
+                console.log('📊 สถิติอัปเดต:', data);
+            } catch (error) {
+                console.error('❌ Error loading stats:', error);
             }
         }
 
-        function toggleSel(el) { el.classList.toggle('selected'); const c=el.querySelector('input'); if(c) c.checked=!c.checked; }
-        function evt(e,fn,...args) { e.stopPropagation(); fn(...args); }
-        async function cf(msg) { return (await Swal.fire({ title:msg, showCancelButton:true })).isConfirmed; }
-        
-        // 🔥 แก้ไขฟังก์ชัน reload() ให้ใช้ async/await และรอให้โหลดเสร็จทั้งหมด
-        async function reload() {
-            await Promise.all([ loadStats(), loadCategories(), loadApprovedPhotos(), loadLogs() ]);
-            if (user.role === 'admin') await loadTrash();
+        async function loadCategories() {
+            try {
+                const res = await fetch('/categories?t=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load categories');
+                const cats = await res.json();
+                const datalist = document.getElementById('categoryList');
+                datalist.innerHTML = '';
+                cats.forEach(c => datalist.innerHTML += `<option value="${c.name}"></option>`);
+                console.log('📁 หมวดหมู่อัปเดต:', cats.length, 'หมวดหมู่');
+            } catch (error) {
+                console.error('❌ Error loading categories:', error);
+            }
         }
-        
-        // Actions
-        async function bulkDelete() { if(await cf('ลบ?')) { const c=document.querySelectorAll('.approved-check:checked'); await Promise.all([...c].map(x=>fetch(`/photos/${x.value}`,{method:'DELETE'}))); reload(); } }
-        async function bulkRestoreTrash() { if(await cf('กู้คืน?')) { const c=document.querySelectorAll('.trash-check:checked'); await Promise.all([...c].map(x=>fetch(`/photos/${x.value}/restore`,{method:'PUT'}))); reload(); } }
-        async function bulkDeleteTrash() { if(await cf('ลบถาวร?')) { const c=document.querySelectorAll('.trash-check:checked'); await Promise.all([...c].map(x=>fetch(`/photos/${x.value}/permanent`,{method:'DELETE'}))); reload(); } }
-        async function softDelete(id) { if(await cf('ลบ?')) { await fetch(`/photos/${id}`,{method:'DELETE'}); reload(); } }
-        async function restorePhoto(id) { if(await cf('กู้คืน?')) { await fetch(`/photos/${id}/restore`,{method:'PUT'}); reload(); } }
-        async function permanentDelete(id) { if(await cf('ลบถาวร?')) { await fetch(`/photos/${id}/permanent`,{method:'DELETE'}); reload(); } }
-        async function renamePhoto(id,o) { const {value:n}=await Swal.fire({input:'text',inputValue:o}); if(n) { await fetch(`/photos/${id}/rename`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({new_name:n})}); reload(); } }
-        
-        // Users & Photos
-        async function loadApprovedPhotos() { const res=await fetch('/photos?t='+Date.now()); renderGrid('approvedList', await res.json(), 'approved'); }
-        async function loadTrash() { const res=await fetch('/photos/trash?t='+Date.now()); renderGrid('trashList', await res.json(), 'trash'); }
+
+        async function loadLogs() {
+            try {
+                const res = await fetch('/logs?t=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load logs');
+                allLogsData = await res.json();
+                renderLogs();
+                console.log('📝 Logs อัปเดต:', allLogsData.length, 'รายการ');
+            } catch (error) {
+                console.error('❌ Error loading logs:', error);
+            }
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('logTableBody');
+            const btn = document.getElementById('btnToggleLogs');
+            tbody.innerHTML = '';
+            const logsToShow = allLogsData.slice(0, logLimit);
+            logsToShow.forEach(log => {
+                const row = `<tr>
+            <td style="color:#7f8c8d; font-size:12px; white-space: nowrap;">${new Date(log.created_at).toLocaleString('th-TH')}</td>
+            <td style="font-weight:bold;">${log.username}</td>
+            <td><span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px;">${log.action}</span></td>
+            <td style="min-width: 150px;">${log.details}</td>
+        </tr>`;
+                tbody.innerHTML += row;
+            });
+            if (allLogsData.length > 5) {
+                btn.style.display = 'inline-block';
+                if (logLimit < allLogsData.length) {
+                    btn.innerHTML = `⬇️ ดูเพิ่มเติม (${allLogsData.length - logLimit})`;
+                } else {
+                    btn.innerHTML = `⬆️ ย่อกลับ`;
+                }
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function toggleLogs() {
+            if (logLimit < allLogsData.length) {
+                logLimit += 10;
+                if (logLimit > allLogsData.length) logLimit = allLogsData.length;
+            } else {
+                logLimit = 5;
+            }
+            renderLogs();
+        }
+
+        // 🔥 อัปโหลดพร้อมตัวดักจับ 30 รูป + รอให้โหลดข้อมูลเสร็จก่อนแสดงผล
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const categoryName = document.getElementById('categoryName').value.trim();
+            const files = document.getElementById('fileInput').files;
+
+            // 1. เช็คก่อนว่ามีข้อมูลครบไหม
+            if (!categoryName || files.length === 0) {
+                return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปและตั้งชื่อ', 'warning');
+            }
+
+            // 2. เช็คจำนวนไฟล์ไม่เกิน 30
+            if (files.length > 30) {
+                return Swal.fire('ไฟล์เยอะเกินไป', 'กรุณาอัปโหลดทีละไม่เกิน 30 รูป', 'warning');
+            }
+
+            // 3. สร้าง formData
+            const formData = new FormData();
+            formData.append('category_name', categoryName);
+            if (user) formData.append('user_id', user.user_id || user.id);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('photos', files[i]);
+            }
+
+            // 4. แสดง Loading
+            Swal.fire({
+                title: 'กำลังอัปโหลด...',
+                html: `<div style="font-size:18px;">กำลังอัปโหลด ${files.length} รูป</div>`,
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // 5. ส่งข้อมูลไปที่ server
+            try {
+                const res = await fetch('/upload', { method: 'POST', body: formData });
+
+                if (res.ok) {
+                    // 6. เคลียร์ form
+                    document.getElementById('fileInput').value = '';
+                    document.getElementById('categoryName').value = '';
+
+                    // 7. รอให้โหลดข้อมูลเสร็จ
+                    await reload();
+
+                    // 8. แสดงความสำเร็จ
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: `อัปโหลดเรียบร้อย ${files.length} รูป`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    const errorData = await res.json();
+                    Swal.fire('ผิดพลาด', errorData.message || 'เกิดข้อผิดพลาด', 'error');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
+            }
+        });
+
+        // --- Functions จัดการ User และรูปภาพ ---
+        async function loadUsers() {
+            try {
+                const res = await fetch('/users?t=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load users');
+                const users = await res.json();
+                const tbody = document.getElementById('userTableBody');
+                let html = '';
+                users.forEach(u => {
+                    const safeUsername = u.username.replace(/'/g, "\\'");
+                    html += `<tr>
+                <td style="padding:10px;">${u.username}</td>
+                <td>${u.role}</td>
+                <td>
+                    <button onclick="changeUsername(${u.user_id},'${safeUsername}')" class="btn-rename">✏️</button>
+                    <button onclick="resetPass(${u.user_id})" class="btn-reject">🔒</button>
+                    <button onclick="deleteUser(${u.user_id})" class="btn-delete">🗑️</button>
+                </td>
+            </tr>`;
+                });
+                tbody.innerHTML = html;
+                console.log('👥 Users อัปเดต:', users.length, 'คน');
+            } catch (error) {
+                console.error('❌ Error loading users:', error);
+            }
+        }
+
+        async function addUser() {
+            const u = document.getElementById('newUsername').value.trim();
+            const p = document.getElementById('newPassword').value.trim();
+            const r = document.getElementById('newRole').value;
+            if (!u || !p) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
+
+            try {
+                const res = await fetch('/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p, role: r })
+                });
+
+                if (res.ok) {
+                    Swal.fire('สำเร็จ', 'เพิ่มแล้ว', 'success');
+                    await loadUsers();
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPassword').value = '';
+                } else {
+                    throw new Error('Failed to add user');
+                }
+            } catch (error) {
+                console.error('Error adding user:', error);
+                Swal.fire('ผิดพลาด', 'ไม่สามารถเพิ่มผู้ใช้ได้', 'error');
+            }
+        }
+
+        async function deleteUser(id) {
+            if (id == user.user_id) return Swal.fire('ไม่ได้', 'ลบตัวเองไม่ได้', 'error');
+            if (!confirm('ยืนยันลบ?')) return;
+            await fetch(`/users/${id}`, { method: 'DELETE' });
+            await loadUsers();
+        }
+
+        async function resetPass(id) {
+            const { value: p } = await Swal.fire({ title: 'รหัสใหม่', input: 'text', showCancelButton: true });
+            if (p) {
+                await fetch(`/users/${id}/reset`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPassword: p })
+                });
+                Swal.fire('สำเร็จ', 'เปลี่ยนรหัสแล้ว', 'success');
+            }
+        }
+
+        async function changeUsername(id, o) {
+            const { value: n } = await Swal.fire({ title: 'ชื่อใหม่', input: 'text', inputValue: o, showCancelButton: true });
+            if (n && n != o) {
+                await fetch(`/users/${id}/username`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newUsername: n })
+                });
+                await loadUsers();
+            }
+        }
+
+        async function loadApprovedPhotos() {
+            try {
+                const res = await fetch('/photos?t=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load photos');
+                const photos = await res.json();
+                renderGrid('approvedList', photos, 'approved');
+                console.log('📸 รูปที่อนุมัติอัปเดต:', photos.length, 'รูป');
+            } catch (error) {
+                console.error('❌ Error loading approved photos:', error);
+            }
+        }
+
+        async function loadTrash() {
+            try {
+                const res = await fetch('/photos/trash?t=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load trash');
+                const photos = await res.json();
+                renderGrid('trashList', photos, 'trash');
+                console.log('🗑️ ถังขยะอัปเดต:', photos.length, 'รูป');
+            } catch (error) {
+                console.error('❌ Error loading trash:', error);
+            }
+        }
 
         function renderGrid(elemId, photos, type) {
-            const el = document.getElementById(elemId); el.innerHTML='';
-            if(!photos.length) { el.innerHTML='<p style="text-align:center;">ไม่มีข้อมูล</p>'; return; }
-            document.getElementById(type=='approved'?'approvedToolbar':'trashToolbar').style.display='flex';
-            
+            const container = document.getElementById(elemId);
+            container.innerHTML = '';
+            const toolbar = document.getElementById(type === 'approved' ? 'approvedToolbar' : 'trashToolbar');
+            if (toolbar) toolbar.style.display = photos.length === 0 ? 'none' : 'flex';
+
+            if (photos.length === 0) {
+                container.innerHTML = '<p style="text-align:center;width:100%;color:gray;">ไม่มีข้อมูล</p>';
+                return;
+            }
+
             photos.forEach(p => {
-                const btns = user.role==='admin' ? (type=='approved' 
-                    ? `<button onclick="evt(event,renamePhoto,${p.id},'${p.filename}')" class="btn-rename">✏️</button><button onclick="evt(event,softDelete,${p.id})" class="btn-delete">🗑️</button>` 
-                    : `<button onclick="evt(event,restorePhoto,${p.id})" class="btn-restore">♻️</button><button onclick="evt(event,permanentDelete,${p.id})" class="btn-delete">💥</button>`) : '';
-                const chk = user.role==='admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${p.id}">` : '';
-                const click = user.role==='admin' ? `onclick="toggleSel(this)"` : '';
-                el.innerHTML += `<div class="approval-item ${type}-item" ${click} data-id="${p.id}">${chk}<img src="${p.url}"><div>${p.filename}</div><div>${btns}</div></div>`;
+                const id = p.id || p.photo_id;
+                const url = p.url || `/uploads/${p.file_path}`;
+                const safeFilename = (p.filename || 'No Name').replace(/'/g, "\\'");
+                let btns = '';
+                if (user.role === 'admin') {
+                    if (type == 'approved') {
+                        btns = `<button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename">✏️</button>
+                        <button onclick="evt(event,softDelete,${id})" class="btn-delete">🗑️</button>`;
+                    } else {
+                        btns = `<button onclick="evt(event,restorePhoto,${id})" class="btn-restore">♻️</button>
+                        <button onclick="evt(event,permanentDelete,${id})" class="btn-delete">💥</button>`;
+                    }
+                }
+                const clickAction = (user.role === 'admin') ? `onclick="toggleSel(this)"` : '';
+                const checkboxHTML = (user.role === 'admin') ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">` : '';
+
+                container.innerHTML += `
+            <div class="approval-item ${type}-item" ${clickAction} data-id="${id}">
+                ${checkboxHTML}
+                <img src="${url}">
+                <div style="font-size:11px;margin:5px 0;overflow:hidden;text-overflow:ellipsis;">${p.filename || 'No Name'}</div>
+                <div>${btns}</div>
+            </div>`;
             });
-            
-            const allBtn = document.getElementById(type=='approved'?'btnSelectAllApproved':'btnSelectAllTrash');
-            if(allBtn && user.role==='admin') allBtn.onclick = () => {
-                const chks = document.querySelectorAll(`.${type}-check`);
-                const unchk = Array.from(chks).some(c=>!c.checked);
-                chks.forEach(c => { c.checked = unchk; c.parentElement.classList.toggle('selected', unchk); });
-            };
+
+            const allBtn = document.getElementById(type === 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash');
+            if (allBtn && user.role === 'admin') {
+                allBtn.onclick = () => {
+                    const items = document.querySelectorAll(`.${type}-item`);
+                    const checks = document.querySelectorAll(`.${type}-check`);
+                    const unchk = Array.from(checks).some(c => !c.checked);
+                    items.forEach(i => {
+                        if (unchk) i.classList.add('selected');
+                        else i.classList.remove('selected');
+                    });
+                    checks.forEach(c => c.checked = unchk);
+                };
+            }
         }
 
-        async function loadUsers() { const r=await fetch('/users?t='+Date.now()); const u=await r.json(); document.getElementById('userTableBody').innerHTML = u.map(x=>`<tr><td>${x.username}</td><td>${x.role}</td><td><button onclick="changeUsername(${x.user_id},'${x.username}')">✏️</button><button onclick="deleteUser(${x.user_id})">🗑️</button></td></tr>`).join(''); }
-        async function addUser() { await fetch('/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('newUsername').value,password:document.getElementById('newPassword').value,role:document.getElementById('newRole').value})}); reload(); loadUsers(); }
-        async function deleteUser(id) { if(await cf('ลบ user?')) { await fetch(`/users/${id}`,{method:'DELETE'}); loadUsers(); } }
-        async function changeUsername(id,o) { const {value:n}=await Swal.fire({input:'text',inputValue:o}); if(n) { await fetch(`/users/${id}/username`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({newUsername:n})}); loadUsers(); } }
+        function toggleSel(el) {
+            el.classList.toggle('selected');
+            const chk = el.querySelector('input');
+            if (chk) chk.checked = !chk.checked;
+        }
 
-        function logout() { localStorage.clear(); window.location.href='login.html'; }
+        function evt(e, fn, ...args) {
+            e.stopPropagation();
+            fn(...args);
+        }
+
+        async function bulkDelete() {
+            const checks = document.querySelectorAll('.approved-check:checked');
+            if (!checks.length) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูป', 'warning');
+            if (await cf('ย้ายลงถังขยะ?')) {
+                await Promise.all([...checks].map(c => fetch(`/photos/${c.value}`, { method: 'DELETE' })));
+                await reload();
+            }
+        }
+
+        async function bulkRestoreTrash() {
+            const checks = document.querySelectorAll('.trash-check:checked');
+            if (!checks.length) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูป', 'warning');
+            if (await cf('กู้คืน?')) {
+                await Promise.all([...checks].map(c => fetch(`/photos/${c.value}/restore`, { method: 'PUT' })));
+                await reload();
+            }
+        }
+
+        async function bulkDeleteTrash() {
+            const checks = document.querySelectorAll('.trash-check:checked');
+            if (!checks.length) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูป', 'warning');
+            if (await cf('ลบถาวร (กู้ไม่ได้)?')) {
+                await Promise.all([...checks].map(c => fetch(`/photos/${c.value}/permanent`, { method: 'DELETE' })));
+                await reload();
+            }
+        }
+
+        async function softDelete(id) {
+            if (await cf('ย้ายลงถังขยะ?')) {
+                await fetch(`/photos/${id}`, { method: 'DELETE' });
+                await reload();
+            }
+        }
+
+        async function restorePhoto(id) {
+            if (await cf('กู้คืน?')) {
+                await fetch(`/photos/${id}/restore`, { method: 'PUT' });
+                await reload();
+            }
+        }
+
+        async function permanentDelete(id) {
+            if (await cf('ลบถาวร (กู้ไม่ได้)?')) {
+                await fetch(`/photos/${id}/permanent`, { method: 'DELETE' });
+                await reload();
+            }
+        }
+
+        async function renamePhoto(id, o) {
+            const { value: n } = await Swal.fire({ title: 'แก้ชื่อ', input: 'text', inputValue: o, showCancelButton: true });
+            if (n) {
+                await fetch(`/photos/${id}/rename`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ new_name: n })
+                });
+                await reload();
+            }
+        }
+
+        async function cf(msg) {
+            const r = await Swal.fire({ title: msg, icon: 'question', showCancelButton: true, confirmButtonText: 'ใช่', cancelButtonText: 'ไม่' });
+            return r.isConfirmed;
+        }
+
+        // 🔥 แก้ไขฟังก์ชัน reload() ให้ใช้ async/await และรอให้โหลดเสร็จทั้งหมด
+        async function reload() {
+            console.log('🔄 กำลังรีโหลดข้อมูลทั้งหมด...');
+            try {
+                await Promise.all([
+                    loadStats(),
+                    loadCategories(),
+                    loadApprovedPhotos(),
+                    loadLogs()
+                ]);
+
+                if (user.role === 'admin') {
+                    await loadTrash();
+                }
+
+                console.log('✅ รีโหลดข้อมูลสำเร็จ');
+            } catch (error) {
+                console.error('❌ เกิดข้อผิดพลาดในการรีโหลด:', error);
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
+
 </html>
