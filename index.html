@@ -246,7 +246,7 @@
         async function fetchPhotos() {
             try {
                 // เพิ่ม timestamp เพื่อป้องกัน Cache
-                const response = await fetch('/photos?limit=1000&t=' + Date.now());
+                const response = await fetch('/photos?limit=100&t=' + Date.now());
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
