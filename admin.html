@@ -759,7 +759,22 @@
                 Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
             }
         });
+        // ✅ เพิ่มฟังก์ชันสำหรับสร้าง headers พร้อม token
+        function getAuthHeaders() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = localStorage.getItem('token');
 
+            if (!token) {
+                console.error('❌ ไม่พบ token');
+                window.location.href = 'login.html';
+                return null;
+            }
+
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
         // --- Functions จัดการ User และรูปภาพ ---
         async function loadUsers() {
             try {
