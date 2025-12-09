@@ -583,8 +583,15 @@
     </div>
 
     <script>
+        // ✅ เช็ค User และ Token
         const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) window.location.href = 'login.html';
+        const token = localStorage.getItem('token');
+
+        if (!user || !token) {
+            alert('กรุณาเข้าสู่ระบบใหม่');
+            window.location.href = 'login.html';
+        }
+
         document.getElementById('showUsername').innerText = user.username;
 
         // ซ่อนเมนู Admin ถ้าไม่ใช่ Admin
@@ -600,11 +607,29 @@
             overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
         }
 
+        // ✅ ฟังก์ชันสร้าง Headers พร้อม Token
+        function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                console.error('❌ ไม่พบ token');
+                Swal.fire('แจ้งเตือน', 'กรุณาเข้าสู่ระบบใหม่', 'warning').then(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                });
+                return null;
+            }
+
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
 
         let allLogsData = [];
         let logLimit = 5;
 
-        // 🔥 โหลดข้อมูลเริ่มต้น - เพิ่ม async/await เพื่อให้แน่ใจว่าโหลดเสร็จ
+        // 🔥 โหลดข้อมูลเริ่มต้น
         (async function initLoad() {
             try {
                 await loadStats();
@@ -613,7 +638,7 @@
                 await loadLogs();
                 if (user.role === 'admin') {
                     await loadTrash();
-                    await loadUsers();
+                    await loadUsers(); // ✅ โหลด Users
                 }
                 console.log('✅ โหลดข้อมูลเริ่มต้นสำเร็จ');
             } catch (error) {
@@ -621,7 +646,7 @@
             }
         })();
 
-        // --- Functions โหลดข้อมูล (ใส่ timestamp + เพิ่ม error handling) ---
+        // --- Functions โหลดข้อมูล ---
         async function loadStats() {
             try {
                 const res = await fetch('/stats?t=' + Date.now());
@@ -644,7 +669,7 @@
                 const datalist = document.getElementById('categoryList');
                 datalist.innerHTML = '';
                 cats.forEach(c => datalist.innerHTML += `<option value="${c.name}"></option>`);
-                console.log('📁 หมวดหมู่อัปเดต:', cats.length, 'หมวดหมู่');
+                console.log('📂 หมวดหมู่อัปเดต:', cats.length, 'หมวดหมู่');
             } catch (error) {
                 console.error('❌ Error loading categories:', error);
             }
@@ -669,11 +694,11 @@
             const logsToShow = allLogsData.slice(0, logLimit);
             logsToShow.forEach(log => {
                 const row = `<tr>
-            <td style="color:#7f8c8d; font-size:12px; white-space: nowrap;">${new Date(log.created_at).toLocaleString('th-TH')}</td>
-            <td style="font-weight:bold;">${log.username}</td>
-            <td><span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px;">${log.action}</span></td>
-            <td style="min-width: 150px;">${log.details}</td>
-        </tr>`;
+                <td style="color:#7f8c8d; font-size:12px; white-space: nowrap;">${new Date(log.created_at).toLocaleString('th-TH')}</td>
+                <td style="font-weight:bold;">${log.username}</td>
+                <td><span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px;">${log.action}</span></td>
+                <td style="min-width: 150px;">${log.details}</td>
+            </tr>`;
                 tbody.innerHTML += row;
             });
             if (allLogsData.length > 5) {
@@ -698,23 +723,20 @@
             renderLogs();
         }
 
-        // 🔥 อัปโหลดพร้อมตัวดักจับ 30 รูป + รอให้โหลดข้อมูลเสร็จก่อนแสดงผล
+        // 🔥 อัปโหลดพร้อมตัวดักจับ 30 รูป
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const categoryName = document.getElementById('categoryName').value.trim();
             const files = document.getElementById('fileInput').files;
 
-            // 1. เช็คก่อนว่ามีข้อมูลครบไหม
             if (!categoryName || files.length === 0) {
                 return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปและตั้งชื่อ', 'warning');
             }
 
-            // 2. เช็คจำนวนไฟล์ไม่เกิน 30
             if (files.length > 30) {
                 return Swal.fire('ไฟล์เยอะเกินไป', 'กรุณาอัปโหลดทีละไม่เกิน 30 รูป', 'warning');
             }
 
-            // 3. สร้าง formData
             const formData = new FormData();
             formData.append('category_name', categoryName);
             if (user) formData.append('user_id', user.user_id || user.id);
@@ -722,7 +744,6 @@
                 formData.append('photos', files[i]);
             }
 
-            // 4. แสดง Loading
             Swal.fire({
                 title: 'กำลังอัปโหลด...',
                 html: `<div style="font-size:18px;">กำลังอัปโหลด ${files.length} รูป</div>`,
@@ -730,19 +751,13 @@
                 didOpen: () => Swal.showLoading()
             });
 
-            // 5. ส่งข้อมูลไปที่ server
             try {
                 const res = await fetch('/upload', { method: 'POST', body: formData });
 
                 if (res.ok) {
-                    // 6. เคลียร์ form
                     document.getElementById('fileInput').value = '';
                     document.getElementById('categoryName').value = '';
-
-                    // 7. รอให้โหลดข้อมูลเสร็จ
                     await reload();
-
-                    // 8. แสดงความสำเร็จ
                     Swal.fire({
                         icon: 'success',
                         title: 'สำเร็จ!',
@@ -759,46 +774,59 @@
                 Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
             }
         });
-        // ✅ เพิ่มฟังก์ชันสำหรับสร้าง headers พร้อม token
-        function getAuthHeaders() {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const token = localStorage.getItem('token');
 
-            if (!token) {
-                console.error('❌ ไม่พบ token');
-                window.location.href = 'login.html';
-                return null;
-            }
-
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            };
-        }
-        // --- Functions จัดการ User และรูปภาพ ---
+        // --- Functions จัดการ User ---
         async function loadUsers() {
             try {
-                const res = await fetch('/users?t=' + Date.now());
+                const headers = getAuthHeaders();
+                if (!headers) return;
+
+                console.log('🔄 กำลังโหลด Users...');
+
+                const res = await fetch('/users?t=' + Date.now(), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': headers.Authorization
+                    }
+                });
+
+                console.log('📡 Response status:', res.status);
+
+                if (res.status === 401 || res.status === 403) {
+                    Swal.fire('ไม่มีสิทธิ์', 'กรุณาเข้าสู่ระบบใหม่', 'error').then(() => {
+                        localStorage.clear();
+                        window.location.href = 'login.html';
+                    });
+                    return;
+                }
+
                 if (!res.ok) throw new Error('Failed to load users');
+
                 const users = await res.json();
+                console.log('👥 Users ที่ได้:', users);
+
                 const tbody = document.getElementById('userTableBody');
                 let html = '';
+
                 users.forEach(u => {
                     const safeUsername = u.username.replace(/'/g, "\\'");
                     html += `<tr>
-                <td style="padding:10px;">${u.username}</td>
-                <td>${u.role}</td>
-                <td>
-                    <button onclick="changeUsername(${u.user_id},'${safeUsername}')" class="btn-rename">✏️</button>
-                    <button onclick="resetPass(${u.user_id})" class="btn-reject">🔒</button>
-                    <button onclick="deleteUser(${u.user_id})" class="btn-delete">🗑️</button>
-                </td>
-            </tr>`;
+                    <td style="padding:10px;">${u.username}</td>
+                    <td>${u.role}</td>
+                    <td>
+                        <button onclick="changeUsername(${u.user_id},'${safeUsername}')" class="btn-rename">✏️</button>
+                        <button onclick="resetPass(${u.user_id})" class="btn-reject">🔑</button>
+                        <button onclick="deleteUser(${u.user_id})" class="btn-delete">🗑️</button>
+                    </td>
+                </tr>`;
                 });
+
                 tbody.innerHTML = html;
-                console.log('👥 Users อัปเดต:', users.length, 'คน');
+                console.log('✅ Users อัปเดต:', users.length, 'คน');
             } catch (error) {
                 console.error('❌ Error loading users:', error);
+                document.getElementById('userTableBody').innerHTML =
+                    '<tr><td colspan="3" style="text-align:center;color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
             }
         }
 
@@ -806,14 +834,34 @@
             const u = document.getElementById('newUsername').value.trim();
             const p = document.getElementById('newPassword').value.trim();
             const r = document.getElementById('newRole').value;
-            if (!u || !p) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
+
+            console.log('📝 พยายามเพิ่ม User:', { username: u, role: r });
+
+            if (!u || !p) {
+                return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
+            }
 
             try {
+                const headers = getAuthHeaders();
+                if (!headers) return;
+
+                console.log('📤 ส่ง Request เพิ่ม User...');
+
                 const res = await fetch('/users', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: headers,
                     body: JSON.stringify({ username: u, password: p, role: r })
                 });
+
+                console.log('📡 Response status:', res.status);
+
+                const data = await res.json();
+                console.log('📦 Response data:', data);
+
+                if (res.status === 401 || res.status === 403) {
+                    Swal.fire('ไม่มีสิทธิ์', 'Admin เท่านั้น', 'error');
+                    return;
+                }
 
                 if (res.ok) {
                     Swal.fire('สำเร็จ', 'เพิ่มแล้ว', 'success');
@@ -821,45 +869,93 @@
                     document.getElementById('newUsername').value = '';
                     document.getElementById('newPassword').value = '';
                 } else {
-                    throw new Error('Failed to add user');
+                    Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถเพิ่มผู้ใช้ได้', 'error');
                 }
             } catch (error) {
-                console.error('Error adding user:', error);
-                Swal.fire('ผิดพลาด', 'ไม่สามารถเพิ่มผู้ใช้ได้', 'error');
+                console.error('❌ Error adding user:', error);
+                Swal.fire('ผิดพลาด', 'ไม่สามารถเพิ่มผู้ใช้ได้: ' + error.message, 'error');
             }
         }
 
         async function deleteUser(id) {
-            if (id == user.user_id) return Swal.fire('ไม่ได้', 'ลบตัวเองไม่ได้', 'error');
+            if (id == user.user_id) {
+                return Swal.fire('ไม่ได้', 'ลบตัวเองไม่ได้', 'error');
+            }
+
             if (!confirm('ยืนยันลบ?')) return;
-            await fetch(`/users/${id}`, { method: 'DELETE' });
-            await loadUsers();
+
+            try {
+                const headers = getAuthHeaders();
+                if (!headers) return;
+
+                await fetch(`/users/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': headers.Authorization
+                    }
+                });
+
+                await loadUsers();
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                Swal.fire('ผิดพลาด', 'ไม่สามารถลบได้', 'error');
+            }
         }
 
         async function resetPass(id) {
-            const { value: p } = await Swal.fire({ title: 'รหัสใหม่', input: 'text', showCancelButton: true });
+            const { value: p } = await Swal.fire({
+                title: 'รหัสใหม่',
+                input: 'text',
+                showCancelButton: true
+            });
+
             if (p) {
-                await fetch(`/users/${id}/reset`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ newPassword: p })
-                });
-                Swal.fire('สำเร็จ', 'เปลี่ยนรหัสแล้ว', 'success');
+                try {
+                    const headers = getAuthHeaders();
+                    if (!headers) return;
+
+                    await fetch(`/users/${id}/reset`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify({ newPassword: p })
+                    });
+
+                    Swal.fire('สำเร็จ', 'เปลี่ยนรหัสแล้ว', 'success');
+                } catch (error) {
+                    console.error('Error resetting password:', error);
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถเปลี่ยนรหัสได้', 'error');
+                }
             }
         }
 
         async function changeUsername(id, o) {
-            const { value: n } = await Swal.fire({ title: 'ชื่อใหม่', input: 'text', inputValue: o, showCancelButton: true });
+            const { value: n } = await Swal.fire({
+                title: 'ชื่อใหม่',
+                input: 'text',
+                inputValue: o,
+                showCancelButton: true
+            });
+
             if (n && n != o) {
-                await fetch(`/users/${id}/username`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ newUsername: n })
-                });
-                await loadUsers();
+                try {
+                    const headers = getAuthHeaders();
+                    if (!headers) return;
+
+                    await fetch(`/users/${id}/username`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify({ newUsername: n })
+                    });
+
+                    await loadUsers();
+                } catch (error) {
+                    console.error('Error changing username:', error);
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถเปลี่ยนชื่อได้', 'error');
+                }
             }
         }
 
+        // --- Functions รูปภาพ ---
         async function loadApprovedPhotos() {
             try {
                 const res = await fetch('/photos?t=' + Date.now());
@@ -903,22 +999,22 @@
                 if (user.role === 'admin') {
                     if (type == 'approved') {
                         btns = `<button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename">✏️</button>
-                        <button onclick="evt(event,softDelete,${id})" class="btn-delete">🗑️</button>`;
+                    <button onclick="evt(event,softDelete,${id})" class="btn-delete">🗑️</button>`;
                     } else {
                         btns = `<button onclick="evt(event,restorePhoto,${id})" class="btn-restore">♻️</button>
-                        <button onclick="evt(event,permanentDelete,${id})" class="btn-delete">💥</button>`;
+                    <button onclick="evt(event,permanentDelete,${id})" class="btn-delete">💥</button>`;
                     }
                 }
                 const clickAction = (user.role === 'admin') ? `onclick="toggleSel(this)"` : '';
                 const checkboxHTML = (user.role === 'admin') ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">` : '';
 
                 container.innerHTML += `
-            <div class="approval-item ${type}-item" ${clickAction} data-id="${id}">
-                ${checkboxHTML}
-                <img src="${url}">
-                <div style="font-size:11px;margin:5px 0;overflow:hidden;text-overflow:ellipsis;">${p.filename || 'No Name'}</div>
-                <div>${btns}</div>
-            </div>`;
+        <div class="approval-item ${type}-item" ${clickAction} data-id="${id}">
+            ${checkboxHTML}
+            <img src="${url}">
+            <div style="font-size:11px;margin:5px 0;overflow:hidden;text-overflow:ellipsis;">${p.filename || 'No Name'}</div>
+            <div>${btns}</div>
+        </div>`;
             });
 
             const allBtn = document.getElementById(type === 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash');
@@ -1012,7 +1108,6 @@
             return r.isConfirmed;
         }
 
-        // 🔥 แก้ไขฟังก์ชัน reload() ให้ใช้ async/await และรอให้โหลดเสร็จทั้งหมด
         async function reload() {
             console.log('🔄 กำลังรีโหลดข้อมูลทั้งหมด...');
             try {
