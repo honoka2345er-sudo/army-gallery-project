@@ -74,6 +74,9 @@ const pool = mysql.createPool({
     try {
         const connection = await pool.getConnection();
         console.log('✅ Connected to TiDB Cloud Successfully!');
+        // 🔥 Auto Cleanup: ลบหมวดหมู่ที่ไม่มีรูปภาพทิ้งทันทีที่เปิด Server
+        await connection.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
+        console.log('🧹 Auto-cleaned empty categories on startup');
         connection.release();
     } catch (err) { console.error('❌ Database Connection Failed:', err); }
 })();
@@ -196,7 +199,6 @@ app.put('/photos/:id/restore', async (req, res) => {
     try { await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id = ?', [req.params.id]); res.json({ message: 'Restored' }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔥 ลบถาวร: ลบไฟล์จริง + ลบ DB + ลบหมวดหมู่
 app.delete('/photos/:id/permanent', async (req, res) => {
     const photoId = req.params.id;
     try {
@@ -209,23 +211,21 @@ app.delete('/photos/:id/permanent', async (req, res) => {
 
         await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
 
-        // (Auto Cleanup ถูกย้ายไปทำใน /stats แล้วเพื่อความชัวร์)
+        if (f.category_id) {
+            const [countRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE category_id = ?', [f.category_id]);
+            if (countRes[0].count === 0) await pool.query('DELETE FROM Categories WHERE category_id = ?', [f.category_id]);
+        }
         res.json({ message: 'Deleted' });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔥 แก้ไขแบบไม้ตาย: สั่งล้างหมวดหมู่เปล่าทุกครั้งที่เรียกดูสถิติ (เลขตรงเป๊ะแน่นอน)
 app.get('/stats', async (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     try {
-        // 1. ล้างหมวดหมู่ขยะทิ้งก่อนนับ
-        await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
-
-        // 2. แยก Query นับทีละตัวเพื่อความแม่นยำ
         const [totalRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0');
         const [catRes] = await pool.query('SELECT COUNT(*) as count FROM Categories');
         const [trashRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1');
-
+        
         res.json({ 
             total_photos: totalRes[0].count, 
             pending_photos: 0, 
@@ -233,6 +233,28 @@ app.get('/stats', async (req, res) => {
             trash_count: trashRes[0].count 
         });
     } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// 🔥🔥🔥 ฟังก์ชันล้างบางระบบ (เพิ่มคำสั่งปลดล็อกกุญแจแล้ว!)
+app.post('/reset-system', async (req, res) => {
+    try {
+        // 1. ปลดล็อก Foreign Key ก่อน
+        await pool.query('SET FOREIGN_KEY_CHECKS = 0');
+        
+        // 2. ลบข้อมูลทิ้ง
+        await pool.query('TRUNCATE TABLE Photos');
+        await pool.query('TRUNCATE TABLE Categories');
+        await pool.query('TRUNCATE TABLE Logs');
+        
+        // 3. ล็อกกลับคืน
+        await pool.query('SET FOREIGN_KEY_CHECKS = 1');
+        
+        console.log('💥 System Reset Successfully!');
+        res.json({ message: 'ล้างข้อมูลทั้งหมดเรียบร้อย!' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get('/categories', async (req, res) => { try { const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC'); res.json(results); } catch (err) { res.status(500).json({ error: err.message }); } });
@@ -243,19 +265,16 @@ app.delete('/users/:id', async (req, res) => { try { await pool.query('DELETE FR
 app.put('/users/:id/reset', async (req, res) => { try { const hashedPassword = await bcrypt.hash(req.body.newPassword, 10); await pool.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, req.params.id]); res.json({ message: 'Reset' }); } catch (err) { res.status(500).json({ error: err.message }); } });
 app.put('/users/:id/username', async (req, res) => { try { await pool.query('UPDATE Users SET username = ? WHERE user_id = ?', [req.body.newUsername, req.params.id]); res.json({ message: 'Username changed' }); } catch (err) { res.status(500).json({ message: 'Error' }); } });
 
-// ฟังก์ชัน ZIP Download
 app.get('/download-zip/:categoryName', async (req, res) => {
     try {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Not found');
-        
         const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
         if (photos.length === 0) return res.status(404).send('No photos');
 
         const archive = archiver('zip', { zlib: { level: 9 } });
         res.attachment(`${req.params.categoryName}.zip`);
         archive.pipe(res);
-
         for (const photo of photos) {
             const url = photo.file_path;
             await new Promise((resolve) => {
