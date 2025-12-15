@@ -254,8 +254,8 @@ app.get('/', (req, res) => {
 app.post('/register', async (req, res) => {
     const { username, password, role } = req.body;
     const validation = validateInput(req.body, {
-        username: { required: true, minLength: 3, maxLength: 50 },
-        password: { required: true, minLength: 6, maxLength: 100 }
+        username: { required: true, minLength: 8, maxLength: 50 },
+        password: { required: true, minLength: 8, maxLength: 100 }
     });
 
     if (!validation.valid) return res.status(400).json({ message: validation.message });
