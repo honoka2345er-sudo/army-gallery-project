@@ -554,10 +554,13 @@
                     <span style="font-weight:bold; color:#333;">เครดิตที่ใช้ไป (Usage)</span>
                     <span id="storagePercentage" style="font-weight:bold; color:#e74c3c;">0%</span>
                 </div>
-                <div style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; position:relative;">
+                <div
+                    style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; position:relative; overflow:hidden;">
                     <div id="storageBar"
-                        style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; justify-content:center; color:#333; font-weight:bold; font-size:12px; border-radius:15px; white-space:nowrap; overflow:visible;">
-                        0%</div>
+                        style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px;">
+                        <span id="storagePercentage"
+                            style="color:#333; font-weight:bold; font-size:12px; white-space:nowrap;">0.00%</span>
+                    </div>
                 </div>
                 <div
                     style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
@@ -864,24 +867,61 @@
         // 🔥 Storage Stats
         async function loadStorageStats() {
             try {
-                const headers = getAuthHeaders(); if (!headers) return;
-                const res = await fetch('/storage/usage?t=' + Date.now(), { headers }); if (!res.ok) return;
+                const headers = getAuthHeaders();
+                if (!headers) return;
+                const res = await fetch('/storage/usage?t=' + Date.now(), { headers });
+                if (!res.ok) return;
                 const data = await res.json();
+
                 const p = parseFloat(data.cloudinary.usage_percent).toFixed(2);
+
+                // 1. อัปเดตตัวเลข (ผ่าน ID storagePercentage)
                 document.getElementById('storagePercentage').innerText = p + '%';
-                const bar = document.getElementById('storageBar'); bar.style.width = p + '%'; bar.innerText = p + '%';
-                if (p > 90) bar.style.background = '#e74c3c';
+
+                // 2. อัปเดตหลอดสี
+                const bar = document.getElementById('storageBar');
+                bar.style.width = p + '%';
+                bar.style.minWidth = '60px'; // 🔥 บังคับความกว้างขั้นต่ำ เพื่อให้เห็นตัวเลขเสมอ
+
+                // เปลี่ยนสีถ้าใกล้เต็ม
+                if (p > 90) bar.style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+                else if (p > 80) bar.style.background = 'linear-gradient(90deg, #f39c12, #e67e22)';
+                else bar.style.background = 'linear-gradient(90deg, #3498db, #9b59b6)';
+
                 document.getElementById('storageUsed').innerText = 'ใช้ไป: ' + data.cloudinary.used_readable;
+
+                // ส่วนรายการ Top 5 (เหมือนเดิม)
                 const list = document.getElementById('topCategoriesList');
-                if (!data.top_categories.length) { list.innerHTML = '<p style="text-align:center;color:#999;">ไม่มีข้อมูล</p>'; return; }
-                list.innerHTML = ''; const max = data.top_categories[0].photo_count;
-                data.top_categories.forEach(c => {
+                if (!data.top_categories.length) {
+                    list.innerHTML = '<p style="text-align:center;color:#999;">ไม่มีข้อมูล</p>';
+                    return;
+                }
+                list.innerHTML = '';
+                const max = data.top_categories[0].photo_count;
+                data.top_categories.forEach((c, index) => {
                     const percent = (c.photo_count / max) * 100;
-                    list.innerHTML += `<div style="margin-bottom:10px;"><div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px;"><span>${c.category_name}</span><span>${c.photo_count} รูป</span></div><div style="width:100%; height:8px; background:#ecf0f1; border-radius:4px;"><div style="height:100%; background:#3498db; width:${percent}%; border-radius:4px;"></div></div></div>`;
+                    // สลับสีเล่นๆ ให้ดูสวยงาม (แดง ส้ม ฟ้า เทา)
+                    const barColor = index === 0 ? '#e74c3c' : index === 1 ? '#f39c12' : index === 2 ? '#3498db' : '#95a5a6';
+
+                    list.innerHTML += `
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px;">
+                        <span>${c.category_name}</span><span>${c.photo_count} รูป</span>
+                    </div>
+                    <div style="width:100%; height:8px; background:#ecf0f1; border-radius:4px;">
+                        <div style="height:100%; background:${barColor}; width:${percent}%; border-radius:4px;"></div>
+                    </div>
+                </div>`;
                 });
+
                 const resAvg = await fetch('/storage/average?t=' + Date.now(), { headers });
-                if (resAvg.ok) { const d = await resAvg.json(); document.getElementById('avgPhotoSize').innerText = d.average_readable; }
-            } catch (e) { console.error(e); }
+                if (resAvg.ok) {
+                    const d = await resAvg.json();
+                    document.getElementById('avgPhotoSize').innerText = d.average_readable;
+                }
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         // 🔥 Edit Details
