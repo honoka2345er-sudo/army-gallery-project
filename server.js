@@ -30,13 +30,13 @@ app.use((req, res, next) => {
 // ✅ ปรับ Rate Limiting ให้เหมาะสม
 const apiLimiter = rateLimit({ 
     windowMs: 15 * 60 * 1000, 
-    max: 100, // ลดจาก 1000 เหลือ 100
+    max: 100,
     message: 'Too many requests from this IP'
 });
 
 const uploadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10, // อนุญาตอัปโหลด 10 ครั้ง/15 นาที
+    max: 10,
     message: 'Too many uploads'
 });
 
@@ -58,8 +58,8 @@ const storage = new CloudinaryStorage({
         folder: 'army_gallery',
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
         transformation: [
-            { width: 1920, height: 1080, crop: "limit" }, // จำกัดขนาดสูงสุด
-            { quality: "auto:good" }, // บีบอัดอัตโนมัติ
+            { width: 1920, height: 1080, crop: "limit" },
+            { quality: "auto:good" },
             { fetch_format: "auto" }
         ]
     },
@@ -67,7 +67,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // จำกัด 10MB/ไฟล์
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 // ✅ Database Connection Pool
@@ -78,7 +78,7 @@ const pool = mysql.createPool({
     password: process.env.DB_PASS,
     database: process.env.DB_NAME || 'army_photo_gallery',
     ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true },
-    multipleStatements: false, // ป้องกัน SQL Injection
+    multipleStatements: false,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -158,6 +158,51 @@ function getPublicIdFromUrl(url) {
         return folder + '/' + filename.split('.')[0];
     } catch (e) { 
         return null; 
+    }
+}
+
+// ✅ 🆕 Helper: แปลง bytes เป็น human-readable
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// ✅ 🆕 ดึงข้อมูลพื้นที่จาก Cloudinary
+async function getCloudinaryUsage() {
+    try {
+        const result = await new Promise((resolve, reject) => {
+            cloudinary.api.usage((error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            });
+        });
+        
+        return {
+            used_bytes: result.storage?.usage || 0,
+            used_readable: formatBytes(result.storage?.usage || 0),
+            limit_bytes: result.storage?.limit || 10737418240, // Default 10GB
+            limit_readable: formatBytes(result.storage?.limit || 10737418240),
+            usage_percent: result.storage?.usage && result.storage?.limit 
+                ? ((result.storage.usage / result.storage.limit) * 100).toFixed(2)
+                : 0,
+            total_resources: result.resources || 0,
+            plan: result.plan || 'free'
+        };
+    } catch (error) {
+        console.error('⚠️ Cloudinary usage error:', error.message);
+        return {
+            used_bytes: 0,
+            used_readable: '0 MB',
+            limit_bytes: 10737418240,
+            limit_readable: '10 GB',
+            usage_percent: 0,
+            total_resources: 0,
+            plan: 'unknown',
+            error: 'Unable to fetch storage data from Cloudinary'
+        };
     }
 }
 
@@ -318,7 +363,7 @@ app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30)
 // ✅ Get Photos with Pagination
 app.get('/photos', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = Math.min(parseInt(req.query.limit) || 50, 1000); // จำกัดไม่เกิน 1000
+    const limit = Math.min(parseInt(req.query.limit) || 50, 1000);
     const offset = (page - 1) * limit;
     
     const sql = `
@@ -475,6 +520,130 @@ app.get('/stats', async (req, res) => {
     }
 });
 
+// ✅ 🆕 API: ดูพื้นที่ที่ใช้ (Admin Only)
+app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
+    try {
+        const cloudinaryData = await getCloudinaryUsage();
+        
+        const [photosCount] = await pool.query(
+            'SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0'
+        );
+        
+        const [trashCount] = await pool.query(
+            'SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 1'
+        );
+        
+        const [categoryStats] = await pool.query(`
+            SELECT 
+                c.name as category_name,
+                COUNT(p.photo_id) as photo_count
+            FROM Categories c
+            LEFT JOIN Photos p ON c.category_id = p.category_id AND p.is_deleted = 0
+            WHERE c.category_id IN (SELECT DISTINCT category_id FROM Photos WHERE is_deleted = 0)
+            GROUP BY c.category_id, c.name
+            ORDER BY photo_count DESC
+            LIMIT 10
+        `);
+        
+        res.json({
+            cloudinary: cloudinaryData,
+            database: {
+                active_photos: photosCount[0].total,
+                trash_photos: trashCount[0].total,
+                total_photos: photosCount[0].total + trashCount[0].total
+            },
+            top_categories: categoryStats,
+            warning: parseFloat(cloudinaryData.usage_percent) > 80 ? 'Storage almost full!' : null
+        });
+        
+    } catch (error) {
+        console.error('❌ Storage usage error:', error);
+        res.status(500).json({ error: 'Failed to get storage usage' });
+    }
+});
+
+// ✅ 🆕 API: ดูขนาดไฟล์แต่ละรูป
+app.get('/photos/:id/size', async (req, res) => {
+    try {
+        const [photos] = await pool.query(
+            'SELECT file_path FROM Photos WHERE photo_id = ?',
+            [req.params.id]
+        );
+        
+        if (photos.length === 0) {
+            return res.status(404).json({ message: 'Photo not found' });
+        }
+        
+        const publicId = getPublicIdFromUrl(photos[0].file_path);
+        
+        if (!publicId) {
+            return res.status(400).json({ message: 'Invalid photo URL' });
+        }
+        
+        cloudinary.api.resource(publicId, (error, result) => {
+            if (error) {
+                console.error('Cloudinary API error:', error);
+                return res.status(500).json({ error: 'Failed to get file size' });
+            }
+            
+            res.json({
+                bytes: result.bytes,
+                readable: formatBytes(result.bytes),
+                width: result.width,
+                height: result.height,
+                format: result.format
+            });
+        });
+        
+    } catch (error) {
+        console.error('Get file size error:', error);
+        res.status(500).json({ error: 'Failed to get file size' });
+    }
+});
+
+// ✅ 🆕 API: สถิติขนาดไฟล์โดยเฉลี่ย
+app.get('/storage/average', authenticateToken, async (req, res) => {
+    try {
+        const [results] = await pool.query(
+            'SELECT file_path FROM Photos WHERE is_deleted = 0 LIMIT 50'
+        );
+        
+        let totalSize = 0;
+        let count = 0;
+        
+        for (const photo of results) {
+            const publicId = getPublicIdFromUrl(photo.file_path);
+            if (publicId) {
+                try {
+                    const result = await new Promise((resolve, reject) => {
+                        cloudinary.api.resource(publicId, (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        });
+                    });
+                    totalSize += result.bytes || 0;
+                    count++;
+                } catch (e) {
+                    // Skip if error
+                }
+            }
+        }
+        
+        const avgSize = count > 0 ? totalSize / count : 0;
+        
+        res.json({
+            average_bytes: Math.round(avgSize),
+            average_readable: formatBytes(avgSize),
+            sample_size: count,
+            total_photos: results.length
+        });
+        
+    } catch (error) {
+        console.error('Average size error:', error);
+        res.status(500).json({ error: 'Failed to calculate average' });
+    }
+});
+
 // ✅ Get Categories
 app.get('/categories', async (req, res) => { 
     try { 
@@ -487,8 +656,8 @@ app.get('/categories', async (req, res) => {
     } 
 });
 
-// ✅ Get Logs (Admin Only)
-app.get('/logs', async (req, res) => {  // ✅ ลบ authenticateToken, adminOnly
+// ✅ Get Logs
+app.get('/logs', async (req, res) => {
     try { 
         const [results] = await pool.query(
             'SELECT * FROM Logs ORDER BY created_at DESC LIMIT 50'

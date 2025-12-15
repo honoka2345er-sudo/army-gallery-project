@@ -639,6 +639,7 @@
                 if (user.role === 'admin') {
                     await loadTrash();
                     await loadUsers(); // ✅ โหลด Users
+                    await loadStorageStats();
                 }
                 console.log('✅ โหลดข้อมูลเริ่มต้นสำเร็จ');
             } catch (error) {
@@ -1014,6 +1015,65 @@
             <img src="${url}">
             <div style="font-size:11px;margin:5px 0;overflow:hidden;text-overflow:ellipsis;">${p.filename || 'No Name'}</div>
             <div>${btns}</div>
+        <!-- ✅ เพิ่มส่วนนี้ -->
+<div class="card admin-only" style="border-top: 5px solid #9b59b6;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+        <h3 style="border:none; margin:0; padding:0;">💾 พื้นที่จัดเก็บข้อมูล</h3>
+        <button onclick="loadStorageStats()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+    </div>
+    
+    <!-- แถบแสดงพื้นที่ -->
+    <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-weight:bold; color:#333;">พื้นที่ที่ใช้ไป</span>
+            <span id="storagePercentage" style="font-weight:bold; color:#e74c3c;">0%</span>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; overflow:hidden; position:relative;">
+            <div id="storageBar" style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:12px;">
+                0%
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
+            <span id="storageUsed">ใช้ไป: 0 MB</span>
+            <span id="storageLimit">ลิมิต: 0 GB</span>
+        </div>
+    </div>
+    
+    <!-- สถิติรายละเอียด -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
+        <div style="background:#e3f2fd; padding:15px; border-radius:8px; border-left:4px solid #2196f3;">
+            <div style="font-size:12px; color:#666; margin-bottom:5px;">รูปทั้งหมด</div>
+            <div id="totalPhotosCount" style="font-size:24px; font-weight:bold; color:#2196f3;">0</div>
+        </div>
+        
+        <div style="background:#fff3e0; padding:15px; border-radius:8px; border-left:4px solid #ff9800;">
+            <div style="font-size:12px; color:#666; margin-bottom:5px;">ขนาดเฉลี่ย/รูป</div>
+            <div id="avgPhotoSize" style="font-size:24px; font-weight:bold; color:#ff9800;">0 MB</div>
+        </div>
+        
+        <div style="background:#f3e5f5; padding:15px; border-radius:8px; border-left:4px solid #9c27b0;">
+            <div style="font-size:12px; color:#666; margin-bottom:5px;">แพลน</div>
+            <div id="cloudinaryPlan" style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
+        </div>
+    </div>
+    
+    <!-- Top 10 กิจกรรมที่มีรูปเยอะสุด -->
+    <div>
+        <h4 style="color:#666; margin-bottom:15px; font-size:16px;">📊 Top 10 กิจกรรมที่มีรูปมากที่สุด</h4>
+        <div id="topCategoriesList" style="max-height:300px; overflow-y:auto;">
+            <p style="text-align:center; color:#999;">กำลังโหลด...</p>
+        </div>
+    </div>
+    
+    <!-- คำเตือนถ้าใกล้เต็ม -->
+    <div id="storageWarning" style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
+        <strong style="color:#856404;">⚠️ คำเตือน:</strong>
+        <span style="color:#856404;">พื้นที่ใกล้เต็มแล้ว! กรุณาลบไฟล์ที่ไม่จำเป็นออก</span>
+    </div>
+
         </div>`;
             });
 
@@ -1131,6 +1191,116 @@
         function logout() {
             localStorage.clear();
             window.location.href = 'login.html';
+        }
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        // ✅ เพิ่มฟังก์ชันนี้
+        async function loadStorageStats() {
+            try {
+                const headers = getAuthHeaders();
+                if (!headers) return;
+
+                const res = await fetch('/storage/usage?t=' + Date.now(), {
+                    method: 'GET',
+                    headers: { 'Authorization': headers.Authorization }
+                });
+
+                if (!res.ok) throw new Error('Failed to load storage stats');
+
+                const data = await res.json();
+                console.log('💾 Storage data:', data);
+
+                // อัปเดต Progress Bar
+                const percentage = parseFloat(data.cloudinary.usage_percent) || 0;
+                document.getElementById('storagePercentage').innerText = percentage.toFixed(2) + '%';
+                document.getElementById('storageBar').style.width = percentage + '%';
+                document.getElementById('storageBar').innerText = percentage.toFixed(1) + '%';
+
+                // เปลี่ยนสีตามเปอร์เซ็นต์
+                const bar = document.getElementById('storageBar');
+                if (percentage > 90) {
+                    bar.style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+                    document.getElementById('storageWarning').style.display = 'block';
+                } else if (percentage > 80) {
+                    bar.style.background = 'linear-gradient(90deg, #f39c12, #e67e22)';
+                    document.getElementById('storageWarning').style.display = 'block';
+                } else {
+                    bar.style.background = 'linear-gradient(90deg, #3498db, #9b59b6)';
+                    document.getElementById('storageWarning').style.display = 'none';
+                }
+
+                // อัปเดตข้อมูลพื้นที่
+                document.getElementById('storageUsed').innerText = 'ใช้ไป: ' + data.cloudinary.used_readable;
+                document.getElementById('storageLimit').innerText = 'ลิมิต: ' + data.cloudinary.limit_readable;
+
+                // อัปเดตสถิติ
+                document.getElementById('totalPhotosCount').innerText = data.database.active_photos;
+                document.getElementById('cloudinaryPlan').innerText = data.cloudinary.plan.toUpperCase();
+
+                // โหลดขนาดเฉลี่ย
+                loadAverageSize();
+
+                // แสดง Top Categories
+                renderTopCategories(data.top_categories);
+
+            } catch (error) {
+                console.error('❌ Error loading storage stats:', error);
+            }
+        }
+
+        async function loadAverageSize() {
+            try {
+                const headers = getAuthHeaders();
+                if (!headers) return;
+
+                const res = await fetch('/storage/average?t=' + Date.now(), {
+                    method: 'GET',
+                    headers: { 'Authorization': headers.Authorization }
+                });
+
+                if (!res.ok) throw new Error('Failed to load average size');
+
+                const data = await res.json();
+                document.getElementById('avgPhotoSize').innerText = data.average_readable;
+
+            } catch (error) {
+                console.error('❌ Error loading average size:', error);
+                document.getElementById('avgPhotoSize').innerText = 'N/A';
+            }
+        }
+
+        function renderTopCategories(categories) {
+            const container = document.getElementById('topCategoriesList');
+
+            if (!categories || categories.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#999;">ไม่มีข้อมูล</p>';
+                return;
+            }
+
+            let html = '';
+            categories.forEach((cat, index) => {
+                const barColor = index === 0 ? '#e74c3c' : index === 1 ? '#f39c12' : index === 2 ? '#3498db' : '#95a5a6';
+                const maxCount = categories[0].photo_count;
+                const percentage = (cat.photo_count / maxCount) * 100;
+
+                html += `
+            <div style="margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span style="font-size:14px; color:#333; font-weight:${index < 3 ? 'bold' : 'normal'};">
+                        ${index + 1}. ${cat.category_name}
+                    </span>
+                    <span style="font-size:14px; color:#666;">${cat.photo_count} รูป</span>
+                </div>
+                <div style="width:100%; height:8px; background:#ecf0f1; border-radius:4px; overflow:hidden;">
+                    <div style="height:100%; background:${barColor}; width:${percentage}%; transition:width 0.3s;"></div>
+                </div>
+            </div>
+        `;
+            });
+
+            container.innerHTML = html;
         }
     </script>
 </body>
