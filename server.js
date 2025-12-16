@@ -99,22 +99,19 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// 🔥 แก้ไข: ไม่ย่อรูป (เอา transformation ออก) เพื่อเก็บไฟล์ต้นฉบับ Original
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'army_gallery',
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-        transformation: [
-            { width: 1920, height: 1080, crop: "limit" }, // ย่อรูปไม่ให้เกิน Full HD
-            { quality: "auto:good" }, // บีบอัดอัตโนมัติ
-            { fetch_format: "auto" } // แปลงไฟล์เป็น WebP อัตโนมัติ
-        ]
+        // transformation: [] // ❌ ลบทิ้ง เพื่อไม่ให้ Cloudinary แปลงไฟล์
     },
 });
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // จำกัดไฟล์ละ 10MB
+    limits: { fileSize: 10 * 1024 * 1024 } // จำกัดไฟล์ละ 10MB (ถ้าจะเอาใหญ่กว่านี้แก้เลขตรงนี้ได้)
 });
 
 const pool = mysql.createPool({
