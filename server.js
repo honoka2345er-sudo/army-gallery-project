@@ -226,7 +226,7 @@ async function getCloudinaryUsage() {
             limit_bytes: result.storage?.limit || 26843545600, // Default ~25GB
             limit_readable: formatBytes(result.storage?.limit || 26843545600),
             usage_percent: result.storage?.usage && result.storage?.limit
-                ? ((result.storage.usage / result.storage.limit) * 100).toFixed(2)
+                ? ((result.storage.usage / result.storage.limit) * 100).toFixed(4)
                 : 0,
             plan: result.plan || 'Free'
         };
@@ -253,6 +253,7 @@ app.get('/', (req, res) => {
 
 app.post('/register', async (req, res) => {
     const { username, password, role } = req.body;
+    // กำหนดรหัสผ่านขั้นต่ำ 8 ตัวอักษร
     const validation = validateInput(req.body, {
         username: { required: true, minLength: 8, maxLength: 50 },
         password: { required: true, minLength: 8, maxLength: 100 }
@@ -396,7 +397,6 @@ app.get('/photos', async (req, res) => {
     }
 });
 
-// 🔥 API แก้ไขรายละเอียด (Admin Only)
 app.put('/photos/:id/details', authenticateToken, adminOnly, async (req, res) => {
     const { category_name, custom_date } = req.body;
     const photoId = req.params.id;
@@ -476,6 +476,12 @@ app.delete('/photos/:id/permanent', authenticateToken, adminOnly, async (req, re
         }
 
         await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
+
+        if (results[0].category_id) {
+            const [countRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE category_id = ?', [results[0].category_id]);
+            if (countRes[0].count === 0) await pool.query('DELETE FROM Categories WHERE category_id = ?', [results[0].category_id]);
+        }
+
         res.json({ message: 'Permanently deleted' });
     } catch (err) {
         console.error('Permanent delete error:', err);
@@ -522,7 +528,6 @@ app.put('/profile/username', authenticateToken, async (req, res) => {
 
 app.get('/stats', async (req, res) => {
     try {
-        // Auto Cleanup Categories
         await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
 
         const [totalRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0');
@@ -541,7 +546,7 @@ app.get('/stats', async (req, res) => {
     }
 });
 
-// 🔥 API: ดูพื้นที่จัดเก็บ (Cloudinary + DB Stats)
+// 🔥 API: ดูพื้นที่จัดเก็บ + กิจกรรมล่าสุด (เรียงตามเวลาอัปเดต)
 app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     try {
         const cloudinaryData = await getCloudinaryUsage();
@@ -549,13 +554,14 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
         const [photosCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0');
         const [trashCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 1');
 
-        const [categoryStats] = await pool.query(`
-            SELECT c.name as category_name, COUNT(p.photo_id) as photo_count
+        // เรียงตามเวลาอัปเดตล่าสุด
+        const [latestStats] = await pool.query(`
+            SELECT c.name as category_name, COUNT(p.photo_id) as photo_count, MAX(p.upload_date) as last_update
             FROM Categories c
             LEFT JOIN Photos p ON c.category_id = p.category_id AND p.is_deleted = 0
             WHERE c.category_id IN (SELECT DISTINCT category_id FROM Photos WHERE is_deleted = 0)
             GROUP BY c.category_id, c.name
-            ORDER BY photo_count DESC
+            ORDER BY last_update DESC
             LIMIT 5
         `);
 
@@ -566,7 +572,7 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
                 trash_photos: trashCount[0].total,
                 total_photos: photosCount[0].total + trashCount[0].total
             },
-            top_categories: categoryStats
+            latest_categories: latestStats
         });
 
     } catch (error) {
@@ -575,37 +581,37 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
+// 🔥 API: คำนวณขนาดเฉลี่ยแบบ Batch (เร็วขึ้น + แก้ปัญหา 0 MB)
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
-        const [results] = await pool.query('SELECT file_path FROM Photos WHERE is_deleted = 0 LIMIT 50');
-        let totalSize = 0;
+        // ดึงรายการไฟล์ 100 รายการล่าสุดจาก Cloudinary โดยตรง
+        const result = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: 'army_gallery/', // ระบุโฟลเดอร์ให้ชัดเจน
+            max_results: 100 
+        });
+
+        let totalBytes = 0;
         let count = 0;
 
-        for (const photo of results) {
-            const publicId = getPublicIdFromUrl(photo.file_path);
-            if (publicId) {
-                try {
-                    const result = await new Promise((resolve) => {
-                        cloudinary.api.resource(publicId, (error, result) => {
-                            resolve(result || {});
-                        });
-                    });
-                    if (result.bytes) {
-                        totalSize += result.bytes;
-                        count++;
-                    }
-                } catch (e) {}
-            }
+        if (result.resources && result.resources.length > 0) {
+            result.resources.forEach(res => {
+                totalBytes += res.bytes;
+                count++;
+            });
         }
 
-        const avgSize = count > 0 ? totalSize / count : 0;
+        const avgSize = count > 0 ? totalBytes / count : 0;
+
         res.json({
             average_bytes: Math.round(avgSize),
-            average_readable: formatBytes(avgSize)
+            average_readable: formatBytes(avgSize),
+            sample_size: count
         });
 
     } catch (error) {
-        res.status(500).json({ error: 'Failed to calculate average' });
+        console.error('Average size error:', error);
+        res.json({ average_readable: '0 B' }); // ส่งค่า 0 B กลับไปแทน Error
     }
 });
 
@@ -642,8 +648,8 @@ app.get('/users', authenticateToken, adminOnly, async (req, res) => {
 
 app.post('/users', authenticateToken, adminOnly, async (req, res) => {
     const validation = validateInput(req.body, {
-        username: { required: true, minLength: 3, maxLength: 50 },
-        password: { required: true, minLength: 6, maxLength: 100 }
+        username: { required: true, minLength: 8, maxLength: 50 },
+        password: { required: true, minLength: 8, maxLength: 100 }
     });
 
     if (!validation.valid) return res.status(400).json({ message: validation.message });
