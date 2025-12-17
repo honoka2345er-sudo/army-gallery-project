@@ -89,7 +89,6 @@
             border-radius: 4px;
             margin-top: auto;
             font-family: 'Sarabun', sans-serif;
-            font-size: 14px;
             width: 100%;
         }
 
@@ -518,7 +517,7 @@
         <div class="menu-items">
             <div>
                 <p class="user-info">ผู้ใช้: <span id="showUsername">...</span></p>
-            </div>
+                </div>
             <a href="index.html" target="_blank" class="menu-link">🔗 ไปหน้าแกลเลอรี</a>
             <button onclick="logout()" class="btn-logout">ออกจากระบบ</button>
         </div>
@@ -555,7 +554,8 @@
                     <span style="font-weight:bold; color:#333;">เครดิตที่ใช้ไป (Usage)</span>
                     <span id="storagePercentage" style="font-weight:bold; color:#e74c3c;">0%</span>
                 </div>
-                <div style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; position:relative;">
+                <div
+                    style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; position:relative;">
                     <div id="storageBar"
                         style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px; border-radius:15px; white-space:nowrap; overflow:visible;">
                         <span style="color:#333; font-weight:bold; font-size:12px;">0.00%</span>
@@ -574,14 +574,17 @@
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">รูปทั้งหมด</div>
                     <div id="totalPhotosCount" style="font-size:24px; font-weight:bold; color:#2196f3;">0</div>
                 </div>
+
                 <div style="background:#fff3e0; padding:15px; border-radius:8px; border-left:4px solid #ff9800;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">ขนาดเฉลี่ย/รูป</div>
                     <div id="avgPhotoSize" style="font-size:24px; font-weight:bold; color:#ff9800;">0 MB</div>
                 </div>
+
                 <div style="background:#f3e5f5; padding:15px; border-radius:8px; border-left:4px solid #9c27b0;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">แพลน</div>
                     <div id="cloudinaryPlan"
-                        style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
+                        style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE
+                    </div>
                 </div>
             </div>
 
@@ -603,9 +606,15 @@
             <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label><b>1. ชื่อกิจกรรม</b></label><input type="text" id="categoryName" list="categoryList"
-                            placeholder="พิมพ์ชื่อกิจกรรม..." required><datalist id="categoryList"></datalist></div>
-                    <div><label><b>2. เลือกรูป</b></label><input type="file" id="fileInput" multiple accept="image/*">
+                    <div>
+                        <label><b>1. ชื่อกิจกรรม</b></label>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..."
+                            required>
+                        <datalist id="categoryList"></datalist>
+                    </div>
+                    <div>
+                        <label><b>2. เลือกรูป</b></label>
+                        <input type="file" id="fileInput" multiple accept="image/*">
                     </div>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;">📤 อัปโหลด (ขึ้นทันที)</button>
@@ -722,7 +731,11 @@
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
         const token = localStorage.getItem('token');
-        if (!user || !token) window.location.href = 'login.html';
+
+        if (!user || !token) {
+            window.location.href = 'login.html';
+        }
+
         document.getElementById('showUsername').innerText = user.username;
 
         // 🔒 ซ่อนเมนู Admin ถ้าไม่ใช่ Admin
@@ -730,10 +743,29 @@
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
         }
 
-        function toggleSidebar() { const sb = document.getElementById('sidebar'); sb.classList.toggle('active'); document.getElementById('overlay').style.display = sb.classList.contains('active') ? 'block' : 'none'; }
-        function getAuthHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+        }
 
-        let allLogsData = [], logLimit = 5, currentPage = 1;
+        function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+                return null;
+            }
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        let allLogsData = [];
+        let logLimit = 5;
+        let currentPage = 1;
         const itemsPerPage = 50;
 
         (async function initLoad() {
@@ -748,26 +780,62 @@
                     await loadUsers();
                     await loadStorageStats();
                 }
-            } catch (error) { console.error(error); }
+            } catch (error) {
+                console.error(error);
+            }
         })();
 
         // --- Functions ---
-        async function loadStats() { try { const res = await fetch('/stats?t=' + Date.now()); const data = await res.json(); document.getElementById('statTotal').innerText = data.total_photos; document.getElementById('statCats').innerText = data.total_categories; document.getElementById('statTrash').innerText = data.trash_count; } catch (e) { } }
-        async function loadCategories() { try { const res = await fetch('/categories?t=' + Date.now()); const c = await res.json(); const dl = document.getElementById('categoryList'); dl.innerHTML = ''; const filter = document.getElementById('filterCategory'); filter.innerHTML = '<option value="">📁 ทุกหมวดหมู่</option>'; c.forEach(i => { dl.innerHTML += `<option value="${i.name}"></option>`; filter.innerHTML += `<option value="${i.name}">${i.name}</option>`; }); } catch (e) { } }
+        async function loadStats() {
+            try {
+                const res = await fetch('/stats?t=' + Date.now());
+                const data = await res.json();
+                document.getElementById('statTotal').innerText = data.total_photos;
+                document.getElementById('statCats').innerText = data.total_categories;
+                document.getElementById('statTrash').innerText = data.trash_count;
+            } catch (e) { }
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await fetch('/categories?t=' + Date.now());
+                const c = await res.json();
+                const dl = document.getElementById('categoryList');
+                dl.innerHTML = '';
+                const filter = document.getElementById('filterCategory');
+                filter.innerHTML = '<option value="">📁 ทุกหมวดหมู่</option>';
+                c.forEach(i => {
+                    dl.innerHTML += `<option value="${i.name}"></option>`;
+                    filter.innerHTML += `<option value="${i.name}">${i.name}</option>`;
+                });
+            } catch (e) { }
+        }
 
         async function loadLogs() {
             if (user.role !== 'admin') return;
-            try { const res = await fetch('/logs?t=' + Date.now()); allLogsData = await res.json(); renderLogs(); } catch (e) { }
+            try {
+                const res = await fetch('/logs?t=' + Date.now());
+                allLogsData = await res.json();
+                renderLogs();
+            } catch (e) { }
         }
 
         function renderLogs() {
-            const tb = document.getElementById('logTableBody'); tb.innerHTML = '';
+            const tb = document.getElementById('logTableBody');
+            tb.innerHTML = '';
             const show = allLogsData.slice(0, logLimit);
             show.forEach(l => tb.innerHTML += `<tr><td>${new Date(l.created_at).toLocaleString('th-TH')}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`);
             const btn = document.getElementById('btnToggleLogs');
-            if (allLogsData.length > 5) { btn.style.display = 'inline-block'; btn.innerText = logLimit < allLogsData.length ? '⬇️ ดูเพิ่มเติม' : '⬆️ ย่อกลับ'; } else btn.style.display = 'none';
+            if (allLogsData.length > 5) {
+                btn.style.display = 'inline-block';
+                btn.innerText = logLimit < allLogsData.length ? '⬇️ ดูเพิ่มเติม' : '⬆️ ย่อกลับ';
+            } else btn.style.display = 'none';
         }
-        function toggleLogs() { logLimit = logLimit < allLogsData.length ? logLimit + 10 : 5; renderLogs(); }
+
+        function toggleLogs() {
+            logLimit = logLimit < allLogsData.length ? logLimit + 10 : 5;
+            renderLogs();
+        }
 
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -775,15 +843,30 @@
             const files = document.getElementById('fileInput').files;
             if (!cat || !files.length) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
             if (files.length > 30) return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
-            const fd = new FormData(); fd.append('category_name', cat);
+            const fd = new FormData();
+            fd.append('category_name', cat);
             const token = localStorage.getItem('token');
             for (let i = 0; i < files.length; i++) fd.append('photos', files[i]);
-            Swal.fire({ title: 'กำลังอัปโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            const res = await fetch('/upload', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
-            if (res.ok) { Swal.fire('สำเร็จ', 'เรียบร้อย', 'success'); await reload(); document.getElementById('fileInput').value = ''; }
-            else Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
+            Swal.fire({
+                title: 'กำลังอัปโหลด...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+            const res = await fetch('/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: fd
+            });
+            if (res.ok) {
+                Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
+                await reload();
+                document.getElementById('fileInput').value = '';
+            } else Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
         });
 
+        // 🔥 โหลดรูปพร้อมค้นหา
         async function loadApprovedPhotos(page = 1) {
             currentPage = page;
             const search = document.getElementById('searchInput').value;
@@ -797,17 +880,27 @@
             document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
         }
 
-        function changePage(step) { const nextPage = currentPage + step; if (nextPage < 1) return; loadApprovedPhotos(nextPage); }
+        function changePage(step) {
+            const nextPage = currentPage + step;
+            if (nextPage < 1) return;
+            loadApprovedPhotos(nextPage);
+        }
 
         async function loadTrash() {
-            const headers = getAuthHeaders(); if (!headers) return;
-            const res = await fetch('/photos/trash?t=' + Date.now(), { headers: headers });
+            const headers = getAuthHeaders();
+            if (!headers) return;
+            const res = await fetch('/photos/trash?t=' + Date.now(), {
+                headers: headers
+            });
             renderGrid('trashList', await res.json(), 'trash');
         }
 
         function renderGrid(elemId, photos, type) {
-            const el = document.getElementById(elemId); el.innerHTML = '';
-            // ✅ ของใหม่: โชว์ toolbar เฉพาะถ้าเป็น Admin เท่านั้น
+            const el = document.getElementById(elemId);
+            el.innerHTML = '';
+            const toolbar = document.getElementById(type === 'approved' ? 'approvedToolbar' : 'trashToolbar');
+
+            // โชว์ toolbar เฉพาะถ้าเป็น Admin
             if (toolbar) {
                 if (user.role === 'admin' && photos.length > 0) {
                     toolbar.style.display = 'flex';
@@ -815,14 +908,21 @@
                     toolbar.style.display = 'none';
                 }
             }
-            if (photos.length === 0) { el.innerHTML = '<p style="text-align:center;">ไม่มีข้อมูล</p>'; return; }
+
+            if (photos.length === 0) {
+                el.innerHTML = '<p style="text-align:center;">ไม่มีข้อมูล</p>';
+                return;
+            }
             photos.forEach(p => {
-                const id = p.id || p.photo_id; const url = p.url || `/uploads/${p.file_path}`; const safeFilename = (p.filename || 'No Name').replace(/'/g, "\\'");
-                const dateVal = p.date || ''; const actVal = p.activity || '';
+                const id = p.id || p.photo_id;
+                const url = p.url || `/uploads/${p.file_path}`;
+                const safeFilename = (p.filename || 'No Name').replace(/'/g, "\\'");
+                const dateVal = p.date || '';
+                const actVal = p.activity || '';
                 let btns = '';
                 if (user.role === 'admin') {
                     if (type == 'approved') {
-                        // 🔥 ปุ่มแก้ไข (Edit) ใส่ตรงนี้
+                        // Admin เห็นปุ่มครบ
                         btns = `
                             <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-edit" title="แก้ไขข้อมูล">📝</button>
                             <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename" title="เปลี่ยนชื่อ">✏️</button>
@@ -833,27 +933,56 @@
                 }
                 const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">` : '';
                 const click = user.role === 'admin' ? `onclick="toggleSel(this)"` : '';
-                // ลบชื่อไฟล์ออกแล้ว เหลือแค่รูปกับปุ่มจัดการ
+                // ตัดชื่อไฟล์ออก เหลือแค่รูปกับปุ่มจัดการ
                 el.innerHTML += `<div class="approval-item ${type}-item" ${click} data-id="${id}">${chk}<img src="${p.url}"><div style="margin-top:10px;">${btns}</div></div>`;
             });
             const allBtn = document.getElementById(type == 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash');
             if (allBtn && user.role === 'admin') allBtn.onclick = () => {
                 const chks = document.querySelectorAll(`.${type}-check`);
                 const unchk = Array.from(chks).some(c => !c.checked);
-                chks.forEach(c => { c.checked = unchk; c.parentElement.classList.toggle('selected', unchk); });
+                chks.forEach(c => {
+                    c.checked = unchk;
+                    c.parentElement.classList.toggle('selected', unchk);
+                });
             };
         }
 
-        function toggleSel(el) { el.classList.toggle('selected'); const c = el.querySelector('input'); if (c) c.checked = !c.checked; }
-        function evt(e, fn, ...args) { e.stopPropagation(); fn(...args); }
-        async function cf(msg) { return (await Swal.fire({ title: msg, showCancelButton: true })).isConfirmed; }
-        async function reload() { await Promise.all([loadStats(), loadCategories(), loadApprovedPhotos(1)]); if (user.role === 'admin') { await loadLogs(); await loadTrash(); await loadStorageStats(); } }
+        function toggleSel(el) {
+            el.classList.toggle('selected');
+            const c = el.querySelector('input');
+            if (c) c.checked = !c.checked;
+        }
+
+        function evt(e, fn, ...args) {
+            e.stopPropagation();
+            fn(...args);
+        }
+
+        async function cf(msg) {
+            return (await Swal.fire({
+                title: msg,
+                showCancelButton: true
+            })).isConfirmed;
+        }
+
+        async function reload() {
+            await Promise.all([loadStats(), loadCategories(), loadApprovedPhotos(1)]);
+            if (user.role === 'admin') {
+                await loadLogs();
+                await loadTrash();
+                await loadStorageStats();
+            }
+        }
 
         // 🔥 Storage Stats
         async function loadStorageStats() {
             try {
-                const headers = getAuthHeaders(); if (!headers) return;
-                const res = await fetch('/storage/usage?t=' + Date.now(), { headers }); if (!res.ok) return;
+                const headers = getAuthHeaders();
+                if (!headers) return;
+                const res = await fetch('/storage/usage?t=' + Date.now(), {
+                    headers
+                });
+                if (!res.ok) return;
                 const data = await res.json();
                 console.log('💾 Storage data:', data);
 
@@ -862,8 +991,10 @@
                 if (p > 0 && p < 0.01) pText = p.toFixed(3) + '%';
 
                 document.getElementById('storagePercentage').innerText = pText;
+
                 const bar = document.getElementById('storageBar');
-                bar.innerHTML = `<span style="color:#333; font-weight:bold; font-size:12px;">${pText}</span>`;
+                // ใส่ตัวเลขเข้าไปในหลอดเลย
+                bar.innerHTML = `<span style="color:#333; font-weight:bold; font-size:12px; margin-left:10px;">${pText}</span>`;
 
                 const visualWidth = (p > 0 && p < 1) ? 1 : p;
                 bar.style.width = visualWidth + '%';
@@ -886,7 +1017,11 @@
                 list.innerHTML = '';
                 data.latest_categories.forEach((c, index) => {
                     const dateObj = new Date(c.last_update);
-                    const dateStr = dateObj.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+                    const dateStr = dateObj.toLocaleDateString('th-TH', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: '2-digit'
+                    });
                     list.innerHTML += `
                 <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left: 3px solid #3498db; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -899,8 +1034,13 @@
                 </div>`;
                 });
 
-                const resAvg = await fetch('/storage/average?t=' + Date.now(), { headers });
-                if (resAvg.ok) { const d = await resAvg.json(); document.getElementById('avgPhotoSize').innerText = d.average_readable; }
+                const resAvg = await fetch('/storage/average?t=' + Date.now(), {
+                    headers
+                });
+                if (resAvg.ok) {
+                    const d = await resAvg.json();
+                    document.getElementById('avgPhotoSize').innerText = d.average_readable;
+                }
 
             } catch (error) {
                 console.error('❌ Error loading storage stats:', error);
@@ -909,61 +1049,230 @@
 
         async function editDetails(id, oldCat, oldDate) {
             let dateStr = '';
-            if (oldDate) { const d = new Date(oldDate); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); dateStr = d.toISOString().slice(0, 16); }
-            const { value: f } = await Swal.fire({ title: 'แก้ไขรายละเอียด', html: `<input id="swal-cat" class="swal2-input" value="${oldCat}"><input id="swal-date" type="datetime-local" class="swal2-input" value="${dateStr}">`, preConfirm: () => [document.getElementById('swal-cat').value, document.getElementById('swal-date').value] });
+            if (oldDate) {
+                const d = new Date(oldDate);
+                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                dateStr = d.toISOString().slice(0, 16);
+            }
+            const {
+                value: f
+            } = await Swal.fire({
+                title: 'แก้ไขรายละเอียด',
+                html: `<input id="swal-cat" class="swal2-input" value="${oldCat}"><input id="swal-date" type="datetime-local" class="swal2-input" value="${dateStr}">`,
+                preConfirm: () => [document.getElementById('swal-cat').value, document.getElementById('swal-date').value]
+            });
             if (f) {
-                const headers = getAuthHeaders(); if (!headers) return;
-                const res = await fetch(`/photos/${id}/details`, { method: 'PUT', headers: headers, body: JSON.stringify({ category_name: f[0], custom_date: f[1] }) });
-                if (res.ok) { Swal.fire('เรียบร้อย', 'แก้ไขข้อมูลแล้ว', 'success'); await reload(); } else Swal.fire('ผิดพลาด', 'แก้ไขไม่ได้', 'error');
+                const headers = getAuthHeaders();
+                if (!headers) return;
+                const res = await fetch(`/photos/${id}/details`, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify({
+                        category_name: f[0],
+                        custom_date: f[1]
+                    })
+                });
+                if (res.ok) {
+                    Swal.fire('เรียบร้อย', 'แก้ไขข้อมูลแล้ว', 'success');
+                    await reload();
+                } else Swal.fire('ผิดพลาด', 'แก้ไขไม่ได้', 'error');
             }
         }
 
-        async function bulkDelete() { const h = getAuthHeaders(); if (!h) return; if (await cf('ลบ?')) { const c = document.querySelectorAll('.approved-check:checked'); await Promise.all([...c].map(x => fetch(`/photos/${x.value}`, { method: 'DELETE', headers: h }))); reload(); } }
-        async function bulkRestoreTrash() { const h = getAuthHeaders(); if (!h) return; if (await cf('กู้คืน?')) { const c = document.querySelectorAll('.trash-check:checked'); await Promise.all([...c].map(x => fetch(`/photos/${x.value}/restore`, { method: 'PUT', headers: h }))); reload(); } }
-        async function bulkDeleteTrash() { const h = getAuthHeaders(); if (!h) return; if (await cf('ลบถาวร?')) { const c = document.querySelectorAll('.trash-check:checked'); await Promise.all([...c].map(x => fetch(`/photos/${x.value}/permanent`, { method: 'DELETE', headers: h }))); reload(); } }
-        async function softDelete(id) { const h = getAuthHeaders(); if (!h) return; if (await cf('ลบ?')) { await fetch(`/photos/${id}`, { method: 'DELETE', headers: h }); reload(); } }
-        async function restorePhoto(id) { const h = getAuthHeaders(); if (!h) return; if (await cf('กู้คืน?')) { await fetch(`/photos/${id}/restore`, { method: 'PUT', headers: h }); reload(); } }
-        async function permanentDelete(id) { const h = getAuthHeaders(); if (!h) return; if (await cf('ลบถาวร?')) { await fetch(`/photos/${id}/permanent`, { method: 'DELETE', headers: h }); reload(); } }
-        async function renamePhoto(id, o) { const h = getAuthHeaders(); if (!h) return; const { value: n } = await Swal.fire({ input: 'text', inputValue: o }); if (n) { await fetch(`/photos/${id}/rename`, { method: 'PUT', headers: h, body: JSON.stringify({ new_name: n }) }); reload(); } }
+        async function bulkDelete() {
+            const h = getAuthHeaders();
+            if (!h) return;
+            if (await cf('ลบ?')) {
+                const c = document.querySelectorAll('.approved-check:checked');
+                await Promise.all([...c].map(x => fetch(`/photos/${x.value}`, {
+                    method: 'DELETE',
+                    headers: h
+                })));
+                reload();
+            }
+        }
+
+        async function bulkRestoreTrash() {
+            const h = getAuthHeaders();
+            if (!h) return;
+            if (await cf('กู้คืน?')) {
+                const c = document.querySelectorAll('.trash-check:checked');
+                await Promise.all([...c].map(x => fetch(`/photos/${x.value}/restore`, {
+                    method: 'PUT',
+                    headers: h
+                })));
+                reload();
+            }
+        }
+
+        async function bulkDeleteTrash() {
+            const h = getAuthHeaders();
+            if (!h) return;
+            if (await cf('ลบถาวร?')) {
+                const c = document.querySelectorAll('.trash-check:checked');
+                await Promise.all([...c].map(x => fetch(`/photos/${x.value}/permanent`, {
+                    method: 'DELETE',
+                    headers: h
+                })));
+                reload();
+            }
+        }
+
+        async function softDelete(id) {
+            const h = getAuthHeaders();
+            if (!h) return;
+            if (await cf('ลบ?')) {
+                await fetch(`/photos/${id}`, {
+                    method: 'DELETE',
+                    headers: h
+                });
+                reload();
+            }
+        }
+
+        async function restorePhoto(id) {
+            const h = getAuthHeaders();
+            if (!h) return;
+            if (await cf('กู้คืน?')) {
+                await fetch(`/photos/${id}/restore`, {
+                    method: 'PUT',
+                    headers: h
+                });
+                reload();
+            }
+        }
+
+        async function permanentDelete(id) {
+            const h = getAuthHeaders();
+            if (!h) return;
+            if (await cf('ลบถาวร?')) {
+                await fetch(`/photos/${id}/permanent`, {
+                    method: 'DELETE',
+                    headers: h
+                });
+                reload();
+            }
+        }
+
+        async function renamePhoto(id, o) {
+            const h = getAuthHeaders();
+            if (!h) return;
+            const {
+                value: n
+            } = await Swal.fire({
+                input: 'text',
+                inputValue: o
+            });
+            if (n) {
+                await fetch(`/photos/${id}/rename`, {
+                    method: 'PUT',
+                    headers: h,
+                    body: JSON.stringify({
+                        new_name: n
+                    })
+                });
+                reload();
+            }
+        }
 
         // --- User Management (Admin Only) ---
         async function loadUsers() {
             if (user.role !== 'admin') return;
-            const h = getAuthHeaders(); if (!h) return;
-            const res = await fetch('/users?t=' + Date.now(), { headers: h });
+            const h = getAuthHeaders();
+            if (!h) return;
+            const res = await fetch('/users?t=' + Date.now(), {
+                headers: h
+            });
             const u = await res.json();
             document.getElementById('userTableBody').innerHTML = u.map(x => `<tr><td>${x.username}</td><td>${x.role}</td><td><button onclick="changeUsername(${x.user_id},'${x.username}')">✏️</button><button onclick="resetPass(${x.user_id})">🔒</button><button onclick="deleteUser(${x.user_id})">🗑️</button></td></tr>`).join('');
         }
 
         async function addUser() {
             if (user.role !== 'admin') return Swal.fire('Error', 'Admin Only', 'error');
-            const h = getAuthHeaders(); if (!h) return;
-            const u = document.getElementById('newUsername').value, p = document.getElementById('newPassword').value, r = document.getElementById('newRole').value;
+            const h = getAuthHeaders();
+            if (!h) return;
+            const u = document.getElementById('newUsername').value,
+                p = document.getElementById('newPassword').value,
+                r = document.getElementById('newRole').value;
             if (!u || !p) return Swal.fire('เตือน', 'กรอกให้ครบ', 'warning');
-            const res = await fetch('/users', { method: 'POST', headers: h, body: JSON.stringify({ username: u, password: p, role: r }) });
-            if (res.ok) { Swal.fire('สำเร็จ', 'เพิ่มแล้ว', 'success'); reload(); loadUsers(); } else Swal.fire('ผิดพลาด', 'เพิ่มไม่ได้', 'error');
+            const res = await fetch('/users', {
+                method: 'POST',
+                headers: h,
+                body: JSON.stringify({
+                    username: u,
+                    password: p,
+                    role: r
+                })
+            });
+            if (res.ok) {
+                Swal.fire('สำเร็จ', 'เพิ่มแล้ว', 'success');
+                reload();
+                loadUsers();
+            } else Swal.fire('ผิดพลาด', 'เพิ่มไม่ได้', 'error');
         }
 
         async function deleteUser(id) {
             if (user.role !== 'admin') return;
-            const h = getAuthHeaders(); if (!h) return;
+            const h = getAuthHeaders();
+            if (!h) return;
             if (id == user.user_id) return Swal.fire('ไม่ได้', 'ลบตัวเองไม่ได้', 'error');
-            if (await cf('ลบ user?')) { await fetch(`/users/${id}`, { method: 'DELETE', headers: h }); loadUsers(); }
+            if (await cf('ลบ user?')) {
+                await fetch(`/users/${id}`, {
+                    method: 'DELETE',
+                    headers: h
+                });
+                loadUsers();
+            }
         }
 
         async function changeUsername(id, o) {
             if (user.role !== 'admin') return;
-            const h = getAuthHeaders(); if (!h) return;
-            const { value: n } = await Swal.fire({ input: 'text', inputValue: o }); if (n) { await fetch(`/users/${id}/username`, { method: 'PUT', headers: h, body: JSON.stringify({ newUsername: n }) }); loadUsers(); }
+            const h = getAuthHeaders();
+            if (!h) return;
+            const {
+                value: n
+            } = await Swal.fire({
+                input: 'text',
+                inputValue: o
+            });
+            if (n) {
+                await fetch(`/users/${id}/username`, {
+                    method: 'PUT',
+                    headers: h,
+                    body: JSON.stringify({
+                        newUsername: n
+                    })
+                });
+                loadUsers();
+            }
         }
 
         async function resetPass(id) {
             if (user.role !== 'admin') return;
-            const h = getAuthHeaders(); if (!h) return;
-            const { value: p } = await Swal.fire({ title: 'รหัสใหม่', input: 'text' }); if (p) { await fetch(`/users/${id}/reset`, { method: 'PUT', headers: h, body: JSON.stringify({ newPassword: p }) }); Swal.fire('สำเร็จ', 'เปลี่ยนรหัสแล้ว', 'success'); }
+            const h = getAuthHeaders();
+            if (!h) return;
+            const {
+                value: p
+            } = await Swal.fire({
+                title: 'รหัสใหม่',
+                input: 'text'
+            });
+            if (p) {
+                await fetch(`/users/${id}/reset`, {
+                    method: 'PUT',
+                    headers: h,
+                    body: JSON.stringify({
+                        newPassword: p
+                    })
+                });
+                Swal.fire('สำเร็จ', 'เปลี่ยนรหัสแล้ว', 'success');
+            }
         }
 
-        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 
