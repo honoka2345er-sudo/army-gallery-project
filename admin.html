@@ -89,6 +89,7 @@
             border-radius: 4px;
             margin-top: auto;
             font-family: 'Sarabun', sans-serif;
+            font-size: 14px;
             width: 100%;
         }
 
@@ -517,7 +518,7 @@
         <div class="menu-items">
             <div>
                 <p class="user-info">ผู้ใช้: <span id="showUsername">...</span></p>
-            </div>
+                </div>
             <a href="index.html" target="_blank" class="menu-link">🔗 ไปหน้าแกลเลอรี</a>
             <button onclick="logout()" class="btn-logout">ออกจากระบบ</button>
         </div>
@@ -558,12 +559,10 @@
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">รูปทั้งหมด</div>
                     <div id="totalPhotosCount" style="font-size:24px; font-weight:bold; color:#2196f3;">0</div>
                 </div>
-
                 <div style="background:#fff3e0; padding:15px; border-radius:8px; border-left:4px solid #ff9800;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">ขนาดเฉลี่ย/รูป</div>
                     <div id="avgPhotoSize" style="font-size:24px; font-weight:bold; color:#ff9800;">0 MB</div>
                 </div>
-
                 <div style="background:#f3e5f5; padding:15px; border-radius:8px; border-left:4px solid #9c27b0;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">แพลน</div>
                     <div id="cloudinaryPlan" style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
@@ -636,7 +635,7 @@
             <div id="trashList" class="approval-grid"><p>ไม่มีไฟล์ในถังขยะ</p></div>
         </div>
 
-        <div class="card">
+        <div class="card admin-only">
             <h3>📝 ประวัติการใช้งาน</h3>
             <div style="overflow-x: auto;">
                 <table><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead><tbody id="logTableBody"><tr><td colspan="4" style="text-align:center;">กำลังโหลด...</td></tr></tbody></table>
@@ -675,7 +674,6 @@
         }
 
         function toggleSidebar() { const sb = document.getElementById('sidebar'); sb.classList.toggle('active'); document.getElementById('overlay').style.display = sb.classList.contains('active') ? 'block' : 'none'; }
-
         function getAuthHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
 
         let allLogsData = [], logLimit = 5, currentPage = 1;
@@ -686,24 +684,24 @@
                 await loadStats();
                 await loadCategories();
                 await loadApprovedPhotos(1);
-                await loadLogs();
-                if (user.role === 'admin') { await loadTrash(); await loadUsers(); await loadStorageStats(); }
+                // 🔒 โหลดข้อมูล Admin เฉพาะถ้าเป็น Admin
+                if (user.role === 'admin') { 
+                    await loadLogs(); 
+                    await loadTrash(); 
+                    await loadUsers(); 
+                    await loadStorageStats(); 
+                }
             } catch (error) { console.error(error); }
         })();
 
         // --- Functions ---
-        async function loadStats() {
-            try { const res = await fetch('/stats?t=' + Date.now()); const data = await res.json(); document.getElementById('statTotal').innerText = data.total_photos; document.getElementById('statCats').innerText = data.total_categories; document.getElementById('statTrash').innerText = data.trash_count; } catch(e){}
+        async function loadStats() { try { const res = await fetch('/stats?t=' + Date.now()); const data = await res.json(); document.getElementById('statTotal').innerText = data.total_photos; document.getElementById('statCats').innerText = data.total_categories; document.getElementById('statTrash').innerText = data.trash_count; } catch(e){} }
+        async function loadCategories() { try { const res=await fetch('/categories?t='+Date.now()); const c=await res.json(); const dl=document.getElementById('categoryList'); dl.innerHTML=''; const filter=document.getElementById('filterCategory'); filter.innerHTML='<option value="">📁 ทุกหมวดหมู่</option>'; c.forEach(i=> { dl.innerHTML+=`<option value="${i.name}"></option>`; filter.innerHTML+=`<option value="${i.name}">${i.name}</option>`; }); } catch(e){} }
+        
+        async function loadLogs() { 
+            if (user.role !== 'admin') return;
+            try { const res=await fetch('/logs?t='+Date.now()); allLogsData=await res.json(); renderLogs(); } catch(e){} 
         }
-
-        async function loadCategories() {
-            try { const res=await fetch('/categories?t='+Date.now()); const c=await res.json(); 
-            const dl=document.getElementById('categoryList'); dl.innerHTML=''; 
-            const filter=document.getElementById('filterCategory'); filter.innerHTML='<option value="">📁 ทุกหมวดหมู่</option>';
-            c.forEach(i=> { dl.innerHTML+=`<option value="${i.name}"></option>`; filter.innerHTML+=`<option value="${i.name}">${i.name}</option>`; }); } catch(e){}
-        }
-
-        async function loadLogs() { try { const res=await fetch('/logs?t='+Date.now()); allLogsData=await res.json(); renderLogs(); } catch(e){} }
         
         function renderLogs() {
             const tb = document.getElementById('logTableBody'); tb.innerHTML='';
@@ -729,28 +727,20 @@
             else Swal.fire('ผิดพลาด','เกิดข้อผิดพลาด','error');
         });
 
-        // 🔥 โหลดรูปพร้อมค้นหา
         async function loadApprovedPhotos(page = 1) {
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            
             const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now());
             const photos = await res.json();
-            
             renderGrid('approvedList', photos, 'approved');
-            
             document.getElementById('paginationControls').style.display = 'flex';
             document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
             document.getElementById('btnPrev').disabled = (currentPage <= 1);
             document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
         }
 
-        function changePage(step) {
-            const nextPage = currentPage + step;
-            if (nextPage < 1) return;
-            loadApprovedPhotos(nextPage);
-        }
+        function changePage(step) { const nextPage = currentPage + step; if (nextPage < 1) return; loadApprovedPhotos(nextPage); }
 
         async function loadTrash() { 
             const headers = getAuthHeaders(); if(!headers) return;
@@ -775,13 +765,12 @@
                             <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename" title="เปลี่ยนชื่อ">✏️</button>
                             <button onclick="evt(event,softDelete,${id})" class="btn-delete" title="ลบลงถังขยะ">🗑️</button>`;
                     } else {
-                        btns = `
-                            <button onclick="evt(event,restorePhoto,${id})" class="btn-restore">♻️</button>
-                            <button onclick="evt(event,permanentDelete,${id})" class="btn-delete">💥</button>`;
+                        btns = `<button onclick="evt(event,restorePhoto,${id})" class="btn-restore">♻️</button><button onclick="evt(event,permanentDelete,${id})" class="btn-delete">💥</button>`;
                     }
                 }
                 const chk = user.role==='admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">` : '';
                 const click = user.role==='admin' ? `onclick="toggleSel(this)"` : '';
+                // ลบชื่อไฟล์ออกแล้ว เหลือแค่รูปกับปุ่มจัดการ
                 el.innerHTML += `<div class="approval-item ${type}-item" ${click} data-id="${id}">${chk}<img src="${p.url}"><div style="margin-top:10px;">${btns}</div></div>`;
             });
             const allBtn = document.getElementById(type=='approved'?'btnSelectAllApproved':'btnSelectAllTrash');
@@ -795,9 +784,8 @@
         function toggleSel(el) { el.classList.toggle('selected'); const c=el.querySelector('input'); if(c) c.checked=!c.checked; }
         function evt(e,fn,...args) { e.stopPropagation(); fn(...args); }
         async function cf(msg) { return (await Swal.fire({ title:msg, showCancelButton:true })).isConfirmed; }
-        
-        async function reload() { await Promise.all([ loadStats(), loadCategories(), loadLogs() ]); await loadApprovedPhotos(1); if (user.role === 'admin') { await loadTrash(); await loadStorageStats(); } }
-        
+        async function reload() { await Promise.all([ loadStats(), loadCategories(), loadApprovedPhotos(1) ]); if (user.role === 'admin') { await loadLogs(); await loadTrash(); await loadStorageStats(); } }
+
         // 🔥 Storage Stats
         async function loadStorageStats() {
             try {
@@ -811,7 +799,6 @@
                 if (p > 0 && p < 0.01) pText = p.toFixed(3) + '%';
                 
                 document.getElementById('storagePercentage').innerText = pText;
-                
                 const bar = document.getElementById('storageBar');
                 bar.innerHTML = `<span style="color:#333; font-weight:bold; font-size:12px;">${pText}</span>`;
                 
@@ -876,7 +863,7 @@
         async function permanentDelete(id) { const h=getAuthHeaders(); if(!h) return; if(await cf('ลบถาวร?')) { await fetch(`/photos/${id}/permanent`,{method:'DELETE', headers:h}); reload(); } }
         async function renamePhoto(id,o) { const h=getAuthHeaders(); if(!h) return; const {value:n}=await Swal.fire({input:'text',inputValue:o}); if(n) { await fetch(`/photos/${id}/rename`,{method:'PUT',headers:h,body:JSON.stringify({new_name:n})}); reload(); } }
         
-        // 🔥 ฟังก์ชันจัดการเจ้าหน้าที่ (Admin Only)
+        // --- User Management (Admin Only) ---
         async function loadUsers() { 
             if (user.role !== 'admin') return; 
             const h=getAuthHeaders(); if(!h) return;
