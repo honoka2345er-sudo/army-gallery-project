@@ -22,56 +22,22 @@
             margin: 0;
             background-color: #f4f6f9;
             display: flex;
-            flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* --- Top Bar (แถบด้านบนแสดงตลอดเวลา) --- */
-        .mobile-nav {
-            display: flex;
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 20px;
-            align-items: center;
-            justify-content: space-between;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            box-sizing: border-box;
-            z-index: 900;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .hamburger {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 26px;
-            cursor: pointer;
-        }
-
-        /* --- Sidebar (ซ่อนไว้ด้านซ้ายเสมอ จนกว่าจะกดเปิด) --- */
+        /* --- Sidebar --- */
         .sidebar {
-            position: fixed;
-            left: -260px; /* ซ่อนไว้ */
-            top: 0;
-            height: 100%;
             width: 250px;
-            background-color: #34495e;
+            background-color: #2c3e50;
             color: white;
             padding: 20px;
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
             transition: 0.3s;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .sidebar.active {
-            left: 0; /* เลื่อนออกมาเมื่อ Active */
         }
 
         .sidebar-header {
@@ -89,7 +55,7 @@
         }
 
         .close-btn {
-            display: block;
+            display: none;
             background: none;
             border: none;
             color: white;
@@ -132,6 +98,10 @@
             width: 100%;
         }
 
+        .btn-logout:hover {
+            background-color: #e74c3c;
+        }
+
         .btn-profile {
             background: #3498db;
             color: white;
@@ -144,14 +114,37 @@
             margin-bottom: 10px;
         }
 
+        .btn-profile:hover {
+            background: #2980b9;
+        }
+
         /* --- Main Content --- */
         .main-content {
             flex: 1;
-            padding: 80px 20px 20px 20px; /* เว้นด้านบนให้พ้น Top Bar */
+            padding: 30px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            width: 100%;
-            box-sizing: border-box;
+        }
+
+        .mobile-nav {
+            display: none;
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 26px;
+            cursor: pointer;
         }
 
         .overlay {
@@ -165,7 +158,7 @@
             z-index: 999;
         }
 
-        /* --- Components --- */
+        /* --- Card --- */
         .card {
             background: white;
             padding: 25px;
@@ -181,6 +174,7 @@
             margin-top: 0;
         }
 
+        /* --- Stats Grid --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -209,6 +203,7 @@
             font-size: 14px;
         }
 
+        /* --- Approval Grid --- */
         .approval-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -272,6 +267,7 @@
             display: none;
         }
 
+        /* --- Toolbar --- */
         .bulk-toolbar {
             background: #f8f9fa;
             padding: 10px;
@@ -318,6 +314,11 @@
             font-family: 'Sarabun';
         }
 
+        .btn-search:hover {
+            background: #2980b9;
+        }
+
+        /* Buttons */
         .btn-primary {
             background: #27ae60;
             color: white;
@@ -356,8 +357,8 @@
             background: #f39c12;
         }
 
-        .btn-bulk-delete,
-        .btn-bulk-restore {
+        .btn-bulk-delete {
+            background: #c0392b;
             color: white;
             padding: 8px 12px;
             border: none;
@@ -366,12 +367,14 @@
             font-size: 13px;
         }
 
-        .btn-bulk-delete {
-            background: #c0392b;
-        }
-
         .btn-bulk-restore {
             background: #3498db;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
         }
 
         /* Pagination */
@@ -394,12 +397,21 @@
             font-family: 'Sarabun';
         }
 
+        .btn-page:hover:not(:disabled) {
+            background: #f0f0f0;
+        }
+
         .btn-page:disabled {
             color: #ccc;
             cursor: not-allowed;
         }
 
-        /* Table */
+        #pageIndicator {
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Table & Inputs */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -429,7 +441,12 @@
             font-family: 'Sarabun', sans-serif;
         }
 
-        /* Modal */
+        .swal2-icon {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* 🔥 CSS: Modal ดูรูปใหญ่ */
         .modal {
             display: none;
             position: fixed;
@@ -475,7 +492,11 @@
             cursor: pointer;
         }
 
-        /* Mobile Upload Box */
+        .close-modal:hover {
+            color: #bbb;
+        }
+
+        /* 🔥 CSS: Mobile Upload Box (จิ้มง่าย) */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -514,16 +535,70 @@
             font-weight: bold;
         }
 
-        /* Responsive Tweaks */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+
+            .mobile-nav {
+                display: flex;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                height: 100%;
+                width: 250px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .close-btn {
+                display: block;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .main-content {
+                padding: 80px 15px 20px 15px;
+            }
+
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
             }
 
+            .stat-number {
+                font-size: 24px;
+            }
+
             .bulk-toolbar {
                 flex-direction: column;
                 align-items: stretch;
+            }
+
+            .bulk-toolbar>div {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 5px;
+            }
+
+            .card {
+                padding: 15px;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
             }
 
             .search-toolbar {
@@ -537,10 +612,6 @@
             #uploadForm>div {
                 grid-template-columns: 1fr !important;
                 gap: 15px !important;
-            }
-
-            .card {
-                padding: 15px;
             }
         }
     </style>
@@ -566,7 +637,7 @@
         <div class="sidebar-header">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:24px;">📸</span>
-                <h2>Menu</h2>
+                <h2>Admin Panel</h2>
             </div>
             <button class="close-btn" onclick="toggleSidebar()">✕</button>
         </div>
@@ -603,7 +674,7 @@
 
         <div class="card admin-only" style="border-top: 5px solid #9b59b6;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
-                <h3 style="border:none; margin:0; padding:0;">💾 พื้นที่จัดเก็บข้อมูล</h3>
+                <h3 style="border:none; margin:0; padding:0;">💾 พื้นที่จัดเก็บข้อมูล (Cloudinary)</h3>
                 <button onclick="loadStorageStats()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
             </div>
 
@@ -618,8 +689,8 @@
                     </div>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
-                    <span id="storageUsed">Bandwidth: 0 MB</span>
-                    <span id="storageLimit">Limit: 25 GB</span>
+                    <span id="storageUsed">Bandwidth+Storage: 0 MB</span>
+                    <span id="storageLimit">Plan Limit: ~25 GB</span>
                 </div>
             </div>
 
@@ -639,15 +710,20 @@
             </div>
 
             <div>
-                <h4 style="color:#666; margin-bottom:15px; font-size:16px;">⏱️ กิจกรรมล่าสุด</h4>
+                <h4 style="color:#666; margin-bottom:15px; font-size:16px;">⏱️ กิจกรรมที่อัปเดตล่าสุด</h4>
                 <div id="topCategoriesList" style="max-height:300px; overflow-y:auto;">
                     <p style="text-align:center; color:#999;">กำลังโหลด...</p>
                 </div>
             </div>
+
+            <div id="storageWarning" style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
+                <strong style="color:#856404;">⚠️ คำเตือน:</strong>
+                <span style="color:#856404;">พื้นที่ใกล้เต็มแล้ว! กรุณาลบไฟล์ที่ไม่จำเป็นออก</span>
+            </div>
         </div>
 
         <div class="card">
-            <h3>🚀 อัปโหลดรูปภาพ</h3>
+            <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
@@ -671,11 +747,11 @@
 
         <div class="card" style="border-top: 5px solid #2c3e50;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
-                <h3 id="photoSectionTitle" style="border:none; margin:0; padding:0;">📚 จัดการรูปภาพ</h3>
+                <h3 id="photoSectionTitle" style="border:none; margin:0; padding:0;">📚 จัดการรูปภาพ (แก้ไข/ลบ)</h3>
             </div>
 
             <div class="search-toolbar">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป...">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
                 <select id="filterCategory" class="filter-select">
                     <option value="">📁 ทุกหมวดหมู่</option>
                 </select>
@@ -742,9 +818,9 @@
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
             <h3>👥 จัดการเจ้าหน้าที่</h3>
             <div style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
-                <input type="text" id="newUsername" placeholder="Username" style="margin:0; flex:1; min-width: 120px;">
+                <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1; min-width: 120px;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1; min-width: 120px;">
-                <select id="newRole" aria-label="Role" style="margin:0; flex:1; min-width: 120px;">
+                <select id="newRole" aria-label="เลือกตำแหน่ง" style="margin:0; flex:1; min-width: 120px;">
                     <option value="uploader">Uploader</option>
                     <option value="admin">Admin</option>
                 </select>
@@ -766,7 +842,7 @@
     </div>
 
     <script>
-        // 🔥 Register Service Worker สำหรับ PWA
+        // 🔥 PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
                 .then(() => console.log('Service Worker Registered'))
@@ -780,9 +856,7 @@
 
         // 🔒 ซ่อนเมนู Admin ถ้าไม่ใช่ Admin และเปลี่ยนชื่อหัวข้อ
         if (user.role !== 'admin') {
-            document.querySelectorAll('.admin-only').forEach(el => {
-                el.style.display = 'none';
-            });
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             document.getElementById('photoSectionTitle').innerText = '🖼️ ภาพที่อัปโหลด';
             document.title = 'Uploader Dashboard';
         } else {
@@ -792,12 +866,7 @@
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
             sb.classList.toggle('active');
-            const overlay = document.getElementById('overlay');
-            if (sb.classList.contains('active')) {
-                overlay.style.display = 'block';
-            } else {
-                overlay.style.display = 'none';
-            }
+            document.getElementById('overlay').style.display = sb.classList.contains('active') ? 'block' : 'none';
         }
 
         function getAuthHeaders() {
@@ -817,6 +886,7 @@
                 await loadStats();
                 await loadCategories();
                 await loadApprovedPhotos(1);
+                // 🔒 โหลดข้อมูล Admin เฉพาะถ้าเป็น Admin
                 if (user.role === 'admin') {
                     await loadLogs();
                     await loadTrash();
@@ -867,16 +937,12 @@
             const tb = document.getElementById('logTableBody');
             tb.innerHTML = '';
             const show = allLogsData.slice(0, logLimit);
-            show.forEach(l => {
-                tb.innerHTML += `<tr><td>${new Date(l.created_at).toLocaleString('th-TH')}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`;
-            });
+            show.forEach(l => tb.innerHTML += `<tr><td>${new Date(l.created_at).toLocaleString('th-TH')}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`);
             const btn = document.getElementById('btnToggleLogs');
             if (allLogsData.length > 5) {
                 btn.style.display = 'inline-block';
                 btn.innerText = logLimit < allLogsData.length ? '⬇️ ดูเพิ่มเติม' : '⬆️ ย่อกลับ';
-            } else {
-                btn.style.display = 'none';
-            }
+            } else btn.style.display = 'none';
         }
 
         function toggleLogs() {
@@ -888,18 +954,12 @@
             e.preventDefault();
             const cat = document.getElementById('categoryName').value.trim();
             const files = document.getElementById('fileInput').files;
-            if (!cat || !files.length) {
-                return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
-            }
-            if (files.length > 30) {
-                return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
-            }
+            if (!cat || !files.length) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
+            if (files.length > 30) return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
             const fd = new FormData();
             fd.append('category_name', cat);
             const token = localStorage.getItem('token');
-            for (let i = 0; i < files.length; i++) {
-                fd.append('photos', files[i]);
-            }
+            for (let i = 0; i < files.length; i++) fd.append('photos', files[i]);
             Swal.fire({
                 title: 'กำลังอัปโหลด...',
                 allowOutsideClick: false,
@@ -916,9 +976,7 @@
                 Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
                 await reload();
                 document.getElementById('fileInput').value = '';
-            } else {
-                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
-            }
+            } else Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
         });
 
         async function loadApprovedPhotos(page = 1) {
@@ -996,16 +1054,14 @@
                 </div>`;
             });
             const allBtn = document.getElementById(type == 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash');
-            if (allBtn && user.role === 'admin') {
-                allBtn.onclick = () => {
-                    const chks = document.querySelectorAll(`.${type}-check`);
-                    const unchk = Array.from(chks).some(c => !c.checked);
-                    chks.forEach(c => {
-                        c.checked = unchk;
-                        c.parentElement.classList.toggle('selected', unchk);
-                    });
-                };
-            }
+            if (allBtn && user.role === 'admin') allBtn.onclick = () => {
+                const chks = document.querySelectorAll(`.${type}-check`);
+                const unchk = Array.from(chks).some(c => !c.checked);
+                chks.forEach(c => {
+                    c.checked = unchk;
+                    c.parentElement.classList.toggle('selected', unchk);
+                });
+            };
         }
 
         // 🔥 ฟังก์ชันเปิด/ปิด รูปใหญ่ (Modal)
@@ -1056,7 +1112,9 @@
                 showCancelButton: true,
                 confirmButtonText: 'เปลี่ยนรหัสผ่าน',
                 denyButtonText: 'เปลี่ยนชื่อผู้ใช้',
-                cancelButtonText: 'ยกเลิก'
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#f39c12',
+                denyButtonColor: '#3498db'
             });
 
             if (isConfirmed) {
