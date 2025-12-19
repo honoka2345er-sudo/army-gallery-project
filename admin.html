@@ -26,7 +26,7 @@
             overflow: hidden;
         }
 
-        /* --- Sidebar --- */
+        /* --- Sidebar (PC: โชว์ตลอดเวลา) --- */
         .sidebar {
             width: 250px;
             background-color: #2c3e50;
@@ -35,9 +35,12 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            height: 100%;
             overflow-y: auto;
             transition: 0.3s;
             z-index: 1000;
+            position: relative; /* PC: อยู่กับที่ */
+            left: 0;
         }
 
         .sidebar-header {
@@ -54,6 +57,7 @@
             font-size: 20px;
         }
 
+        /* ปุ่มปิด (ซ่อนใน PC) */
         .close-btn {
             display: none;
             background: none;
@@ -118,7 +122,7 @@
             background: #2980b9;
         }
 
-        /* --- Main Content --- */
+        /* --- Main Content (PC) --- */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -126,17 +130,9 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* --- Top Bar (PC: ซ่อนไว้) --- */
         .mobile-nav {
             display: none;
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 20px;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 900;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .hamburger {
@@ -158,7 +154,7 @@
             z-index: 999;
         }
 
-        /* --- Card --- */
+        /* --- Components --- */
         .card {
             background: white;
             padding: 25px;
@@ -174,7 +170,6 @@
             margin-top: 0;
         }
 
-        /* --- Stats Grid --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -203,7 +198,6 @@
             font-size: 14px;
         }
 
-        /* --- Approval Grid --- */
         .approval-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -267,7 +261,6 @@
             display: none;
         }
 
-        /* --- Toolbar --- */
         .bulk-toolbar {
             background: #f8f9fa;
             padding: 10px;
@@ -318,7 +311,6 @@
             background: #2980b9;
         }
 
-        /* Buttons */
         .btn-primary {
             background: #27ae60;
             color: white;
@@ -411,7 +403,6 @@
             color: #555;
         }
 
-        /* Table & Inputs */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -441,12 +432,7 @@
             font-family: 'Sarabun', sans-serif;
         }
 
-        .swal2-icon {
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        /* 🔥 CSS: Modal ดูรูปใหญ่ */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -492,11 +478,7 @@
             cursor: pointer;
         }
 
-        .close-modal:hover {
-            color: #bbb;
-        }
-
-        /* 🔥 CSS: Mobile Upload Box (จิ้มง่าย) */
+        /* Mobile Upload Box */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -535,7 +517,7 @@
             font-weight: bold;
         }
 
-        /* Mobile Responsive */
+        /* 🔥 MOBILE RESPONSIVE (เฉพาะหน้าจอเล็กกว่า 768px) */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -543,33 +525,47 @@
                 overflow: auto;
             }
 
+            /* Mobile: โชว์แถบเมนูด้านบน */
             .mobile-nav {
                 display: flex;
-            }
-
-            .sidebar {
-                position: fixed;
-                left: -260px;
+                background-color: #2c3e50;
+                color: white;
+                padding: 15px 20px;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
                 top: 0;
-                height: 100%;
-                width: 250px;
-                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
-            }
-
-            .sidebar.active {
-                left: 0;
-            }
-
-            .close-btn {
-                display: block;
+                z-index: 900;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             }
 
             .hamburger {
                 display: block;
             }
 
+            /* Mobile: Sidebar ซ่อนไว้ทางซ้าย */
+            .sidebar {
+                position: fixed;
+                left: -260px; /* เริ่มต้นซ่อน */
+                top: 0;
+                height: 100%;
+                width: 250px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            }
+
+            /* Mobile: Sidebar เมื่อกดเปิด (Active) */
+            .sidebar.active {
+                left: 0; /* เลื่อนออกมา */
+            }
+
+            /* Mobile: โชว์ปุ่มปิด */
+            .close-btn {
+                display: block;
+            }
+
+            /* Mobile: ปรับเนื้อหา */
             .main-content {
-                padding: 80px 15px 20px 15px;
+                padding: 80px 15px 20px 15px; /* เว้นที่ให้ Top Bar */
             }
 
             .stats-grid {
@@ -579,6 +575,11 @@
 
             .stat-number {
                 font-size: 24px;
+            }
+
+            #uploadForm>div {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
             }
 
             .bulk-toolbar {
@@ -607,11 +608,6 @@
 
             .modal-content {
                 width: 100%;
-            }
-
-            #uploadForm>div {
-                grid-template-columns: 1fr !important;
-                gap: 15px !important;
             }
         }
     </style>
@@ -842,7 +838,7 @@
     </div>
 
     <script>
-        // 🔥 PWA Service Worker Registration
+        // 🔥 Register Service Worker (PWA)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
                 .then(() => console.log('Service Worker Registered'))
@@ -854,19 +850,31 @@
         if (!user || !token) window.location.href = 'login.html';
         document.getElementById('showUsername').innerText = user.username;
 
-        // 🔒 ซ่อนเมนู Admin ถ้าไม่ใช่ Admin และเปลี่ยนชื่อหัวข้อ
+        // 🔒 ซ่อนเมนู Admin ถ้าไม่ใช่ Admin
         if (user.role !== 'admin') {
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = 'none';
+            });
             document.getElementById('photoSectionTitle').innerText = '🖼️ ภาพที่อัปโหลด';
             document.title = 'Uploader Dashboard';
         } else {
             document.title = 'Admin Panel';
         }
 
+        // Toggle Sidebar Function
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
             sb.classList.toggle('active');
-            document.getElementById('overlay').style.display = sb.classList.contains('active') ? 'block' : 'none';
+            
+            // Overlay logic for mobile
+            const overlay = document.getElementById('overlay');
+            if (window.innerWidth <= 768) {
+                if (sb.classList.contains('active')) {
+                    overlay.style.display = 'block';
+                } else {
+                    overlay.style.display = 'none';
+                }
+            }
         }
 
         function getAuthHeaders() {
@@ -886,7 +894,7 @@
                 await loadStats();
                 await loadCategories();
                 await loadApprovedPhotos(1);
-                // 🔒 โหลดข้อมูล Admin เฉพาะถ้าเป็น Admin
+                // Admin specific loading
                 if (user.role === 'admin') {
                     await loadLogs();
                     await loadTrash();
@@ -937,12 +945,16 @@
             const tb = document.getElementById('logTableBody');
             tb.innerHTML = '';
             const show = allLogsData.slice(0, logLimit);
-            show.forEach(l => tb.innerHTML += `<tr><td>${new Date(l.created_at).toLocaleString('th-TH')}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`);
+            show.forEach(l => {
+                tb.innerHTML += `<tr><td>${new Date(l.created_at).toLocaleString('th-TH')}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`;
+            });
             const btn = document.getElementById('btnToggleLogs');
             if (allLogsData.length > 5) {
                 btn.style.display = 'inline-block';
                 btn.innerText = logLimit < allLogsData.length ? '⬇️ ดูเพิ่มเติม' : '⬆️ ย่อกลับ';
-            } else btn.style.display = 'none';
+            } else {
+                btn.style.display = 'none';
+            }
         }
 
         function toggleLogs() {
@@ -954,12 +966,18 @@
             e.preventDefault();
             const cat = document.getElementById('categoryName').value.trim();
             const files = document.getElementById('fileInput').files;
-            if (!cat || !files.length) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
-            if (files.length > 30) return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
+            if (!cat || !files.length) {
+                return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
+            }
+            if (files.length > 30) {
+                return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
+            }
             const fd = new FormData();
             fd.append('category_name', cat);
             const token = localStorage.getItem('token');
-            for (let i = 0; i < files.length; i++) fd.append('photos', files[i]);
+            for (let i = 0; i < files.length; i++) {
+                fd.append('photos', files[i]);
+            }
             Swal.fire({
                 title: 'กำลังอัปโหลด...',
                 allowOutsideClick: false,
@@ -976,7 +994,9 @@
                 Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
                 await reload();
                 document.getElementById('fileInput').value = '';
-            } else Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
+            } else {
+                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
+            }
         });
 
         async function loadApprovedPhotos(page = 1) {
@@ -1012,7 +1032,6 @@
             el.innerHTML = '';
             const toolbar = document.getElementById(type === 'approved' ? 'approvedToolbar' : 'trashToolbar');
 
-            // โชว์ toolbar เฉพาะถ้าเป็น Admin
             if (toolbar) {
                 if (user.role === 'admin' && photos.length > 0) {
                     toolbar.style.display = 'flex';
@@ -1034,7 +1053,6 @@
                 let btns = '';
                 if (user.role === 'admin') {
                     if (type == 'approved') {
-                        // Admin เห็นปุ่มครบ
                         btns = `
                             <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-edit" title="แก้ไขข้อมูล">📝</button>
                             <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename" title="เปลี่ยนชื่อ">✏️</button>
@@ -1046,7 +1064,6 @@
                 const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">` : '';
                 const click = user.role === 'admin' ? `onclick="toggleSel(this)"` : '';
 
-                // 🔥 แก้ตรงนี้: ใส่รูปและปุ่ม คลิกที่รูปเพื่อเปิด Modal
                 el.innerHTML += `<div class="approval-item ${type}-item" ${click} data-id="${id}">
                     ${chk}
                     <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
@@ -1054,17 +1071,18 @@
                 </div>`;
             });
             const allBtn = document.getElementById(type == 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash');
-            if (allBtn && user.role === 'admin') allBtn.onclick = () => {
-                const chks = document.querySelectorAll(`.${type}-check`);
-                const unchk = Array.from(chks).some(c => !c.checked);
-                chks.forEach(c => {
-                    c.checked = unchk;
-                    c.parentElement.classList.toggle('selected', unchk);
-                });
-            };
+            if (allBtn && user.role === 'admin') {
+                allBtn.onclick = () => {
+                    const chks = document.querySelectorAll(`.${type}-check`);
+                    const unchk = Array.from(chks).some(c => !c.checked);
+                    chks.forEach(c => {
+                        c.checked = unchk;
+                        c.parentElement.classList.toggle('selected', unchk);
+                    });
+                };
+            }
         }
 
-        // 🔥 ฟังก์ชันเปิด/ปิด รูปใหญ่ (Modal)
         function openImage(url) {
             const modal = document.getElementById('imageModal');
             const img = document.getElementById('img01');
@@ -1101,7 +1119,6 @@
             }
         }
 
-        // 🔥 ฟังก์ชันจัดการโปรไฟล์ส่วนตัว (เปลี่ยนชื่อ/รหัสผ่าน)
         async function openProfileSettings() {
             const {
                 isConfirmed,
@@ -1171,7 +1188,6 @@
             }
         }
 
-        // 🔥 Storage Stats
         async function loadStorageStats() {
             try {
                 const headers = getAuthHeaders();
