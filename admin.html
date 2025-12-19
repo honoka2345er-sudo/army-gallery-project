@@ -3,8 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบจัดการคลังภาพ (Admin)</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1042/1042339.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -96,7 +102,6 @@
             background-color: #e74c3c;
         }
 
-        /* ปุ่มตั้งค่าส่วนตัว */
         .btn-profile {
             background: #3498db;
             color: white;
@@ -121,7 +126,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Mobile Nav */
         .mobile-nav {
             display: none;
             background-color: #2c3e50;
@@ -199,7 +203,7 @@
             font-size: 14px;
         }
 
-        /* --- Grid รูปภาพ --- */
+        /* --- Approval Grid --- */
         .approval-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -226,7 +230,6 @@
             pointer-events: none;
         }
 
-        /* 🔥 CSS สำหรับรูปที่คลิกได้ (Zoom) */
         .approval-item img.clickable {
             pointer-events: auto;
             cursor: zoom-in;
@@ -277,7 +280,6 @@
             flex-wrap: wrap;
         }
 
-        /* Search Bar */
         .search-toolbar {
             display: flex;
             gap: 10px;
@@ -444,7 +446,7 @@
             user-select: none;
         }
 
-        /* 🔥 CSS: Modal ดูรูปใหญ่ (Lightbox) */
+        /* 🔥 CSS: Modal ดูรูปใหญ่ */
         .modal {
             display: none;
             position: fixed;
@@ -494,6 +496,45 @@
             color: #bbb;
         }
 
+        /* 🔥 CSS: Mobile Upload Box (จิ้มง่าย) */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f8ff;
+            color: #3498db;
+            cursor: pointer;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+
+        .file-upload-wrapper:hover {
+            background: #e6f2ff;
+        }
+
+        .file-upload-wrapper input[type=file] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-weight: bold;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             body {
@@ -540,11 +581,6 @@
                 font-size: 24px;
             }
 
-            #uploadForm>div {
-                grid-template-columns: 1fr !important;
-                gap: 0 !important;
-            }
-
             .bulk-toolbar {
                 flex-direction: column;
                 align-items: stretch;
@@ -571,6 +607,11 @@
 
             .modal-content {
                 width: 100%;
+            }
+
+            #uploadForm>div {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
             }
         }
     </style>
@@ -685,10 +726,22 @@
             <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label><b>1. ชื่อกิจกรรม</b></label><input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required><datalist id="categoryList"></datalist></div>
-                    <div><label><b>2. เลือกรูป</b></label><input type="file" id="fileInput" multiple accept="image/*"></div>
+                    <div>
+                        <label><b>1. ชื่อกิจกรรม</b></label>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required>
+                        <datalist id="categoryList"></datalist>
+                    </div>
+                    <div>
+                        <label><b>2. เลือกรูป</b></label>
+                        <div class="file-upload-wrapper">
+                            <span class="upload-icon">📷</span>
+                            <span class="upload-text">แตะเพื่อเลือกรูป / ถ่ายภาพ</span>
+                            <span style="font-size:12px; color:#7f8c8d;">(เลือกได้หลายรูป)</span>
+                            <input type="file" id="fileInput" multiple accept="image/*">
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%;">📤 อัปโหลด (ขึ้นทันที)</button>
+                <button type="submit" class="btn-primary" style="width:100%; margin-top:15px; padding:15px; font-size:16px;">📤 อัปโหลด (ขึ้นทันที)</button>
             </form>
         </div>
 
@@ -789,6 +842,13 @@
     </div>
 
     <script>
+        // 🔥 PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch(err => console.error('SW Error:', err));
+        }
+
         const user = JSON.parse(localStorage.getItem('user'));
         const token = localStorage.getItem('token');
         if (!user || !token) window.location.href = 'login.html';
@@ -797,7 +857,6 @@
         // 🔒 ซ่อนเมนู Admin ถ้าไม่ใช่ Admin และเปลี่ยนชื่อหัวข้อ
         if (user.role !== 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-            // 🔥 เปลี่ยนชื่อหัวข้อสำหรับ Uploader
             document.getElementById('photoSectionTitle').innerText = '🖼️ ภาพที่อัปโหลด';
             document.title = 'Uploader Dashboard';
         } else {
@@ -1044,21 +1103,28 @@
 
         // 🔥 ฟังก์ชันจัดการโปรไฟล์ส่วนตัว (เปลี่ยนชื่อ/รหัสผ่าน)
         async function openProfileSettings() {
-            const { isConfirmed, isDenied } = await Swal.fire({
+            const {
+                isConfirmed,
+                isDenied
+            } = await Swal.fire({
                 title: 'ตั้งค่าข้อมูลส่วนตัว',
                 showDenyButton: true,
                 showCancelButton: true,
                 confirmButtonText: 'เปลี่ยนรหัสผ่าน',
                 denyButtonText: 'เปลี่ยนชื่อผู้ใช้',
-                cancelButtonText: 'ยกเลิก'
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#f39c12',
+                denyButtonColor: '#3498db'
             });
 
             if (isConfirmed) {
-                // เปลี่ยนรหัสผ่าน
-                const { value: formValues } = await Swal.fire({
+                // Change Password
+                const {
+                    value: formValues
+                } = await Swal.fire({
                     title: 'เปลี่ยนรหัสผ่าน',
                     html: '<input id="swal-old-pass" class="swal2-input" type="password" placeholder="รหัสผ่านเดิม">' +
-                          '<input id="swal-new-pass" class="swal2-input" type="password" placeholder="รหัสผ่านใหม่ (ขั้นต่ำ 8 ตัว)">',
+                        '<input id="swal-new-pass" class="swal2-input" type="password" placeholder="รหัสผ่านใหม่ (ขั้นต่ำ 8 ตัว)">',
                     focusConfirm: false,
                     preConfirm: () => [document.getElementById('swal-old-pass').value, document.getElementById('swal-new-pass').value]
                 });
@@ -1067,12 +1133,22 @@
                     if (!oldPass || !newPass) return Swal.fire('เตือน', 'กรอกให้ครบ', 'warning');
                     if (newPass.length < 8) return Swal.fire('เตือน', 'รหัสต้อง 8 ตัวขึ้นไป', 'warning');
                     const headers = getAuthHeaders();
-                    const res = await fetch('/profile/password', { method: 'PUT', headers, body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }) });
-                    if(res.ok) Swal.fire('สำเร็จ','เปลี่ยนรหัสแล้ว','success'); else Swal.fire('ผิดพลาด','เปลี่ยนไม่ได้','error');
+                    const res = await fetch('/profile/password', {
+                        method: 'PUT',
+                        headers,
+                        body: JSON.stringify({
+                            oldPassword: oldPass,
+                            newPassword: newPass
+                        })
+                    });
+                    if (res.ok) Swal.fire('สำเร็จ', 'เปลี่ยนรหัสแล้ว', 'success');
+                    else Swal.fire('ผิดพลาด', 'เปลี่ยนไม่ได้', 'error');
                 }
             } else if (isDenied) {
-                // เปลี่ยนชื่อผู้ใช้
-                const { value: newName } = await Swal.fire({
+                // Change Username
+                const {
+                    value: newName
+                } = await Swal.fire({
                     title: 'เปลี่ยนชื่อผู้ใช้',
                     input: 'text',
                     inputLabel: 'ชื่อใหม่ของคุณ',
@@ -1081,10 +1157,16 @@
                 });
                 if (newName) {
                     const headers = getAuthHeaders();
-                    const res = await fetch('/profile/username', { method: 'PUT', headers, body: JSON.stringify({ newUsername: newName }) });
-                    if(res.ok) {
-                        Swal.fire('สำเร็จ','เปลี่ยนชื่อแล้ว กรุณาล็อกอินใหม่','success').then(() => logout());
-                    } else Swal.fire('ผิดพลาด','ชื่อนี้มีคนใช้แล้ว','error');
+                    const res = await fetch('/profile/username', {
+                        method: 'PUT',
+                        headers,
+                        body: JSON.stringify({
+                            newUsername: newName
+                        })
+                    });
+                    if (res.ok) {
+                        Swal.fire('สำเร็จ', 'เปลี่ยนชื่อแล้ว กรุณาล็อกอินใหม่', 'success').then(() => logout());
+                    } else Swal.fire('ผิดพลาด', 'ชื่อนี้มีคนใช้แล้ว', 'error');
                 }
             }
         }
