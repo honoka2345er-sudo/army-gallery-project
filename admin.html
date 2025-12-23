@@ -16,17 +16,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* --- Reset & Base --- */
+        /* --- 1. ตั้งค่าพื้นฐาน (Global) --- */
         body {
             font-family: 'Sarabun', sans-serif;
             margin: 0;
             background-color: #f4f6f9;
-            display: flex;
             height: 100vh;
             overflow: hidden;
+            display: flex; /* จัดเรียงแบบกล่อง Flex */
         }
 
-        /* --- Sidebar (ค่าเริ่มต้น) --- */
+        /* --- 2. Sidebar (สไตล์พื้นฐาน) --- */
         .sidebar {
             width: 250px;
             background-color: #2c3e50;
@@ -38,25 +38,31 @@
             height: 100%;
             overflow-y: auto;
             z-index: 1000;
-            /* เพิ่ม Transition ให้รวม box-shadow ด้วย */
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
 
-        /* --- 🔥 PC View (จอใหญ่กว่า 768px) --- */
+        /* --- 3. ✅ PC View (จอใหญ่กว่า 768px) --- */
+        /* กฎนี้จะทำงานเฉพาะบนคอม หรือจอแนวนอนกว้างๆ */
         @media (min-width: 769px) {
+            body {
+                flex-direction: row; /* เรียงแนวนอน: ซ้าย(เมนู) -> ขวา(เนื้อหา) */
+            }
+
             .sidebar {
-                position: relative; /* PC: อยู่กับที่ */
-                transform: translateX(0); /* โชว์ตลอดเวลา */
-                left: 0;
+                position: relative; /* ให้มันกินพื้นที่ในจอ */
+                transform: none !important; /* ยกเลิกการซ่อน */
+                box-shadow: none !important; /* PC ไม่ต้องมีเงา */
+                left: 0 !important;
             }
 
             .mobile-nav {
-                display: none !important; /* ซ่อนแถบเมนูมือถือ */
+                display: none !important; /* ซ่อนแถบหัวเว็บมือถือ */
             }
 
             .main-content {
                 margin-top: 0;
                 padding: 30px;
+                width: calc(100% - 250px); /* ความกว้าง = จอ - เมนู */
             }
 
             .overlay {
@@ -64,34 +70,18 @@
             }
 
             .close-btn {
-                display: none; /* ซ่อนปุ่มปิด */
+                display: none !important; /* ซ่อนปุ่มกากบาท */
             }
         }
 
-        /* --- 🔥 MOBILE VIEW (จอเล็กกว่า 768px) --- */
+        /* --- 4. 🔥 MOBILE VIEW (จอเล็กกว่า 768px) --- */
+        /* กฎนี้จะทำงานเฉพาะบนมือถือ */
         @media (max-width: 768px) {
             body {
-                flex-direction: column; /* เรียงแนวตั้ง */
+                flex-direction: column; /* เรียงแนวตั้ง: บน(Top Bar) -> ล่าง(เนื้อหา) */
             }
 
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100%;
-                /* ซ่อนไปทางซ้ายสุดจอ */
-                transform: translateX(-100%);
-                /* ❌ ไม่มีเงาตอนปิด (แก้ปัญหาเงาแลบ) */
-                box-shadow: none;
-            }
-
-            .sidebar.active {
-                /* เลื่อนออกมา */
-                transform: translateX(0);
-                /* ✅ มีเงาเฉพาะตอนเปิด */
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-            }
-
+            /* แถบเมนูบนมือถือ (Top Bar) */
             .mobile-nav {
                 display: flex;
                 background-color: #2c3e50;
@@ -102,13 +92,46 @@
                 height: 60px;
                 z-index: 900;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                position: sticky;
+                top: 0;
+            }
+
+            /* Sidebar บนมือถือ (ต้องซ่อนไว้) */
+            .sidebar {
+                position: fixed; /* ลอยทับเนื้อหา */
+                top: 0;
+                left: 0;
+                height: 100%;
+                /* ดันไปซ่อนทางซ้ายสุดจอ */
+                transform: translateX(-100%);
+                /* เอาเงาออกตอนซ่อน เพื่อไม่ให้แลบออกมา */
+                box-shadow: none;
+            }
+
+            /* Sidebar ตอนกดเปิด */
+            .sidebar.active {
+                /* เลื่อนกลับมาที่เดิม */
+                transform: translateX(0);
+                /* ใส่เงาให้ดูสวยงามตอนเปิด */
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            }
+
+            .close-btn {
+                display: block; /* โชว์ปุ่มปิด */
+                cursor: pointer;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 24px;
             }
 
             .main-content {
+                width: 100%;
                 padding: 20px;
                 overflow-y: auto;
             }
 
+            /* ฉากหลังดำตอนเปิดเมนู */
             .overlay {
                 display: none;
                 position: fixed;
@@ -125,16 +148,7 @@
                 display: block;
             }
 
-            .close-btn {
-                display: block;
-                cursor: pointer;
-                background: none;
-                border: none;
-                color: white;
-                font-size: 24px;
-            }
-
-            /* ปรับ Grid ในมือถือ */
+            /* ปรับ Layout เนื้อหาให้เหมาะกับจอมือถือ */
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
@@ -155,7 +169,7 @@
             }
         }
 
-        /* --- Components Styles --- */
+        /* --- 5. Component Styling (ใช้ร่วมกันทั้ง PC/Mobile) --- */
         .sidebar-header {
             display: flex;
             justify-content: space-between;
@@ -163,6 +177,11 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid #465a6e;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 20px;
         }
 
         .menu-items {
@@ -209,6 +228,13 @@
             margin-bottom: 10px;
         }
 
+        .main-content {
+            flex: 1;
+            /* ยืดขยายตามพื้นที่เหลือ */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .hamburger {
             background: none;
             border: none;
@@ -217,10 +243,7 @@
             cursor: pointer;
         }
 
-        .main-content {
-            flex: 1;
-        }
-
+        /* Card & Stats */
         .card {
             background: white;
             padding: 25px;
@@ -258,6 +281,7 @@
             font-size: 14px;
         }
 
+        /* Photo Grid */
         .approval-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -313,6 +337,7 @@
             display: none;
         }
 
+        /* Buttons */
         .btn-primary {
             background: #27ae60;
             color: white;
@@ -368,6 +393,7 @@
             cursor: pointer;
         }
 
+        /* Form Inputs */
         input,
         select {
             width: 100%;
@@ -379,6 +405,7 @@
             font-family: 'Sarabun';
         }
 
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -398,6 +425,7 @@
             background: #f8f9fa;
         }
 
+        /* Upload Box */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -432,6 +460,7 @@
             margin-bottom: 10px;
         }
 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -464,6 +493,7 @@
             cursor: pointer;
         }
 
+        /* Pagination */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -510,7 +540,7 @@
         <div class="sidebar-header">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:24px;">📸</span>
-                <h2>Menu</h2>
+                <h2>Admin Panel</h2>
             </div>
             <button class="close-btn" onclick="toggleSidebar()">✕</button>
         </div>
@@ -561,6 +591,7 @@
                     <span id="storageLimit">25 GB</span>
                 </div>
             </div>
+            
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:10px;">
                 <div style="background:#e3f2fd; padding:10px; border-radius:5px;">
                     <div style="font-size:12px;">รูปทั้งหมด</div>
@@ -575,7 +606,7 @@
                     <div id="cloudinaryPlan" style="font-weight:bold; font-size:18px;">FREE</div>
                 </div>
             </div>
-
+            
             <div style="margin-top: 20px;">
                 <h4 style="color:#666; margin-bottom:15px; font-size:16px;">⏱️ กิจกรรมที่อัปเดตล่าสุด</h4>
                 <div id="topCategoriesList" style="max-height:300px; overflow-y:auto;">
@@ -607,7 +638,9 @@
         </div>
 
         <div class="card" style="border-top: 5px solid #2c3e50;">
-            <h3>📚 จัดการรูปภาพ</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 id="photoSectionTitle" style="margin:0;">📚 จัดการรูปภาพ</h3>
+            </div>
             <div class="search-toolbar">
                 <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป...">
                 <select id="filterCategory" class="filter-select">
@@ -622,7 +655,6 @@
             <div id="approvedList" class="approval-grid">
                 <p>กำลังโหลด...</p>
             </div>
-
             <div class="pagination-container" id="paginationControls" style="display:none;">
                 <button onclick="changePage(-1)" class="btn-page" id="btnPrev">⬅️ ก่อนหน้า</button>
                 <span id="pageIndicator">หน้า 1</span>
@@ -661,7 +693,7 @@
                 </table>
             </div>
         </div>
-
+        
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
             <h3>👥 จัดการเจ้าหน้าที่</h3>
             <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
@@ -695,14 +727,14 @@
                 console.error('SW Error:', err);
             });
         }
-
+        
         const user = JSON.parse(localStorage.getItem('user'));
         const token = localStorage.getItem('token');
         if (!user || !token) {
             window.location.href = 'login.html';
         }
         document.getElementById('showUsername').innerText = user.username;
-
+        
         if (user.role !== 'admin') {
             document.querySelectorAll('.admin-only').forEach(function(el) {
                 el.style.display = 'none';
@@ -718,7 +750,7 @@
             const sb = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
             sb.classList.toggle('active');
-
+            
             // Logic สำหรับมือถือ
             if (window.innerWidth <= 768) {
                 if (sb.classList.contains('active')) {
@@ -739,16 +771,16 @@
         // --- Initialization ---
         (async function init() {
             await Promise.all([
-                loadStats(),
-                loadCategories(),
+                loadStats(), 
+                loadCategories(), 
                 loadApprovedPhotos(1)
             ]);
-
+            
             if (user.role === 'admin') {
                 await Promise.all([
-                    loadLogs(),
-                    loadTrash(),
-                    loadUsers(),
+                    loadLogs(), 
+                    loadTrash(), 
+                    loadUsers(), 
                     loadStorageStats()
                 ]);
             }
@@ -775,7 +807,7 @@
                 dl.innerHTML = '';
                 const fl = document.getElementById('filterCategory');
                 fl.innerHTML = '<option value="">📁 ทุกหมวดหมู่</option>';
-
+                
                 c.forEach(function(i) {
                     dl.innerHTML += `<option value="${i.name}"></option>`;
                     fl.innerHTML += `<option value="${i.name}">${i.name}</option>`;
@@ -790,25 +822,25 @@
             e.preventDefault();
             const cat = document.getElementById('categoryName').value.trim();
             const files = document.getElementById('fileInput').files;
-
+            
             if (!cat || !files.length) {
                 return Swal.fire('เตือน', 'กรอกข้อมูลให้ครบ', 'warning');
             }
             if (files.length > 30) {
                 return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
             }
-
+            
             const fd = new FormData();
             fd.append('category_name', cat);
             for (let i = 0; i < files.length; i++) {
                 fd.append('photos', files[i]);
             }
-
+            
             Swal.fire({
                 title: 'กำลังอัปโหลด',
                 didOpen: () => Swal.showLoading()
             });
-
+            
             const res = await fetch('/upload', {
                 method: 'POST',
                 headers: {
@@ -816,7 +848,7 @@
                 },
                 body: fd
             });
-
+            
             if (res.ok) {
                 Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
                 window.location.reload();
@@ -832,12 +864,12 @@
             currentPage = page;
             const s = document.getElementById('searchInput').value;
             const c = document.getElementById('filterCategory').value;
-
+            
             const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${s}&category=${c}&t=` + Date.now());
             const data = await res.json();
-
+            
             renderGrid('approvedList', data, 'approved');
-
+            
             document.getElementById('paginationControls').style.display = 'flex';
             document.getElementById('pageIndicator').innerText = `หน้า ${page}`;
             document.getElementById('btnPrev').disabled = page <= 1;
@@ -853,12 +885,12 @@
         function renderGrid(id, photos, type) {
             const el = document.getElementById(id);
             el.innerHTML = '';
-
+            
             const tb = document.getElementById(type + 'Toolbar');
             if (tb) {
                 tb.style.display = (user.role === 'admin' && photos.length > 0) ? 'flex' : 'none';
             }
-
+            
             if (!photos.length) {
                 el.innerHTML = '<p>ไม่มีข้อมูล</p>';
                 return;
@@ -867,7 +899,7 @@
             photos.forEach(function(p) {
                 const pid = p.id || p.photo_id;
                 let btns = '';
-
+                
                 if (user.role === 'admin') {
                     if (type === 'approved') {
                         btns = `
@@ -927,7 +959,7 @@
             e.stopPropagation();
             fn(...args);
         }
-
+        
         async function cf(m) {
             const result = await Swal.fire({
                 title: m,
@@ -942,15 +974,13 @@
             if (oldD) {
                 ds = new Date(new Date(oldD).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
             }
-
-            const {
-                value: f
-            } = await Swal.fire({
+            
+            const { value: f } = await Swal.fire({
                 title: 'แก้ไข',
                 html: `<input id="swal-c" class="swal2-input" value="${oldC}"><input id="swal-d" type="datetime-local" class="swal2-input" value="${ds}">`,
                 preConfirm: () => [document.getElementById('swal-c').value, document.getElementById('swal-d').value]
             });
-
+            
             if (f) {
                 await fetch(`/photos/${id}/details`, {
                     method: 'PUT',
@@ -963,7 +993,7 @@
                 loadApprovedPhotos(currentPage);
             }
         }
-
+        
         async function softDelete(id) {
             if (await cf('ลบ?')) {
                 await fetch(`/photos/${id}`, {
@@ -973,7 +1003,7 @@
                 loadApprovedPhotos(currentPage);
             }
         }
-
+        
         async function restorePhoto(id) {
             if (await cf('กู้คืน?')) {
                 await fetch(`/photos/${id}/restore`, {
@@ -983,7 +1013,7 @@
                 loadTrash();
             }
         }
-
+        
         async function permanentDelete(id) {
             if (await cf('ลบถาวร?')) {
                 await fetch(`/photos/${id}/permanent`, {
@@ -1004,7 +1034,7 @@
                 loadApprovedPhotos(currentPage);
             }
         }
-
+        
         async function bulkRestoreTrash() {
             if (await cf('กู้คืน?')) {
                 const ids = [...document.querySelectorAll('.trash-check:checked')].map(x => x.value);
@@ -1015,7 +1045,7 @@
                 loadTrash();
             }
         }
-
+        
         async function bulkDeleteTrash() {
             if (await cf('ลบถาวร?')) {
                 const ids = [...document.querySelectorAll('.trash-check:checked')].map(x => x.value);
@@ -1034,13 +1064,13 @@
             });
             renderGrid('trashList', await res.json(), 'trash');
         }
-
+        
         async function loadLogs() {
             const res = await fetch('/logs');
             const d = await res.json();
             const tbody = document.getElementById('logTableBody');
             tbody.innerHTML = '';
-
+            
             d.slice(0, 10).forEach(l => {
                 tbody.innerHTML += `
                     <tr>
@@ -1052,7 +1082,7 @@
                 `;
             });
         }
-
+        
         async function loadUsers() {
             const res = await fetch('/users', {
                 headers: getAuthHeaders()
@@ -1060,7 +1090,7 @@
             const u = await res.json();
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
-
+            
             u.forEach(x => {
                 tbody.innerHTML += `
                     <tr>
@@ -1071,12 +1101,12 @@
                 `;
             });
         }
-
+        
         async function addUser() {
             const u = document.getElementById('newUsername').value;
             const p = document.getElementById('newPassword').value;
             const r = document.getElementById('newRole').value;
-
+            
             if (u && p) {
                 await fetch('/users', {
                     method: 'POST',
@@ -1091,7 +1121,7 @@
                 Swal.fire('OK', 'Added', 'success');
             }
         }
-
+        
         async function deleteUser(id) {
             if (id != user.user_id && await cf('ลบ user?')) {
                 await fetch(`/users/${id}`, {
@@ -1108,7 +1138,7 @@
                     headers: getAuthHeaders()
                 });
                 if (!res.ok) return;
-
+                
                 const d = await res.json();
                 const p = parseFloat(d.cloudinary.usage_percent);
                 let pText = p.toFixed(2) + '%';
@@ -1174,7 +1204,7 @@
                 confirmButtonText: 'เปลี่ยนรหัส',
                 denyButtonText: 'เปลี่ยนชื่อ'
             });
-
+            
             if (isConfirmed) {
                 const {
                     value: v
