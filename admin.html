@@ -16,20 +16,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* =========================================
-           1. GLOBAL STYLES (ค่าเริ่มต้น)
-           ========================================= */
+        /* --- ตั้งค่าพื้นฐาน --- */
         body {
             font-family: 'Sarabun', sans-serif;
             margin: 0;
             background-color: #f4f6f9;
+            display: flex;
             height: 100vh;
             overflow: hidden;
-            display: flex;
-            /* Flexbox เป็นหัวใจสำคัญในการจัด Layout */
         }
 
-        /* สไตล์พื้นฐานของ Sidebar (สี, ฟอนต์) */
+        /* --- Sidebar (PC: โชว์ตลอดเวลา) --- */
         .sidebar {
             width: 250px;
             background-color: #2c3e50;
@@ -38,158 +35,14 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            /* ห้ามหดตัว */
             height: 100%;
             overflow-y: auto;
+            transition: 0.3s;
             z-index: 1000;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            position: relative; /* PC: อยู่กับที่ */
+            left: 0;
         }
 
-        /* =========================================
-           2. 🖥️ PC VIEW (จอใหญ่กว่า 768px)
-           ========================================= */
-        @media (min-width: 769px) {
-            body {
-                flex-direction: row;
-                /* เรียงแนวนอน: เมนู | เนื้อหา */
-            }
-
-            .sidebar {
-                position: relative !important;
-                /* ให้กินพื้นที่ปกติ */
-                transform: none !important;
-                /* ยกเลิกการซ่อน */
-                left: 0 !important;
-                box-shadow: none !important;
-                /* PC ไม่ต้องมีเงา */
-            }
-
-            .mobile-nav {
-                display: none !important;
-                /* ซ่อนแถบมือถือ */
-            }
-
-            .close-btn {
-                display: none !important;
-                /* ซ่อนปุ่มกากบาท */
-            }
-
-            .overlay {
-                display: none !important;
-                /* ซ่อนฉากหลังดำ */
-            }
-
-            .main-content {
-                flex: 1;
-                /* ขยายเต็มพื้นที่ที่เหลือ */
-                padding: 30px;
-                overflow-y: auto;
-            }
-        }
-
-        /* =========================================
-           3. 📱 MOBILE VIEW (จอเล็กกว่า 768px)
-           ========================================= */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                /* เรียงแนวตั้ง: แถบชื่อ -> เนื้อหา */
-            }
-
-            /* แถบด้านบน (Hamburger) */
-            .mobile-nav {
-                display: flex;
-                background-color: #2c3e50;
-                color: white;
-                padding: 10px 20px;
-                align-items: center;
-                justify-content: space-between;
-                height: 60px;
-                z-index: 900;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-                position: sticky;
-                top: 0;
-                flex-shrink: 0;
-            }
-
-            /* Sidebar แบบซ่อน (Fixed) */
-            .sidebar {
-                position: fixed;
-                /* ลอยทับเนื้อหา */
-                top: 0;
-                left: 0;
-                height: 100%;
-                /* ดันไปซ่อนทางซ้ายสุดจอ */
-                transform: translateX(-100%);
-                /* เอาเงาออกตอนซ่อน */
-                box-shadow: none;
-            }
-
-            /* Sidebar ตอนเปิด (Active) */
-            .sidebar.active {
-                transform: translateX(0);
-                /* เลื่อนกลับมา */
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-                /* ใส่เงา */
-            }
-
-            .close-btn {
-                display: block;
-                /* โชว์ปุ่มปิด */
-                background: none;
-                border: none;
-                color: white;
-                font-size: 24px;
-                cursor: pointer;
-            }
-
-            /* ฉากหลังดำ */
-            .overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-                backdrop-filter: blur(2px);
-            }
-
-            .overlay.active {
-                display: block;
-            }
-
-            .main-content {
-                padding: 20px;
-                overflow-y: auto;
-                width: 100%;
-            }
-
-            /* ปรับ Layout Grid ในมือถือ */
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            #uploadForm>div {
-                grid-template-columns: 1fr !important;
-                gap: 15px !important;
-            }
-
-            .bulk-toolbar,
-            .search-toolbar {
-                flex-direction: column;
-            }
-
-            .modal-content {
-                width: 100%;
-            }
-        }
-
-        /* =========================================
-           4. COMPONENTS (ใช้ร่วมกัน)
-           ========================================= */
         .sidebar-header {
             display: flex;
             justify-content: space-between;
@@ -202,6 +55,16 @@
         .sidebar-header h2 {
             margin: 0;
             font-size: 20px;
+        }
+
+        /* ปุ่มปิด (ซ่อนใน PC) */
+        .close-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
         }
 
         .menu-items {
@@ -239,6 +102,10 @@
             width: 100%;
         }
 
+        .btn-logout:hover {
+            background-color: #e74c3c;
+        }
+
         .btn-profile {
             background: #3498db;
             color: white;
@@ -251,6 +118,23 @@
             margin-bottom: 10px;
         }
 
+        .btn-profile:hover {
+            background: #2980b9;
+        }
+
+        /* --- Main Content (PC) --- */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* --- Top Bar (PC: ซ่อนไว้) --- */
+        .mobile-nav {
+            display: none;
+        }
+
         .hamburger {
             background: none;
             border: none;
@@ -259,13 +143,24 @@
             cursor: pointer;
         }
 
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* --- Components --- */
         .card {
             background: white;
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             margin-bottom: 25px;
-            overflow-x: auto;
         }
 
         .card h3 {
@@ -273,6 +168,13 @@
             padding-bottom: 10px;
             color: #2c3e50;
             margin-top: 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
         }
 
         .stat-card {
@@ -405,6 +307,10 @@
             font-family: 'Sarabun';
         }
 
+        .btn-search:hover {
+            background: #2980b9;
+        }
+
         .btn-primary {
             background: #27ae60;
             color: white;
@@ -463,6 +369,7 @@
             font-size: 13px;
         }
 
+        /* Pagination */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -480,6 +387,10 @@
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Sarabun';
+        }
+
+        .btn-page:hover:not(:disabled) {
+            background: #f0f0f0;
         }
 
         .btn-page:disabled {
@@ -604,6 +515,100 @@
 
         .upload-text {
             font-weight: bold;
+        }
+
+        /* 🔥 MOBILE RESPONSIVE (เฉพาะหน้าจอเล็กกว่า 768px) */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+
+            /* Mobile: โชว์แถบเมนูด้านบน */
+            .mobile-nav {
+                display: flex;
+                background-color: #2c3e50;
+                color: white;
+                padding: 15px 20px;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: 900;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            /* Mobile: Sidebar ซ่อนไว้ทางซ้าย */
+            .sidebar {
+                position: fixed;
+                left: -260px; /* เริ่มต้นซ่อน */
+                top: 0;
+                height: 100%;
+                width: 250px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            }
+
+            /* Mobile: Sidebar เมื่อกดเปิด (Active) */
+            .sidebar.active {
+                left: 0; /* เลื่อนออกมา */
+            }
+
+            /* Mobile: โชว์ปุ่มปิด */
+            .close-btn {
+                display: block;
+            }
+
+            /* Mobile: ปรับเนื้อหา */
+            .main-content {
+                padding: 80px 15px 20px 15px; /* เว้นที่ให้ Top Bar */
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+
+            #uploadForm>div {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+
+            .bulk-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .bulk-toolbar>div {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 5px;
+            }
+
+            .card {
+                padding: 15px;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            .search-toolbar {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -856,13 +861,13 @@
             document.title = 'Admin Panel';
         }
 
-        // Toggle Sidebar Function (สำหรับ Mobile)
+        // Toggle Sidebar Function
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
             sb.classList.toggle('active');
-
-            // Logic สำหรับมือถือ (เปิด/ปิด overlay)
+            
+            // Overlay logic for mobile
+            const overlay = document.getElementById('overlay');
             if (window.innerWidth <= 768) {
                 if (sb.classList.contains('active')) {
                     overlay.style.display = 'block';
@@ -1124,7 +1129,9 @@
                 showCancelButton: true,
                 confirmButtonText: 'เปลี่ยนรหัสผ่าน',
                 denyButtonText: 'เปลี่ยนชื่อผู้ใช้',
-                cancelButtonText: 'ยกเลิก'
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#f39c12',
+                denyButtonColor: '#3498db'
             });
 
             if (isConfirmed) {
