@@ -25,10 +25,10 @@
             background-color: #f4f6f9;
             height: 100vh;
             overflow: hidden;
-            display: flex;
+            display: flex; /* Flexbox จัด Layout หลัก */
         }
 
-        /* Sidebar พื้นฐาน */
+        /* สไตล์พื้นฐานของ Sidebar */
         .sidebar {
             width: 250px;
             background-color: #2c3e50;
@@ -36,7 +36,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
+            flex-shrink: 0; /* ห้ามหดตัว */
             height: 100%;
             overflow-y: auto;
             z-index: 1000;
@@ -48,27 +48,29 @@
            ========================================= */
         @media (min-width: 769px) {
             body {
-                flex-direction: row; /* เรียงแนวนอน */
+                flex-direction: row; /* เรียงแนวนอน: เมนู | เนื้อหา */
             }
 
             .sidebar {
-                position: relative !important;
-                transform: none !important;
+                position: relative !important; /* PC: แสดงผลปกติ ไม่ลอย */
+                transform: none !important; /* ยกเลิกการซ่อน */
                 left: 0 !important;
-                box-shadow: none !important;
+                box-shadow: none !important; /* PC: ไม่ต้องมีเงา */
             }
 
+            /* ซ่อนองค์ประกอบของ Mobile */
             .mobile-nav { display: none !important; }
             .close-btn { display: none !important; }
             .overlay { display: none !important; }
 
             .main-content {
-                flex: 1;
+                flex: 1; /* ขยายเต็มพื้นที่ขวา */
                 padding: 30px;
+                margin-top: 0 !important;
                 overflow-y: auto;
             }
 
-            /* PC: เรียง 3 ช่องปกติ */
+            /* PC: Grid เรียง 3 ช่องเสมอ */
             .stats-grid {
                 grid-template-columns: repeat(3, 1fr) !important;
             }
@@ -79,9 +81,10 @@
            ========================================= */
         @media (max-width: 768px) {
             body {
-                flex-direction: column; /* เรียงแนวตั้ง */
+                flex-direction: column; /* เรียงแนวตั้ง: แถบชื่อ -> เนื้อหา */
             }
 
+            /* --- Top Bar --- */
             .mobile-nav {
                 display: flex;
                 background-color: #2c3e50;
@@ -96,23 +99,37 @@
                 top: 0;
             }
 
+            .hamburger {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 26px;
+                cursor: pointer;
+            }
+
+            /* --- Sidebar (Mobile: ซ่อนไว้) --- */
             .sidebar {
-                position: fixed;
+                position: fixed; /* ลอยทับเนื้อหา */
                 top: 0;
                 left: 0;
                 height: 100%;
                 width: 250px;
-                transform: translateX(-100%); /* ซ่อนซ้าย */
-                box-shadow: none;
+                /* ซ่อนไปทางซ้ายสุด */
+                transform: translateX(-100%); 
+                /* เอาเงาออกตอนซ่อน */
+                box-shadow: none; 
             }
 
+            /* --- Sidebar (Mobile: ตอนเปิด) --- */
             .sidebar.active {
-                transform: translateX(0); /* เลื่อนออกมา */
+                /* เลื่อนกลับมา */
+                transform: translateX(0);
+                /* ใส่เงา */
                 box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
             }
 
             .close-btn {
-                display: block;
+                display: block; /* โชว์ปุ่มปิด */
                 background: none;
                 border: none;
                 color: white;
@@ -120,6 +137,7 @@
                 cursor: pointer;
             }
 
+            /* ฉากหลังดำ */
             .overlay {
                 display: none;
                 position: fixed;
@@ -135,17 +153,17 @@
             .overlay.active { display: block; }
 
             .main-content {
-                padding: 20px 10px;
+                padding: 20px 10px; /* ลด padding ข้างเพื่อเพิ่มพื้นที่ */
                 overflow-y: auto;
             }
-
-            /* 🔥 บังคับ Mobile เรียง 3 ช่องแนวนอน */
+            
+            /* 🔥 Mobile Grid: บังคับเรียง 3 ช่องแนวนอน */
             .stats-grid {
                 grid-template-columns: repeat(3, 1fr) !important;
                 gap: 8px !important;
             }
 
-            /* ปรับขนาดการ์ดในมือถือให้เล็กพอดี */
+            /* ปรับขนาดการ์ดให้พอดีจอเล็ก */
             .stat-card {
                 padding: 15px 5px !important;
                 border-left-width: 5px !important;
@@ -153,12 +171,12 @@
             }
 
             .stat-number {
-                font-size: 26px !important; /* ลดขนาดตัวเลข */
+                font-size: 26px !important;
                 margin-top: 5px !important;
             }
 
             .stat-label {
-                font-size: 12px !important; /* ลดขนาดตัวหนังสือ */
+                font-size: 12px !important;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -174,8 +192,10 @@
         }
 
         /* =========================================
-           4. UI COMPONENTS
+           4. UI COMPONENTS (ดีไซน์)
            ========================================= */
+        
+        /* Sidebar Elements */
         .sidebar-header {
             display: flex;
             justify-content: space-between;
@@ -190,15 +210,15 @@
         .user-info { margin: 0; color: #bdc3c7; font-size: 14px; }
         .user-info span { color: #f1c40f; font-weight: bold; }
         .menu-link { color: #3498db; text-decoration: none; font-size: 16px; }
-        .hamburger { background: none; border: none; color: white; font-size: 26px; cursor: pointer; }
 
         .btn-logout { background: #c0392b; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; width: 100%; margin-top: auto;}
         .btn-profile { background: #3498db; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; width: 100%; margin-bottom: 10px; }
 
+        /* General Card */
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 25px; overflow-x: auto; }
         .card h3 { border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #2c3e50; margin-top: 0; }
 
-        /* --- Stats Card Design --- */
+        /* 🔥 STATS CARD DESIGN (ดีไซน์ใหม่ ขอบหนา) */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -212,7 +232,7 @@
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-left: 7px solid; /* ขอบซ้ายหนา */
+            border-left: 7px solid; /* ขอบซ้ายหนา 7px */
             transition: transform 0.2s;
         }
 
@@ -232,7 +252,7 @@
             font-weight: 500;
         }
 
-        /* --- Photo Grid --- */
+        /* Photo Grid */
         .approval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
         .approval-item { border: 2px solid transparent; padding: 10px; border-radius: 8px; text-align: center; background: #fff; position: relative; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
         .approval-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; pointer-events: none; }
@@ -241,20 +261,20 @@
         .approval-item.selected::after { content: '✓'; position: absolute; top: 5px; right: 5px; background: #27ae60; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .check-overlay { display: none; }
 
-        /* --- Buttons --- */
+        /* Buttons */
         .btn-primary { background: #27ae60; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; transition: 0.3s; }
         .btn-delete, .btn-restore, .btn-rename, .btn-edit { border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin: 2px; color: white; }
         .btn-delete { background: #c0392b; } .btn-restore { background: #3498db; } .btn-rename { background: #9b59b6; } .btn-edit { background: #f39c12; }
         .btn-bulk-delete { background: #c0392b; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
         .btn-bulk-restore { background: #3498db; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
 
-        /* --- Inputs & Tables --- */
+        /* Inputs & Tables */
         input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px; font-family: 'Sarabun'; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 600px; }
         th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
         th { background: #f8f9fa; }
 
-        /* --- Upload Wrapper --- */
+        /* Upload Wrapper */
         .file-upload-wrapper { position: relative; width: 100%; height: 150px; border: 2px dashed #3498db; border-radius: 8px; display: flex; justify-content: center; align-items: center; background: #f0f8ff; color: #3498db; cursor: pointer; flex-direction: column; transition: 0.3s; }
         .file-upload-wrapper:hover { background: #e6f2ff; }
         .file-upload-wrapper input[type=file] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
@@ -266,7 +286,7 @@
         .filter-select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-width: 150px; font-family: 'Sarabun'; }
         .btn-search { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-family: 'Sarabun'; }
 
-        /* --- Modal --- */
+        /* Modal */
         .modal { display: none; position: fixed; z-index: 2000; padding-top: 50px; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); overflow: auto; }
         .modal-content { margin: auto; display: block; width: 80%; max-width: 900px; max-height: 90vh; object-fit: contain; }
         .close-modal { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
