@@ -518,6 +518,29 @@
             font-weight: bold;
         }
 
+        /* 🔥 Progress Bar Styles (เพิ่มใหม่) */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none; /* ซ่อนไว้ก่อน */
+            overflow: hidden;
+            height: 25px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #27ae60;
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            transition: width 0.2s;
+        }
+
         /* 🔥 MOBILE RESPONSIVE (เฉพาะหน้าจอเล็กกว่า 768px) */
         @media (max-width: 768px) {
             body {
@@ -547,8 +570,7 @@
             /* Mobile: Sidebar ซ่อนไว้ทางซ้าย */
             .sidebar {
                 position: fixed;
-                left: -100%;
-                /* เริ่มต้นซ่อน */
+                left: -260px; /* เริ่มต้นซ่อน */
                 top: 0;
                 height: 100%;
                 width: 250px;
@@ -557,8 +579,7 @@
 
             /* Mobile: Sidebar เมื่อกดเปิด (Active) */
             .sidebar.active {
-                left: 0;
-                /* เลื่อนออกมา */
+                left: 0; /* เลื่อนออกมา */
             }
 
             /* Mobile: โชว์ปุ่มปิด */
@@ -568,8 +589,7 @@
 
             /* Mobile: ปรับเนื้อหา */
             .main-content {
-                padding: 80px 15px 20px 15px;
-                /* เว้นที่ให้ Top Bar */
+                padding: 80px 15px 20px 15px; /* เว้นที่ให้ Top Bar */
             }
 
             .stats-grid {
@@ -646,7 +666,7 @@
             <div>
                 <p class="user-info">ผู้ใช้: <span id="showUsername">...</span></p>
             </div>
-            <a href="index.html" target="_blank" class="menu-link" onclick="autoCloseSidebar()">🔗 ไปหน้าแกลเลอรี</a>
+            <a href="index.html" target="_blank" class="menu-link">🔗 ไปหน้าแกลเลอรี</a>
 
             <div style="margin-top: auto;">
                 <button onclick="openProfileSettings()" class="btn-profile">⚙️ ตั้งค่าข้อมูลส่วนตัว</button>
@@ -673,12 +693,9 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #9b59b6;">
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">💾 พื้นที่จัดเก็บข้อมูล (Cloudinary)</h3>
-                <button onclick="loadStorageStats()"
-                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
-                    รีเฟรช</button>
+                <button onclick="loadStorageStats()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
             </div>
 
             <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:25px;">
@@ -687,21 +704,17 @@
                     <span id="storagePercentage" style="font-weight:bold; color:#e74c3c;">0%</span>
                 </div>
                 <div style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; position:relative;">
-                    <div id="storageBar"
-                        style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px; border-radius:15px; white-space:nowrap; overflow:visible;">
-                        <span id="storageBarText"
-                            style="color:#333; font-weight:bold; font-size:12px; margin-left:10px;">0.00%</span>
+                    <div id="storageBar" style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px; border-radius:15px; white-space:nowrap; overflow:visible;">
+                        <span id="storageBarText" style="color:#333; font-weight:bold; font-size:12px; margin-left:10px;">0.00%</span>
                     </div>
                 </div>
-                <div
-                    style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
+                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
                     <span id="storageUsed">Bandwidth+Storage: 0 MB</span>
                     <span id="storageLimit">Plan Limit: ~25 GB</span>
                 </div>
             </div>
 
-            <div
-                style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
                 <div style="background:#e3f2fd; padding:15px; border-radius:8px; border-left:4px solid #2196f3;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">รูปทั้งหมด</div>
                     <div id="totalPhotosCount" style="font-size:24px; font-weight:bold; color:#2196f3;">0</div>
@@ -712,8 +725,7 @@
                 </div>
                 <div style="background:#f3e5f5; padding:15px; border-radius:8px; border-left:4px solid #9c27b0;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">แพลน</div>
-                    <div id="cloudinaryPlan"
-                        style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
+                    <div id="cloudinaryPlan" style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
                 </div>
             </div>
 
@@ -724,8 +736,7 @@
                 </div>
             </div>
 
-            <div id="storageWarning"
-                style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
+            <div id="storageWarning" style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
                 <strong style="color:#856404;">⚠️ คำเตือน:</strong>
                 <span style="color:#856404;">พื้นที่ใกล้เต็มแล้ว! กรุณาลบไฟล์ที่ไม่จำเป็นออก</span>
             </div>
@@ -737,8 +748,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
                         <label><b>1. ชื่อกิจกรรม</b></label>
-                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..."
-                            required>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required>
                         <datalist id="categoryList"></datalist>
                     </div>
                     <div>
@@ -749,22 +759,22 @@
                             <span style="font-size:12px; color:#7f8c8d;">(เลือกได้หลายรูป)</span>
                             <input type="file" id="fileInput" multiple accept="image/*">
                         </div>
+                        <div class="progress-container" id="progressContainer">
+                            <div class="progress-bar" id="progressBar">0%</div>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary"
-                    style="width:100%; margin-top:15px; padding:15px; font-size:16px;">📤 อัปโหลด (ขึ้นทันที)</button>
+                <button type="submit" class="btn-primary" style="width:100%; margin-top:15px; padding:15px; font-size:16px;">📤 อัปโหลด (ขึ้นทันที)</button>
             </form>
         </div>
 
         <div class="card" style="border-top: 5px solid #2c3e50;">
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 id="photoSectionTitle" style="border:none; margin:0; padding:0;">📚 จัดการรูปภาพ (แก้ไข/ลบ)</h3>
             </div>
 
             <div class="search-toolbar">
-                <input type="text" id="searchInput" class="search-input"
-                    placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
                 <select id="filterCategory" class="filter-select">
                     <option value="">📁 ทุกหมวดหมู่</option>
                 </select>
@@ -772,8 +782,7 @@
             </div>
 
             <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllApproved" class="btn-primary"
-                    style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllApproved" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
                 <div><button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button></div>
             </div>
 
@@ -789,16 +798,12 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c;">
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">🗑️ ถังขยะ</h3>
-                <button onclick="loadTrash()"
-                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
-                    รีเฟรช</button>
+                <button onclick="loadTrash()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
             </div>
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllTrash" class="btn-primary"
-                    style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllTrash" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
                 <div>
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
@@ -829,18 +834,14 @@
                 </table>
             </div>
             <div style="text-align:center; margin-top:15px;">
-                <button id="btnToggleLogs" onclick="toggleLogs()"
-                    style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️
-                    ดูเพิ่มเติม</button>
+                <button id="btnToggleLogs" onclick="toggleLogs()" style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️ ดูเพิ่มเติม</button>
             </div>
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
             <h3>👥 จัดการเจ้าหน้าที่</h3>
-            <div
-                style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
-                <input type="text" id="newUsername" placeholder="Username ใหม่"
-                    style="margin:0; flex:1; min-width: 120px;">
+            <div style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
+                <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1; min-width: 120px;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1; min-width: 120px;">
                 <select id="newRole" aria-label="เลือกตำแหน่ง" style="margin:0; flex:1; min-width: 120px;">
                     <option value="uploader">Uploader</option>
@@ -890,10 +891,10 @@
         // Toggle Sidebar Function
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
-            sb.classList.toggle('active');
-
-            // Overlay logic for mobile
             const overlay = document.getElementById('overlay');
+            sb.classList.toggle('active');
+            
+            // Overlay logic for mobile
             if (window.innerWidth <= 768) {
                 if (sb.classList.contains('active')) {
                     overlay.style.display = 'block';
@@ -902,14 +903,7 @@
                 }
             }
         }
-        function autoCloseSidebar() {
-            if (window.innerWidth <= 768) {
-                const sb = document.getElementById('sidebar');
-                const overlay = document.getElementById('overlay');
-                sb.classList.remove('active');
-                overlay.style.display = 'none';
-            }
-        }
+
         function getAuthHeaders() {
             return {
                 'Content-Type': 'application/json',
@@ -947,7 +941,7 @@
                 document.getElementById('statTotal').innerText = data.total_photos;
                 document.getElementById('statCats').innerText = data.total_categories;
                 document.getElementById('statTrash').innerText = data.trash_count;
-            } catch (e) { }
+            } catch (e) {}
         }
 
         async function loadCategories() {
@@ -962,7 +956,7 @@
                     dl.innerHTML += `<option value="${i.name}"></option>`;
                     filter.innerHTML += `<option value="${i.name}">${i.name}</option>`;
                 });
-            } catch (e) { }
+            } catch (e) {}
         }
 
         async function loadLogs() {
@@ -971,7 +965,7 @@
                 const res = await fetch('/logs?t=' + Date.now());
                 allLogsData = await res.json();
                 renderLogs();
-            } catch (e) { }
+            } catch (e) {}
         }
 
         function renderLogs() {
@@ -995,41 +989,72 @@
             renderLogs();
         }
 
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        // 🔥 MODIFIED UPLOAD FUNCTION FOR PROGRESS BAR
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const cat = document.getElementById('categoryName').value.trim();
             const files = document.getElementById('fileInput').files;
+
             if (!cat || !files.length) {
                 return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
             }
             if (files.length > 30) {
                 return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
             }
+
             const fd = new FormData();
             fd.append('category_name', cat);
             const token = localStorage.getItem('token');
             for (let i = 0; i < files.length; i++) {
                 fd.append('photos', files[i]);
             }
-            Swal.fire({
-                title: 'กำลังอัปโหลด...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-            const res = await fetch('/upload', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: fd
-            });
-            if (res.ok) {
-                Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
-                await reload();
-                document.getElementById('fileInput').value = '';
-            } else {
-                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
+
+            // Setup UI
+            const pContainer = document.getElementById('progressContainer');
+            const pBar = document.getElementById('progressBar');
+            const btn = this.querySelector('button[type="submit"]');
+
+            pContainer.style.display = 'block';
+            pBar.style.width = '0%';
+            pBar.innerText = '0%';
+            btn.disabled = true;
+            btn.innerText = 'กำลังอัปโหลด...';
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+            // Track progress
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    pBar.style.width = percentComplete + '%';
+                    pBar.innerText = percentComplete + '%';
+                }
+            };
+
+            xhr.onload = async function() {
+                if (xhr.status === 200 || xhr.status === 201) {
+                    await Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
+                    window.location.reload();
+                } else {
+                    Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
+                    resetUI();
+                }
+            };
+
+            xhr.onerror = function() {
+                Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
+                resetUI();
+            };
+
+            function resetUI() {
+                pContainer.style.display = 'none';
+                btn.disabled = false;
+                btn.innerText = '📤 อัปโหลด (ขึ้นทันที)';
             }
+
+            xhr.send(fd);
         });
 
         async function loadApprovedPhotos(page = 1) {
@@ -1087,9 +1112,9 @@
                 if (user.role === 'admin') {
                     if (type == 'approved') {
                         btns = `
-                                <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-edit" title="แก้ไขข้อมูล">📝</button>
-                                <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename" title="เปลี่ยนชื่อ">✏️</button>
-                                <button onclick="evt(event,softDelete,${id})" class="btn-delete" title="ลบลงถังขยะ">🗑️</button>`;
+                            <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-edit" title="แก้ไขข้อมูล">📝</button>
+                            <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename" title="เปลี่ยนชื่อ">✏️</button>
+                            <button onclick="evt(event,softDelete,${id})" class="btn-delete" title="ลบลงถังขยะ">🗑️</button>`;
                     } else {
                         btns = `<button onclick="evt(event,restorePhoto,${id})" class="btn-restore">♻️</button><button onclick="evt(event,permanentDelete,${id})" class="btn-delete">💥</button>`;
                     }
@@ -1098,10 +1123,10 @@
                 const click = user.role === 'admin' ? `onclick="toggleSel(this)"` : '';
 
                 el.innerHTML += `<div class="approval-item ${type}-item" ${click} data-id="${id}">
-                        ${chk}
-                        <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
-                        <div style="margin-top:10px;">${btns}</div>
-                    </div>`;
+                    ${chk}
+                    <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
+                    <div style="margin-top:10px;">${btns}</div>
+                </div>`;
             });
             const allBtn = document.getElementById(type == 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash');
             if (allBtn && user.role === 'admin') {
@@ -1153,7 +1178,6 @@
         }
 
         async function openProfileSettings() {
-            autoCloseSidebar();
             const {
                 isConfirmed,
                 isDenied
@@ -1163,9 +1187,7 @@
                 showCancelButton: true,
                 confirmButtonText: 'เปลี่ยนรหัสผ่าน',
                 denyButtonText: 'เปลี่ยนชื่อผู้ใช้',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#f39c12',
-                denyButtonColor: '#3498db'
+                cancelButtonText: 'ยกเลิก'
             });
 
             if (isConfirmed) {
@@ -1276,15 +1298,15 @@
                         year: '2-digit'
                     });
                     list.innerHTML += `
-                    <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left: 3px solid #3498db; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:14px; color:#333; font-weight:bold;">${c.category_name}</span>
-                            <span style="font-size:12px; color:#999;">${dateStr}</span>
-                        </div>
-                        <div style="font-size:12px; color:#666; margin-top:3px;">
-                            📸 มีรูปทั้งหมด ${c.photo_count} รูป
-                        </div>
-                    </div>`;
+                <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left: 3px solid #3498db; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; color:#333; font-weight:bold;">${c.category_name}</span>
+                        <span style="font-size:12px; color:#999;">${dateStr}</span>
+                    </div>
+                    <div style="font-size:12px; color:#666; margin-top:3px;">
+                        📸 มีรูปทั้งหมด ${c.photo_count} รูป
+                    </div>
+                </div>`;
                 });
 
                 const resAvg = await fetch('/storage/average?t=' + Date.now(), {
@@ -1523,7 +1545,6 @@
         }
 
         function logout() {
-            autoCloseSidebar();
             localStorage.clear();
             window.location.href = 'login.html';
         }
