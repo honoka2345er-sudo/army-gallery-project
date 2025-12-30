@@ -205,6 +205,11 @@
             style="width: 220px; text-align: center;">
         <button onclick="resetFilter()"
             style="padding: 12px 25px; border: none; background: #95a5a6; color: white; border-radius: 5px; cursor: pointer; font-size: 14px;">ล้างค่า</button>
+        <button onclick="shareAllGallery()"
+            style="padding: 12px 25px; border: none; background: #9b59b6; color: white; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            📱 แชร์แกลเลอรี
+        </button>
+    </div>
     </div>
 
     <div id="gallery">
@@ -245,6 +250,24 @@
         }
         async function fetchPhotos() {
             try {
+                // 🔥 อ่านค่า category จาก URL (สำหรับ QR Code)
+                const urlParams = new URLSearchParams(window.location.search);
+                const categoryFromUrl = urlParams.get('category');
+
+                if (categoryFromUrl) {
+                    // ถ้ามี category ใน URL ให้กรองตามนั้น
+                    document.getElementById('searchInput').value = categoryFromUrl;
+
+                    // แสดงข้อความต้อนรับ
+                    Swal.fire({
+                        icon: 'success',
+                        title: `🎯 อัลบั้ม: ${categoryFromUrl}`,
+                        text: 'กำลังโหลดรูปภาพ...',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+
                 // เพิ่ม timestamp เพื่อป้องกัน Cache
                 const response = await fetch('/photos?limit=100&t=' + Date.now());
 
@@ -256,7 +279,14 @@
                 console.log('✅ โหลดข้อมูลสำเร็จ:', allPhotos.length, 'รูป');
 
                 filteredPhotos = allPhotos;
-                resetGallery();
+
+                // ถ้ามี category จาก QR Code ให้กรองทันที
+                if (categoryFromUrl) {
+                    resetAndFetch(); // กรองตามชื่อที่ได้จาก URL
+                } else {
+                    resetGallery(); // แสดงทั้งหมด
+                }
+
             } catch (error) {
                 console.error('❌ Error loading photos:', error);
                 document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:red;">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</p>';
@@ -336,6 +366,7 @@
 
                     headerDiv.appendChild(title);
                     headerDiv.appendChild(zipBtn);
+                    headerDiv.appendChild(qrBtn);
                     section.appendChild(headerDiv);
 
                     // สร้าง Grid รูปภาพ
@@ -417,6 +448,107 @@
 
         // เริ่มโหลดข้อมูลทันทีที่เข้าเว็บ
         fetchPhotos();
+        // 🔥 ฟังก์ชันใหม่สำหรับ QR Code
+        function generateQRCode(categoryName) {
+            const baseUrl = window.location.origin;
+            const albumUrl = `${baseUrl}/index.html?category=${encodeURIComponent(categoryName)}`;
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(albumUrl)}`;
+
+            Swal.fire({
+                title: `📱 แชร์อัลบั้ม: ${categoryName}`,
+                html: `
+            <div style="text-align:center;">
+                <img src="${qrImageUrl}" alt="QR Code" style="max-width:100%; border: 5px solid #9b59b6; border-radius:10px; margin:20px 0;">
+                <p style="color:#666; font-size:14px; margin:15px 0;">สแกน QR Code เพื่อดูรูปในอัลบั้มนี้</p>
+                <input type="text" value="${albumUrl}" readonly 
+                       style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; font-size:12px; margin-top:10px;"
+                       onclick="this.select();">
+            </div>
+        `,
+                showConfirmButton: true,
+                confirmButtonText: '💾 ดาวน์โหลด QR Code',
+                confirmButtonColor: '#9b59b6',
+                showCancelButton: true,
+                cancelButtonText: '📋 คัดลอกลิงก์',
+                width: '500px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    downloadQRCode(qrImageUrl, categoryName);
+                } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+                    navigator.clipboard.writeText(albumUrl).then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'คัดลอกลิงก์แล้ว!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    });
+                }
+            });
+        }
+
+        async function downloadQRCode(imageUrl, categoryName) {
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `QR_${categoryName}_${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ดาวน์โหลดสำเร็จ!',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error('Download error:', error);
+                Swal.fire('ผิดพลาด', 'ไม่สามารถดาวน์โหลดได้', 'error');
+            }
+        }
+
+        function shareAllGallery() {
+            const baseUrl = window.location.origin;
+            const galleryUrl = `${baseUrl}/index.html`;
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(galleryUrl)}`;
+
+            Swal.fire({
+                title: '📱 แชร์แกลเลอรีทั้งหมด',
+                html: `
+            <div style="text-align:center;">
+                <img src="${qrImageUrl}" alt="QR Code" style="max-width:100%; border: 5px solid #9b59b6; border-radius:10px; margin:20px 0;">
+                <p style="color:#666; font-size:14px; margin:15px 0;">สแกนเพื่อดูรูปทั้งหมด</p>
+                <input type="text" value="${galleryUrl}" readonly 
+                       style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; font-size:12px; margin-top:10px;"
+                       onclick="this.select();">
+            </div>
+        `,
+                showConfirmButton: true,
+                confirmButtonText: '💾 ดาวน์โหลด',
+                confirmButtonColor: '#9b59b6',
+                showCancelButton: true,
+                cancelButtonText: '📋 คัดลอก',
+                width: '500px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    downloadQRCode(qrImageUrl, 'Gallery_All');
+                } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+                    navigator.clipboard.writeText(galleryUrl).then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'คัดลอกลิงก์แล้ว!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    });
+                }
+            });
+        }
     </script>
 </body>
 

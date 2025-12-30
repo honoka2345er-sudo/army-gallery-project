@@ -26,7 +26,7 @@
             overflow: hidden;
         }
 
-        /* --- Sidebar (PC: โชว์ตลอดเวลา) --- */
+        /* --- Sidebar --- */
         .sidebar {
             width: 250px;
             background-color: #2c3e50;
@@ -40,7 +40,6 @@
             transition: 0.3s;
             z-index: 1000;
             position: relative;
-            /* PC: อยู่กับที่ */
             left: 0;
         }
 
@@ -58,7 +57,6 @@
             font-size: 20px;
         }
 
-        /* ปุ่มปิด (ซ่อนใน PC) */
         .close-btn {
             display: none;
             background: none;
@@ -123,7 +121,7 @@
             background: #2980b9;
         }
 
-        /* --- Main Content (PC) --- */
+        /* --- Main Content --- */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -131,7 +129,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* --- Top Bar (PC: ซ่อนไว้) --- */
         .mobile-nav {
             display: none;
         }
@@ -376,7 +373,7 @@
             justify-content: center;
             align-items: center;
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 50px;
             padding-top: 15px;
             border-top: 1px solid #eee;
         }
@@ -420,6 +417,14 @@
 
         th {
             background: #f8f9fa;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+
+            color: #2c3e50;
         }
 
         input,
@@ -479,11 +484,12 @@
             cursor: pointer;
         }
 
-        /* Mobile Upload Box */
+        /* Mobile Upload Box (ปรับปรุงใหม่) */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
-            height: 150px;
+            min-height: 100px;
+            height: auto;
             border: 2px dashed #3498db;
             border-radius: 8px;
             display: flex;
@@ -494,6 +500,8 @@
             cursor: pointer;
             flex-direction: column;
             transition: 0.3s;
+            padding: 5px;
+            /* เพิ่ม Padding */
         }
 
         .file-upload-wrapper:hover {
@@ -518,27 +526,41 @@
             font-weight: bold;
         }
 
-        /* 🔥 Progress Bar Styles (เพิ่มใหม่) */
-        .progress-container {
+        /* 🔥🔥🔥 Preview Grid Styles (ปรับปรุงใหม่) */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            /* ขยายขนาด */
+            gap: 12px;
+            /* เพิ่มช่องว่าง */
+            margin-top: 20px;
             width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 4px;
-            margin-top: 15px;
-            display: none; /* ซ่อนไว้ก่อน */
-            overflow: hidden;
-            height: 25px;
+            z-index: 1;
+            padding: 5px;
         }
 
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background-color: #27ae60;
-            text-align: center;
-            line-height: 25px;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            transition: width 0.2s;
+        .preview-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            /* ขอบมน */
+            border: 2px solid #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* เงาสวยๆ */
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* 🔥 MOBILE RESPONSIVE (เฉพาะหน้าจอเล็กกว่า 768px) */
@@ -549,7 +571,6 @@
                 overflow: auto;
             }
 
-            /* Mobile: โชว์แถบเมนูด้านบน */
             .mobile-nav {
                 display: flex;
                 background-color: #2c3e50;
@@ -567,29 +588,25 @@
                 display: block;
             }
 
-            /* Mobile: Sidebar ซ่อนไว้ทางซ้าย */
             .sidebar {
                 position: fixed;
-                left: -260px; /* เริ่มต้นซ่อน */
+                left: -260px;
                 top: 0;
                 height: 100%;
                 width: 250px;
                 box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
             }
 
-            /* Mobile: Sidebar เมื่อกดเปิด (Active) */
             .sidebar.active {
-                left: 0; /* เลื่อนออกมา */
+                left: 0;
             }
 
-            /* Mobile: โชว์ปุ่มปิด */
             .close-btn {
                 display: block;
             }
 
-            /* Mobile: ปรับเนื้อหา */
             .main-content {
-                padding: 80px 15px 20px 15px; /* เว้นที่ให้ Top Bar */
+                padding: 80px 15px 20px 15px;
             }
 
             .stats-grid {
@@ -693,9 +710,12 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #9b59b6;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">💾 พื้นที่จัดเก็บข้อมูล (Cloudinary)</h3>
-                <button onclick="loadStorageStats()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+                <button onclick="loadStorageStats()"
+                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
+                    รีเฟรช</button>
             </div>
 
             <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:25px;">
@@ -704,17 +724,21 @@
                     <span id="storagePercentage" style="font-weight:bold; color:#e74c3c;">0%</span>
                 </div>
                 <div style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; position:relative;">
-                    <div id="storageBar" style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px; border-radius:15px; white-space:nowrap; overflow:visible;">
-                        <span id="storageBarText" style="color:#333; font-weight:bold; font-size:12px; margin-left:10px;">0.00%</span>
+                    <div id="storageBar"
+                        style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px; border-radius:15px; white-space:nowrap; overflow:visible;">
+                        <span id="storageBarText"
+                            style="color:#333; font-weight:bold; font-size:12px; margin-left:10px;">0.00%</span>
                     </div>
                 </div>
-                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
+                <div
+                    style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
                     <span id="storageUsed">Bandwidth+Storage: 0 MB</span>
                     <span id="storageLimit">Plan Limit: ~25 GB</span>
                 </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
+            <div
+                style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
                 <div style="background:#e3f2fd; padding:15px; border-radius:8px; border-left:4px solid #2196f3;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">รูปทั้งหมด</div>
                     <div id="totalPhotosCount" style="font-size:24px; font-weight:bold; color:#2196f3;">0</div>
@@ -725,7 +749,8 @@
                 </div>
                 <div style="background:#f3e5f5; padding:15px; border-radius:8px; border-left:4px solid #9c27b0;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">แพลน</div>
-                    <div id="cloudinaryPlan" style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
+                    <div id="cloudinaryPlan"
+                        style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
                 </div>
             </div>
 
@@ -736,7 +761,8 @@
                 </div>
             </div>
 
-            <div id="storageWarning" style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
+            <div id="storageWarning"
+                style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
                 <strong style="color:#856404;">⚠️ คำเตือน:</strong>
                 <span style="color:#856404;">พื้นที่ใกล้เต็มแล้ว! กรุณาลบไฟล์ที่ไม่จำเป็นออก</span>
             </div>
@@ -748,33 +774,39 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
                         <label><b>1. ชื่อกิจกรรม</b></label>
-                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..."
+                            required>
                         <datalist id="categoryList"></datalist>
                     </div>
                     <div>
                         <label><b>2. เลือกรูป</b></label>
                         <div class="file-upload-wrapper">
-                            <span class="upload-icon">📷</span>
-                            <span class="upload-text">แตะเพื่อเลือกรูป / ถ่ายภาพ</span>
-                            <span style="font-size:12px; color:#7f8c8d;">(เลือกได้หลายรูป)</span>
-                            <input type="file" id="fileInput" multiple accept="image/*">
-                        </div>
-                        <div class="progress-container" id="progressContainer">
-                            <div class="progress-bar" id="progressBar">0%</div>
+                            <div id="uploadPlaceholder">
+                                <span class="upload-icon">📷</span>
+                                <div class="upload-text">แตะเพื่อเลือกรูป / ถ่ายภาพ</div>
+                                <span style="font-size:12px; color:#7f8c8d;">(เลือกได้หลายรูป)</span>
+                            </div>
+
+                            <div id="previewContainer" class="preview-grid"></div>
+
+                            <input type="file" id="fileInput" multiple accept="image/*" onchange="previewImages()">
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%; margin-top:15px; padding:15px; font-size:16px;">📤 อัปโหลด (ขึ้นทันที)</button>
+                <button type="submit" class="btn-primary"
+                    style="width:100%; margin-top:15px; padding:15px; font-size:16px;">📤 อัปโหลด (ขึ้นทันที)</button>
             </form>
         </div>
 
         <div class="card" style="border-top: 5px solid #2c3e50;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 id="photoSectionTitle" style="border:none; margin:0; padding:0;">📚 จัดการรูปภาพ (แก้ไข/ลบ)</h3>
             </div>
 
             <div class="search-toolbar">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
                 <select id="filterCategory" class="filter-select">
                     <option value="">📁 ทุกหมวดหมู่</option>
                 </select>
@@ -782,7 +814,8 @@
             </div>
 
             <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllApproved" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllApproved" class="btn-primary"
+                    style="background:#34495e;">เลือกทั้งหมด</button>
                 <div><button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button></div>
             </div>
 
@@ -798,12 +831,16 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">🗑️ ถังขยะ</h3>
-                <button onclick="loadTrash()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+                <button onclick="loadTrash()"
+                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
+                    รีเฟรช</button>
             </div>
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllTrash" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllTrash" class="btn-primary"
+                    style="background:#34495e;">เลือกทั้งหมด</button>
                 <div>
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
@@ -834,14 +871,18 @@
                 </table>
             </div>
             <div style="text-align:center; margin-top:15px;">
-                <button id="btnToggleLogs" onclick="toggleLogs()" style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️ ดูเพิ่มเติม</button>
+                <button id="btnToggleLogs" onclick="toggleLogs()"
+                    style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️
+                    ดูเพิ่มเติม</button>
             </div>
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
             <h3>👥 จัดการเจ้าหน้าที่</h3>
-            <div style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
-                <input type="text" id="newUsername" placeholder="Username ใหม่" style="margin:0; flex:1; min-width: 120px;">
+            <div
+                style="display:flex; gap:10px; margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:5px; align-items:center; flex-wrap:wrap;">
+                <input type="text" id="newUsername" placeholder="Username ใหม่"
+                    style="margin:0; flex:1; min-width: 120px;">
                 <input type="text" id="newPassword" placeholder="Password" style="margin:0; flex:1; min-width: 120px;">
                 <select id="newRole" aria-label="เลือกตำแหน่ง" style="margin:0; flex:1; min-width: 120px;">
                     <option value="uploader">Uploader</option>
@@ -893,7 +934,7 @@
             const sb = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
             sb.classList.toggle('active');
-            
+
             // Overlay logic for mobile
             if (window.innerWidth <= 768) {
                 if (sb.classList.contains('active')) {
@@ -901,6 +942,14 @@
                 } else {
                     overlay.style.display = 'none';
                 }
+            }
+        }
+        function autoCloseSidebar() {
+            if (window.innerWidth <= 768) {
+                const sb = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                sb.classList.remove('active');
+                overlay.style.display = 'none';
             }
         }
 
@@ -941,7 +990,7 @@
                 document.getElementById('statTotal').innerText = data.total_photos;
                 document.getElementById('statCats').innerText = data.total_categories;
                 document.getElementById('statTrash').innerText = data.trash_count;
-            } catch (e) {}
+            } catch (e) { }
         }
 
         async function loadCategories() {
@@ -956,106 +1005,95 @@
                     dl.innerHTML += `<option value="${i.name}"></option>`;
                     filter.innerHTML += `<option value="${i.name}">${i.name}</option>`;
                 });
-            } catch (e) {}
+            } catch (e) { }
         }
 
-        async function loadLogs() {
-            if (user.role !== 'admin') return;
-            try {
-                const res = await fetch('/logs?t=' + Date.now());
-                allLogsData = await res.json();
-                renderLogs();
-            } catch (e) {}
-        }
+        // 🔥 Preview Images Function
+        function previewImages() {
+            const container = document.getElementById('previewContainer');
+            const files = document.getElementById('fileInput').files;
+            container.innerHTML = ''; // เคลียร์รูปเก่า
 
-        function renderLogs() {
-            const tb = document.getElementById('logTableBody');
-            tb.innerHTML = '';
-            const show = allLogsData.slice(0, logLimit);
-            show.forEach(l => {
-                tb.innerHTML += `<tr><td>${new Date(l.created_at).toLocaleString('th-TH')}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`;
-            });
-            const btn = document.getElementById('btnToggleLogs');
-            if (allLogsData.length > 5) {
-                btn.style.display = 'inline-block';
-                btn.innerText = logLimit < allLogsData.length ? '⬇️ ดูเพิ่มเติม' : '⬆️ ย่อกลับ';
+            if (files && files.length > 0) {
+                // ซ่อนข้อความ placeholder เมื่อมีรูป
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'preview-img';
+                        container.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
             } else {
-                btn.style.display = 'none';
+                // โชว์ข้อความ placeholder ถ้าไม่มีรูป
+                document.getElementById('uploadPlaceholder').style.display = 'block';
             }
         }
 
-        function toggleLogs() {
-            logLimit = logLimit < allLogsData.length ? logLimit + 10 : 5;
-            renderLogs();
-        }
-
-        // 🔥 MODIFIED UPLOAD FUNCTION FOR PROGRESS BAR
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const cat = document.getElementById('categoryName').value.trim();
             const files = document.getElementById('fileInput').files;
-
             if (!cat || !files.length) {
                 return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบ', 'warning');
             }
             if (files.length > 30) {
                 return Swal.fire('เตือน', 'อัปโหลดได้ทีละ 30 รูป', 'warning');
             }
-
             const fd = new FormData();
             fd.append('category_name', cat);
             const token = localStorage.getItem('token');
             for (let i = 0; i < files.length; i++) {
                 fd.append('photos', files[i]);
             }
-
-            // Setup UI
-            const pContainer = document.getElementById('progressContainer');
-            const pBar = document.getElementById('progressBar');
-            const btn = this.querySelector('button[type="submit"]');
-
-            pContainer.style.display = 'block';
-            pBar.style.width = '0%';
-            pBar.innerText = '0%';
-            btn.disabled = true;
-            btn.innerText = 'กำลังอัปโหลด...';
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload', true);
-            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-
-            // Track progress
-            xhr.upload.onprogress = function(e) {
-                if (e.lengthComputable) {
-                    const percentComplete = Math.round((e.loaded / e.total) * 100);
-                    pBar.style.width = percentComplete + '%';
-                    pBar.innerText = percentComplete + '%';
-                }
-            };
-
-            xhr.onload = async function() {
-                if (xhr.status === 200 || xhr.status === 201) {
-                    await Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
-                    window.location.reload();
-                } else {
-                    Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
-                    resetUI();
-                }
-            };
-
-            xhr.onerror = function() {
-                Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
-                resetUI();
-            };
-
-            function resetUI() {
-                pContainer.style.display = 'none';
-                btn.disabled = false;
-                btn.innerText = '📤 อัปโหลด (ขึ้นทันที)';
+            Swal.fire({
+                title: 'กำลังอัปโหลด...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+            const res = await fetch('/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: fd
+            });
+            if (res.ok) {
+                Swal.fire('สำเร็จ', 'เรียบร้อย', 'success');
+                await reload();
+                document.getElementById('fileInput').value = '';
+                document.getElementById('previewContainer').innerHTML = ''; // Reset Preview
+                document.getElementById('uploadPlaceholder').style.display = 'block'; // Show Placeholder
+            } else {
+                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
             }
-
-            xhr.send(fd);
         });
+
+        // 🔥 Copy Link Function
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                })
+
+                Toast.fire({
+                    icon: 'success',
+                    title: 'คัดลอกลิงก์แล้ว'
+                })
+            });
+        }
 
         async function loadApprovedPhotos(page = 1) {
             currentPage = page;
@@ -1112,6 +1150,7 @@
                 if (user.role === 'admin') {
                     if (type == 'approved') {
                         btns = `
+                            <button onclick="evt(event,copyLink,'${url}')" class="btn-edit" style="background:#3498db;" title="คัดลอกลิงก์">🔗</button>
                             <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-edit" title="แก้ไขข้อมูล">📝</button>
                             <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename" title="เปลี่ยนชื่อ">✏️</button>
                             <button onclick="evt(event,softDelete,${id})" class="btn-delete" title="ลบลงถังขยะ">🗑️</button>`;
@@ -1178,6 +1217,7 @@
         }
 
         async function openProfileSettings() {
+            autoCloseSidebar();
             const {
                 isConfirmed,
                 isDenied
@@ -1187,7 +1227,9 @@
                 showCancelButton: true,
                 confirmButtonText: 'เปลี่ยนรหัสผ่าน',
                 denyButtonText: 'เปลี่ยนชื่อผู้ใช้',
-                cancelButtonText: 'ยกเลิก'
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#f39c12',
+                denyButtonColor: '#3498db'
             });
 
             if (isConfirmed) {
@@ -1545,9 +1587,273 @@
         }
 
         function logout() {
+            autoCloseSidebar();
             localStorage.clear();
             window.location.href = 'login.html';
         }
+        // ==========================================
+        // 🔥 เพิ่มในไฟล์ admin.html (ใน <script> tag)
+        // ==========================================
+
+        // 1️⃣ ฟังก์ชันแจ้งเตือนพื้นที่จัดเก็บ (เพิ่มใน loadStorageStats)
+        async function loadStorageStats() {
+            try {
+                const headers = getAuthHeaders();
+                if (!headers) return;
+                const res = await fetch('/storage/usage?t=' + Date.now(), { headers });
+                if (!res.ok) return;
+                const data = await res.json();
+                console.log('💾 Storage data:', data);
+
+                let used = data.cloudinary.used_bytes || 0;
+                let limit = data.cloudinary.limit_bytes || 26843545600;
+                let p = (used / limit) * 100;
+
+                let pText = p.toFixed(2) + '%';
+                if (p > 0 && p < 0.01) {
+                    pText = p.toFixed(4) + '%';
+                } else if (p < 0.0001 && p > 0) {
+                    pText = "< 0.0001%";
+                }
+
+                document.getElementById('storagePercentage').innerText = pText;
+                const bar = document.getElementById('storageBar');
+                document.getElementById('storageBarText').innerText = pText;
+
+                const visualWidth = (p > 0 && p < 1) ? 1 : p;
+                bar.style.width = visualWidth + '%';
+
+                // 🔥 ระบบแจ้งเตือนอัตโนมัติ
+                if (p >= 95) {
+                    bar.style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+                    showStorageAlert('critical', p);
+                } else if (p >= 90) {
+                    bar.style.background = 'linear-gradient(90deg, #e67e22, #d35400)';
+                    showStorageAlert('danger', p);
+                } else if (p >= 80) {
+                    bar.style.background = 'linear-gradient(90deg, #f39c12, #e67e22)';
+                    showStorageAlert('warning', p);
+                } else {
+                    bar.style.background = 'linear-gradient(90deg, #3498db, #9b59b6)';
+                }
+
+                document.getElementById('storageUsed').innerText = 'ใช้ไป: ' + data.cloudinary.used_readable;
+                document.getElementById('storageLimit').innerText = 'ลิมิต: ' + data.cloudinary.limit_readable;
+                document.getElementById('totalPhotosCount').innerText = data.database.active_photos;
+                document.getElementById('cloudinaryPlan').innerText = data.cloudinary.plan.toUpperCase();
+
+                // แสดงรายการกิจกรรมล่าสุด
+                const list = document.getElementById('topCategoriesList');
+                if (!data.latest_categories || !data.latest_categories.length) {
+                    list.innerHTML = '<p style="text-align:center;color:#999;">ไม่มีข้อมูล</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                data.latest_categories.forEach((c) => {
+                    const dateObj = new Date(c.last_update);
+                    const dateStr = dateObj.toLocaleDateString('th-TH', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: '2-digit'
+                    });
+                    list.innerHTML += `
+            <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left: 3px solid #3498db; box-shadow:0 1px 3px rgba(0,0,0,0.05); position: relative;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:14px; color:#333; font-weight:bold;">${c.category_name}</span>
+                    <button onclick="generateQRCode('${c.category_name}')" 
+                            style="background:#9b59b6; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">
+                        📱 QR Code
+                    </button>
+                </div>
+                <div style="font-size:12px; color:#666; margin-top:3px;">
+                    📸 มีรูปทั้งหมด ${c.photo_count} รูป
+                </div>
+                <div style="font-size:12px; color:#999; margin-top:3px;">
+                    🕒 ${dateStr}
+                </div>
+            </div>`;
+                });
+
+                const resAvg = await fetch('/storage/average?t=' + Date.now(), { headers });
+                if (resAvg.ok) {
+                    const d = await resAvg.json();
+                    document.getElementById('avgPhotoSize').innerText = d.average_readable;
+                }
+
+            } catch (error) {
+                console.error('❌ Error loading storage stats:', error);
+            }
+        }
+
+        // 2️⃣ ฟังก์ชันแสดงการแจ้งเตือนพื้นที่
+        function showStorageAlert(level, percentage) {
+            let title, text, icon, color;
+
+            // ตรวจสอบว่าเคยแจ้งเตือนไปแล้วหรือยัง (วันนี้)
+            const lastAlert = localStorage.getItem('lastStorageAlert');
+            const today = new Date().toDateString();
+
+            if (lastAlert === today + '-' + level) {
+                return; // ถ้าแจ้งไปแล้ววันนี้ ไม่ต้องแจ้งซ้ำ
+            }
+
+            if (level === 'critical') {
+                title = '🚨 พื้นที่เต็มเกือบหมดแล้ว!';
+                text = `ใช้ไปแล้ว ${percentage.toFixed(2)}% กรุณาลบไฟล์ที่ไม่จำเป็นออกโดยด่วน`;
+                icon = 'error';
+                color = '#e74c3c';
+            } else if (level === 'danger') {
+                title = '⚠️ พื้นที่จัดเก็บใกล้เต็ม';
+                text = `ใช้ไปแล้ว ${percentage.toFixed(2)}% แนะนำให้ลบไฟล์เก่าหรืออัพเกรดแพลน`;
+                icon = 'warning';
+                color = '#e67e22';
+            } else if (level === 'warning') {
+                title = '💡 แจ้งเตือนพื้นที่';
+                text = `ใช้ไปแล้ว ${percentage.toFixed(2)}% ควรเริ่มจัดการไฟล์`;
+                icon = 'info';
+                color = '#f39c12';
+            }
+
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                confirmButtonText: 'รับทราบ',
+                confirmButtonColor: color,
+                showCancelButton: true,
+                cancelButtonText: 'ดูถังขยะ',
+                footer: '<a href="#" onclick="loadTrash(); return false;">ไปยังถังขยะเพื่อลบไฟล์ถาวร</a>'
+            }).then((result) => {
+                if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+                    loadTrash();
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }
+            });
+
+            // บันทึกว่าแจ้งเตือนไปแล้ว
+            localStorage.setItem('lastStorageAlert', today + '-' + level);
+        }
+
+        // 3️⃣ ฟังก์ชันสร้าง QR Code สำหรับอัลบั้ม
+        async function generateQRCode(categoryName) {
+            try {
+                // สร้าง URL สำหรับดูอัลบั้ม
+                const baseUrl = window.location.origin;
+                const albumUrl = `${baseUrl}/index.html?category=${encodeURIComponent(categoryName)}`;
+
+                // ใช้ API สร้าง QR Code (ฟรี จาก qrcode.tec-it.com)
+                const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(albumUrl)}`;
+
+                // แสดง QR Code ใน Modal
+                Swal.fire({
+                    title: `📱 QR Code: ${categoryName}`,
+                    html: `
+                <div style="text-align:center;">
+                    <img src="${qrImageUrl}" alt="QR Code" style="max-width:100%; border: 5px solid #3498db; border-radius:10px; margin:20px 0;">
+                    <p style="color:#666; font-size:14px; margin:15px 0;">สแกน QR Code เพื่อดูรูปในอัลบั้มนี้</p>
+                    <input type="text" value="${albumUrl}" readonly 
+                           style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; font-size:12px; margin-top:10px;"
+                           onclick="this.select();">
+                </div>
+            `,
+                    showConfirmButton: true,
+                    confirmButtonText: '💾 ดาวน์โหลด QR Code',
+                    confirmButtonColor: '#27ae60',
+                    showCancelButton: true,
+                    cancelButtonText: '📋 คัดลอกลิงก์',
+                    width: '500px'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // ดาวน์โหลด QR Code
+                        downloadQRCode(qrImageUrl, categoryName);
+                    } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+                        // คัดลอกลิงก์
+                        navigator.clipboard.writeText(albumUrl).then(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'คัดลอกลิงก์แล้ว!',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        });
+                    }
+                });
+
+            } catch (error) {
+                console.error('QR Code Error:', error);
+                Swal.fire('ผิดพลาด', 'ไม่สามารถสร้าง QR Code ได้', 'error');
+            }
+        }
+
+        // 4️⃣ ฟังก์ชันดาวน์โหลด QR Code
+        async function downloadQRCode(imageUrl, categoryName) {
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `QR_${categoryName}_${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ดาวน์โหลดสำเร็จ!',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error('Download error:', error);
+                Swal.fire('ผิดพลาด', 'ไม่สามารถดาวน์โหลดได้', 'error');
+            }
+        }
+
+        // 5️⃣ เพิ่มปุ่ม QR Code ในส่วนแสดงรูปภาพ (ใน renderGrid function)
+        // แก้ไขในฟังก์ชัน renderGrid ส่วนที่สร้างปุ่ม:
+
+        // เดิม:
+        // <button onclick="evt(event,copyLink,'${url}')" class="btn-edit" ...>
+
+        // เพิ่มเติม:
+        /*
+        <button onclick="evt(event,showQRForPhoto,'${p.activity || 'ทั่วไป'}')" 
+                class="btn-edit" 
+                style="background:#9b59b6;" 
+                title="QR Code อัลบั้ม">
+            📱
+        </button>
+        */
+
+        // 6️⃣ ฟังก์ชันแสดง QR Code จากรูปภาพ
+        function showQRForPhoto(activityName) {
+            generateQRCode(activityName);
+        }
+
+        // 7️⃣ เพิ่มการตรวจสอบพื้นที่อัตโนมัติทุก 5 นาที
+        setInterval(async () => {
+            if (user.role === 'admin') {
+                try {
+                    const headers = getAuthHeaders();
+                    const res = await fetch('/storage/usage?t=' + Date.now(), { headers });
+                    if (!res.ok) return;
+                    const data = await res.json();
+
+                    let used = data.cloudinary.used_bytes || 0;
+                    let limit = data.cloudinary.limit_bytes || 26843545600;
+                    let p = (used / limit) * 100;
+
+                    if (p >= 90) {
+                        showStorageAlert(p >= 95 ? 'critical' : 'danger', p);
+                    }
+                } catch (error) {
+                    console.error('Auto storage check error:', error);
+                }
+            }
+        }, 5 * 60 * 1000); // ตรวจทุก 5 นาที
     </script>
 </body>
 
