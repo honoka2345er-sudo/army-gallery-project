@@ -3,187 +3,289 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ข่าวประชาสัมพันธ์ ทภ.3</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
+    
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <style>
-        /* --- ตั้งค่าพื้นฐาน --- */
+        /* --- Global Reset --- */
+        :root {
+            --primary: #2563eb;
+            --bg-body: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
         body {
             font-family: 'Sarabun', sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #ffffff;
-            display: block;
-            overflow-y: auto;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-y: scroll;
         }
 
-        /* --- ส่วนหัวเว็บ (Header) --- */
+        /* --- Header --- */
         .header-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 25px 20px;
-            background-color: white;
-            position: relative;
-            border-bottom: 1px solid #eee;
-            gap: 20px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .header-logo {
-            width: 80px;
-            height: auto;
+        .header-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
             cursor: pointer;
             transition: transform 0.2s;
         }
+        .header-brand:hover { transform: scale(1.02); }
 
-        .header-logo:hover {
-            transform: scale(1.05);
-        }
+        .header-logo { width: 55px; height: auto; margin-bottom: 5px; object-fit: contain; }
+        .header-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 0; line-height: 1.2; text-align: center; }
+        .header-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 400; }
 
-        .header-title {
-            font-size: 28px;
-            margin: 0;
-            color: #333;
-            font-weight: bold;
-        }
-
-        /* --- ส่วนค้นหา --- */
-        .search-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-bottom: 1px solid #ddd;
+        /* --- Search Section --- */
+        .search-wrapper {
+            padding: 30px 20px;
             display: flex;
             justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
+        }
+
+        .search-box {
+            background: white;
+            padding: 5px;
+            border-radius: 50px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 700px;
+            transition: box-shadow 0.3s;
             position: relative;
+        }
+
+        .search-box:focus-within {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            border-color: var(--primary);
         }
 
         .search-input {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
+            border: none;
+            background: transparent;
+            padding: 12px 20px;
+            font-family: 'Sarabun';
+            font-size: 15px;
+            outline: none;
+            flex: 1;
+            border-radius: 50px;
+            min-width: 150px;
         }
 
-        /* --- Grid แสดงรูป --- */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            padding: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
+        .date-input {
+            border: none;
+            border-left: 1px solid #e2e8f0;
+            background: transparent;
+            padding: 12px 15px;
+            font-family: 'Sarabun';
+            font-size: 14px;
+            outline: none;
+            width: 220px;
+            text-align: center;
+            color: var(--text-muted);
+            border-radius: 0;
+            cursor: pointer;
+        }
+        .date-input:hover { background-color: #f8fafc; color: var(--primary); }
+
+        .btn-clear {
+            background: #f1f5f9;
+            border: none;
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-clear:hover { background: #fee2e2; color: #ef4444; }
+
+        /* --- Gallery --- */
+        .gallery-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .activity-section { margin-bottom: 60px; }
+        
+        .activity-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-left: 15px; border-left: 4px solid var(--primary);
+        }
+        .activity-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin: 0; }
+
+        .btn-download-zip {
+            font-size: 13px; color: var(--primary); text-decoration: none;
+            background: white; border: 1px solid #e2e8f0; padding: 6px 12px;
+            border-radius: 20px; transition: 0.2s; font-weight: 500;
+        }
+        .btn-download-zip:hover { border-color: var(--primary); background: #eff6ff; }
+
+        .sub-gallery {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px;
         }
 
         .news-card {
-            display: block;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            background: #fff;
-            transition: transform 0.2s;
-            text-decoration: none;
-            color: #333;
+            background: white; border-radius: 16px; overflow: hidden; text-decoration: none;
+            box-shadow: var(--shadow-sm); transition: all 0.3s; position: relative; border: 1px solid #f1f5f9;
         }
-
-        .news-card:hover {
-            transform: translateY(-5px);
-        }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
 
         .news-img-wrapper {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
+            width: 100%; height: 180px; overflow: hidden; background: #e2e8f0;
         }
-
         .news-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;
+        }
+        .news-card:hover .news-img-wrapper img { transform: scale(1.08); }
+
+        .news-info { padding: 15px; }
+        .news-date { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+        /* 🔥 SKELETON LOADING CSS */
+        .skeleton {
+            background: #f0f0f0;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-card {
+            background: white; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; height: 260px;
+        }
+        .skeleton-img { width: 100%; height: 180px; }
+        .skeleton-text { height: 16px; margin: 15px; width: 60%; }
+
+        /* 🔥 INFINITE SCROLL LOADER CSS */
+        #scroll-sentinel {
+            height: 20px; width: 100%; margin-top: 20px;
+        }
+        .loader-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 🔥 CUSTOM FLATPICKR */
+        .flatpickr-calendar {
+            font-family: 'Sarabun', sans-serif !important; border-radius: 16px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important; border: none !important;
+            margin-top: 5px !important; width: 360px !important; max-width: 95vw !important;
+        }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+            background: var(--primary) !important; border-color: var(--primary) !important; color: white !important;
+        }
+        .flatpickr-weekdays {
+            background: #fff !important; padding: 0 10px !important; margin-top: 5px !important;
+            height: 30px !important; display: flex; align-items: center;
+        }
+        .flatpickr-weekdaycontainer {
+            display: flex; flex: 1; width: 100%; justify-content: space-around;
+        }
+        span.flatpickr-weekday {
+            color: #64748b !important; font-weight: 600 !important; font-size: 14px !important;
+            text-align: center; flex: 1;
+        }
+        .flatpickr-days {
+            width: 100% !important; padding: 5px 10px 10px 10px !important; border-top: 1px solid #f1f5f9;
+        }
+        .dayContainer {
+            width: 100% !important; min-width: 100% !important; max-width: 100% !important;
+            display: flex !important; flex-wrap: wrap !important; justify-content: space-around !important;
+        }
+        .flatpickr-day {
+            height: 40px !important; line-height: 40px !important;
+            flex-basis: 14.28% !important; max-width: 14.28% !important;
+            margin: 0 !important; border-radius: 8px !important; border: 1px solid transparent !important;
+        }
+        .flatpickr-months { 
+            background: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .flatpickr-current-month {
+            position: static !important; width: auto !important; left: auto !important;
+            display: flex; align-items: center; gap: 8px; padding: 0 !important;
+            flex: 1; justify-content: center;
+        }
+        .flatpickr-current-month .numInputWrapper { display: none !important; }
+        .flatpickr-monthDropdown-months, .year-dropdown {
+            font-family: 'Sarabun' !important; font-weight: 500; font-size: 16px;
+            background: transparent; border: none; padding: 4px 8px; cursor: pointer; color: #1e293b;
+            border-radius: 4px; transition: all 0.2s; text-align: center;
+            appearance: none; -webkit-appearance: none;
+        }
+        .flatpickr-monthDropdown-months:hover, .year-dropdown:hover {
+            background: #f8fafc; color: var(--primary);
+        }
+        .flatpickr-prev-month, .flatpickr-next-month {
+            position: static !important; padding: 0 !important; height: 28px !important;
+            width: 28px !important; display: flex !important; align-items: center !important;
+            justify-content: center !important; border-radius: 6px;
         }
 
-        .news-card:hover img {
-            transform: scale(1.05);
-        }
-
-        /* ปุ่มโหลดเพิ่มเติม */
-        #loadMoreContainer button {
-            padding: 12px 40px;
-            background: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* --- Mobile Responsive (ปรับให้สวยในมือถือ) --- */
+        /* --- Mobile --- */
         @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                text-align: center;
-                gap: 10px;
-                padding: 20px;
-            }
+            .header-brand { flex-direction: row; gap: 12px; }
+            .header-logo { width: 40px; margin: 0; }
+            .header-title { font-size: 16px; text-align: left; }
+            
+            .search-box { flex-direction: column; border-radius: 16px; padding: 10px; gap: 10px; align-items: stretch; }
+            .search-input { width: 100% !important; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; }
+            .date-input { width: 100% !important; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; }
+            .btn-clear { width: 100%; border-radius: 8px; margin: 0; padding: 8px; }
+            
+            .sub-gallery { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .news-img-wrapper { height: 130px; }
+            .news-info { padding: 10px; }
+            .news-date { font-size: 11px; }
 
-            .header-logo {
-                width: 70px;
-            }
+            .skeleton-card { height: 200px; }
+            .skeleton-img { height: 130px; }
 
-            .header-title {
-                font-size: 22px;
-            }
-
-            .search-section {
-                flex-direction: column;
-                padding: 20px;
-            }
-
-            .search-input {
-                width: 100% !important;
-                margin: 0;
-                box-sizing: border-box;
-                height: 45px;
-            }
-
-            /* ปรับ Grid เป็น 2 คอลัมน์ในมือถือ */
-            .gallery {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-                padding: 15px;
-            }
-
-            .news-img-wrapper {
-                height: 130px;
-            }
-
-            .news-title {
-                padding: 8px;
-                font-size: 11px;
-            }
-
-            #loadMoreContainer button {
-                width: 100%;
-                padding: 15px;
-            }
-
-            /* ปรับหัวข้อกิจกรรมให้ตัวไม่ใหญ่เกินไป */
-            .activity-title {
-                font-size: 18px !important;
+            .flatpickr-calendar {
+                left: 50% !important; transform: translateX(-50%) !important; top: auto !important;
             }
         }
     </style>
@@ -192,31 +294,30 @@
 <body>
 
     <header class="header-container">
-        <a href="login.html" title="เข้าสู่ระบบเจ้าหน้าที่">
-            <img src="Royal_Thai_Army_3_Logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+        <a href="login.html" class="header-brand" title="เข้าสู่ระบบเจ้าหน้าที่">
+            <img src="Royal_Thai_Army_3_Logo.png" alt="ทภ.3" class="header-logo" onerror="this.style.display='none'">
+            <div>
+                <h1 class="header-title">ข่าวประชาสัมพันธ์</h1>
+                <span class="header-subtitle">กองทัพภาคที่ 3</span>
+            </div>
         </a>
-        <h1 class="header-title">ข่าวประชาสัมพันธ์ ทภ.3</h1>
     </header>
 
-    <div class="search-section">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..."
-            onkeyup="resetAndFetch()" style="width: 350px;">
-        <input type="text" id="dateRange" class="search-input" placeholder="📅 เลือกช่วงเวลา..."
-            style="width: 220px; text-align: center;">
-        <button onclick="resetFilter()"
-            style="padding: 12px 25px; border: none; background: #95a5a6; color: white; border-radius: 5px; cursor: pointer; font-size: 14px;">ล้างค่า</button>
+    <div class="search-wrapper">
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหากิจกรรม..." onkeyup="resetAndFetch()">
+            <input type="text" id="dateRange" class="date-input" placeholder="📅 เลือกวันที่ (พ.ศ.)">
+            <button onclick="resetFilter()" class="btn-clear" title="ล้างค่า">✕</button>
+        </div>
     </div>
 
-    <div id="gallery">
-        <p style="text-align: center; padding: 20px; color: #666; width: 100%;">กำลังโหลดข้อมูลข่าวสาร...</p>
-    </div>
+    <div id="gallery" class="gallery-container">
+        </div>
 
-    <div id="loadMoreContainer" style="text-align:center; margin: 40px; display:none;">
-        <button onclick="loadMore()">⬇️ ดูเพิ่มเติม</button>
-    </div>
+    <div id="scroll-sentinel"></div>
+    <div id="loader" class="loader-spinner"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.js"></script>
-
     <script>
         let allPhotos = [];
         let filteredPhotos = [];
@@ -224,50 +325,107 @@
         const ITEMS_PER_PAGE = 12;
         let lightbox;
         let selectedDates = [];
+        let isLoading = false; // สถานะโหลด
 
-        // ตั้งค่าปฏิทินเลือกวันที่
+        // ตั้งค่า Flatpickr + Dropdown ปี
         const datePicker = flatpickr("#dateRange", {
-            mode: "range",
-            dateFormat: "Y-m-d",
+            mode: "range", 
+            dateFormat: "d/m/Y", 
             locale: "th",
-            onClose: function (dates) {
-                selectedDates = dates;
-                resetAndFetch();
-            }
+            disableMobile: "true",
+            static: true,
+            monthSelectorType: "dropdown", 
+            
+            onReady: (d, s, fp) => { createYearDropdown(fp); },
+            onMonthChange: (d, s, fp) => { setTimeout(() => updateYearDropdown(fp), 0); },
+            onYearChange: (d, s, fp) => { setTimeout(() => updateYearDropdown(fp), 0); },
+            formatDate: (date, format, locale) => {
+                const buddhistYear = date.getFullYear() + 543;
+                return flatpickr.formatDate(date, format, locale).replace(date.getFullYear(), buddhistYear);
+            },
+            onClose: function (dates) { selectedDates = dates; resetAndFetch(); }
         });
 
-        // ฟังก์ชันย่อรูปให้โหลดเร็ว (ใช้เฉพาะตอนแสดงผล)
+        // สร้าง Year Dropdown
+        function createYearDropdown(fp) {
+            const monthContainer = fp.calendarContainer.querySelector('.flatpickr-current-month');
+            if (!monthContainer) return;
+
+            const yearSelect = document.createElement('select');
+            yearSelect.className = 'year-dropdown';
+            
+            const currentYear = new Date().getFullYear();
+            const startYear = currentYear - 10;
+            const endYear = currentYear + 5;
+
+            for (let i = startYear; i <= endYear; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = i + 543; 
+                yearSelect.appendChild(option);
+            }
+
+            yearSelect.value = fp.currentYear;
+
+            yearSelect.addEventListener('change', (e) => {
+                fp.changeYear(parseInt(e.target.value));
+            });
+
+            monthContainer.appendChild(yearSelect);
+            fp.yearSelectElement = yearSelect;
+        }
+
+        function updateYearDropdown(fp) {
+            if (fp.yearSelectElement) {
+                fp.yearSelectElement.value = fp.currentYear;
+            }
+        }
+
         function getThumbnailUrl(url) {
             if (!url) return '';
             if (!url.includes('cloudinary.com')) return url;
-            // สั่ง Cloudinary ให้ส่งรูปขนาดเล็ก (w_450)
-            return url.replace('/upload/', '/upload/w_450,c_scale,q_auto,f_auto/');
+            return url.replace('/upload/', '/upload/w_500,c_scale,q_auto,f_auto/');
         }
+
+        // 🔥 Skeleton Loading Function
+        function showSkeleton() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            
+            const skeletonGrid = document.createElement('div');
+            skeletonGrid.className = 'sub-gallery';
+            
+            // สร้าง Skeleton Card 8 ใบ
+            for(let i=0; i<8; i++) {
+                skeletonGrid.innerHTML += `
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-img"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
+                `;
+            }
+            gallery.appendChild(skeletonGrid);
+        }
+
         async function fetchPhotos() {
             try {
-                // เพิ่ม timestamp เพื่อป้องกัน Cache
+                showSkeleton(); // แสดง Skeleton ก่อนโหลดจริง
+                
                 const response = await fetch('/photos?limit=100&t=' + Date.now());
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error('Network Error');
                 allPhotos = await response.json();
-                console.log('✅ โหลดข้อมูลสำเร็จ:', allPhotos.length, 'รูป');
-
                 filteredPhotos = allPhotos;
-                resetGallery();
+                
+                resetGallery(); // แสดงรูปจริง
             } catch (error) {
-                console.error('❌ Error loading photos:', error);
-                document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:red;">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</p>';
+                document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:#ef4444;">โหลดข้อมูลไม่สำเร็จ</p>';
             }
         }
+
         function resetAndFetch() {
             const keyword = document.getElementById('searchInput').value.toLowerCase();
-
             filteredPhotos = allPhotos.filter(photo => {
-                const matchName = photo.filename.toLowerCase().includes(keyword) || (photo.activity && photo.activity.toLowerCase().includes(keyword));
-
+                const matchName = (photo.filename || '').toLowerCase().includes(keyword) || (photo.activity || '').toLowerCase().includes(keyword);
                 let matchDate = true;
                 if (selectedDates.length > 0) {
                     const photoDate = new Date(photo.date).setHours(0, 0, 0, 0);
@@ -283,130 +441,86 @@
         function resetGallery() {
             document.getElementById('gallery').innerHTML = '';
             currentDisplayCount = 0;
-
+            document.getElementById('loader').style.display = 'none'; // ซ่อน Loader
+            
             if (filteredPhotos.length === 0) {
-                document.getElementById('gallery').innerHTML = '<p style="text-align: center; padding: 40px; color: #999; width: 100%;">ไม่พบข้อมูลรูปภาพตามเงื่อนไข</p>';
-                document.getElementById('loadMoreContainer').style.display = 'none';
+                document.getElementById('gallery').innerHTML = '<div style="text-align:center; padding:50px; color:#94a3b8;"><div style="font-size:40px; margin-bottom:10px;">🔍</div>ไม่พบข้อมูล</div>';
             } else {
                 loadMore();
             }
         }
 
+        // 🔥 ฟังก์ชัน Load More (Infinite Scroll)
         function loadMore() {
-            const galleryContainer = document.getElementById('gallery');
-            const nextPhotos = filteredPhotos.slice(currentDisplayCount, currentDisplayCount + ITEMS_PER_PAGE);
+            if (isLoading) return; 
+            isLoading = true;
+            document.getElementById('loader').style.display = 'block';
 
-            if (nextPhotos.length === 0) return;
-
-            // จัดกลุ่มรูปภาพตามชื่อกิจกรรม
-            const groupedPhotos = {};
-            nextPhotos.forEach(photo => {
-                const activityName = photo.activity || 'กิจกรรมทั่วไป';
-                if (!groupedPhotos[activityName]) {
-                    groupedPhotos[activityName] = [];
+            // จำลอง Delay เล็กน้อยเพื่อให้เห็น Animation
+            setTimeout(() => {
+                const galleryContainer = document.getElementById('gallery');
+                const nextPhotos = filteredPhotos.slice(currentDisplayCount, currentDisplayCount + ITEMS_PER_PAGE);
+                
+                if (nextPhotos.length === 0) {
+                    document.getElementById('loader').style.display = 'none';
+                    isLoading = false;
+                    return;
                 }
-                groupedPhotos[activityName].push(photo);
-            });
 
-            // วนลูปสร้างส่วนแสดงผลทีละกลุ่ม
-            for (const [activityName, activityPhotos] of Object.entries(groupedPhotos)) {
-                let section = document.getElementById(`sec-${activityName}`);
-                let grid;
+                const groupedPhotos = {};
+                nextPhotos.forEach(photo => {
+                    const activityName = photo.activity || 'กิจกรรมทั่วไป';
+                    if (!groupedPhotos[activityName]) groupedPhotos[activityName] = [];
+                    groupedPhotos[activityName].push(photo);
+                });
 
-                if (!section) {
-                    // สร้างหัวข้อกิจกรรม (เต็มความกว้าง)
-                    section = document.createElement('div');
-                    section.className = 'activity-section';
-                    section.id = `sec-${activityName}`;
-                    section.style.gridColumn = "1 / -1";
+                for (const [activityName, activityPhotos] of Object.entries(groupedPhotos)) {
+                    let section = document.getElementById(`sec-${activityName}`);
+                    let grid;
 
-                    const headerDiv = document.createElement('div');
-                    headerDiv.style.cssText = 'display:flex; align-items:center; gap:15px; margin: 30px 0 15px 0; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;';
-
-                    const title = document.createElement('h2');
-                    title.className = 'activity-title';
-                    title.style.margin = '0';
-                    title.style.color = '#c0392b';
-                    title.innerText = activityName;
-
-                    const zipBtn = document.createElement('a');
-                    zipBtn.href = `/download-zip/${encodeURIComponent(activityName)}`;
-                    zipBtn.innerHTML = '📥 โหลด ZIP';
-                    zipBtn.style.cssText = 'font-size:12px; color:#fff; background:#c0392b; padding:5px 15px; border-radius:20px; text-decoration:none; transition:0.2s; white-space: nowrap;';
-
-                    headerDiv.appendChild(title);
-                    headerDiv.appendChild(zipBtn);
-                    section.appendChild(headerDiv);
-
-                    // สร้าง Grid รูปภาพ
-                    grid = document.createElement('div');
-                    grid.style.display = "grid";
-                    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(280px, 1fr))";
-                    grid.style.gap = "20px";
-                    grid.className = 'sub-gallery';
-
-                    section.appendChild(grid);
-                    galleryContainer.appendChild(section);
-                } else {
+                    if (!section) {
+                        section = document.createElement('div');
+                        section.className = 'activity-section';
+                        section.id = `sec-${activityName}`;
+                        section.innerHTML = `
+                            <div class="activity-header">
+                                <h2 class="activity-title">${activityName}</h2>
+                                <a href="/download-zip/${encodeURIComponent(activityName)}" class="btn-download-zip">📥 Download ZIP</a>
+                            </div>
+                            <div class="sub-gallery"></div>
+                        `;
+                        galleryContainer.appendChild(section);
+                    }
                     grid = section.querySelector('.sub-gallery');
+
+                    activityPhotos.forEach(photo => {
+                        const rawName = photo.filename || "";
+                        const dateStr = new Date(photo.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+                        const thumbUrl = getThumbnailUrl(photo.url);
+
+                        const card = document.createElement('a');
+                        card.className = 'news-card';
+                        card.href = photo.original_url || photo.url;
+                        
+                        card.innerHTML = `
+                            <div class="news-img-wrapper">
+                                <img src="${thumbUrl}" alt="${rawName}" loading="lazy" onerror="this.style.display='none'">
+                            </div>
+                            <div class="news-info">
+                                <div class="news-date">🗓️ ${dateStr}</div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
                 }
 
-                // สร้างการ์ดรูปภาพ
-                activityPhotos.forEach(photo => {
-                    const rawName = photo.filename || photo.file_name || "ไม่มีชื่อภาพ";
-                    const newsTitle = rawName.replace ? rawName.replace(/\.[^/.]+$/, "") : rawName;
-                    const dateObj = new Date(photo.date);
-                    const dateStr = dateObj.toLocaleDateString('th-TH', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: '2-digit'
-                    });
+                currentDisplayCount += nextPhotos.length;
+                document.getElementById('loader').style.display = 'none';
+                isLoading = false;
 
-                    const card = document.createElement('a');
-                    card.className = 'news-card';
-
-                    // ลิงก์ไปรูปต้นฉบับ (ชัดเป๊ะ)
-                    card.href = photo.original_url || photo.url;
-
-                    // รูปที่โชว์เป็นรูปย่อ (โหลดไว)
-                    const thumbUrl = getThumbnailUrl(photo.url);
-
-                    console.log('🖼️ กำลังสร้างการ์ด:', newsTitle, 'URL:', thumbUrl);
-
-                    card.innerHTML = `
-                        <div class="news-img-wrapper">
-                            <img src="${thumbUrl}" 
-                                 alt="${newsTitle}" 
-                                 loading="lazy" 
-                                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E';">
-                        </div>
-                        <div class="news-title" style="text-align:left; padding:15px; height:auto;">
-                            <span style="font-size:14px; color:#7f8c8d;">📅 ${dateStr}</span>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-            }
-
-            currentDisplayCount += nextPhotos.length;
-
-            // จัดการปุ่มโหลดเพิ่ม
-            if (currentDisplayCount >= filteredPhotos.length) {
-                document.getElementById('loadMoreContainer').style.display = 'none';
-            } else {
-                document.getElementById('loadMoreContainer').style.display = 'block';
-            }
-
-            // Refresh Lightbox
-            if (lightbox) {
-                lightbox.refresh();
-            } else {
-                lightbox = new SimpleLightbox('.sub-gallery a', {
-                    captionsData: 'alt',
-                    captionDelay: 250,
-                    animationSpeed: 200
-                });
-            }
+                if (lightbox) lightbox.refresh();
+                else lightbox = new SimpleLightbox('.sub-gallery a', { captionsData: 'alt', captionDelay: 250, animationSpeed: 200 });
+            }, 300);
         }
 
         function resetFilter() {
@@ -415,9 +529,16 @@
             resetAndFetch();
         }
 
-        // เริ่มโหลดข้อมูลทันทีที่เข้าเว็บ
+        // 🔥 Observer สำหรับ Infinite Scroll
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !isLoading && currentDisplayCount < filteredPhotos.length) {
+                loadMore();
+            }
+        }, { rootMargin: '100px' });
+
+        observer.observe(document.getElementById('scroll-sentinel'));
+
         fetchPhotos();
     </script>
 </body>
-
 </html>
