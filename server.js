@@ -623,22 +623,27 @@ app.get('/categories', async (req, res) => {
     }
 });
 
-app.get('/logs', async (req, res) => {
+// 🔥🔥🔥 ปรับปรุง API Logs ให้ปลอดภัยและถูกต้อง 🔥🔥🔥
+app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
     try {
-        const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 50');
+        // เพิ่ม LIMIT เพื่อไม่ให้โหลดหนักเกินไป
+        const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 100');
         res.json(results);
     } catch (err) {
+        console.error('Logs Error:', err); // Log error ลง server console
         res.status(500).json({ error: 'Failed to fetch logs' });
     }
 });
 
 // --- User Management (Admin) ---
 
+// 🔥🔥🔥 ปรับปรุง API Users ให้ปลอดภัยและถูกต้อง 🔥🔥🔥
 app.get('/users', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT user_id, username, role, created_at FROM Users ORDER BY created_at DESC');
         res.json(results);
     } catch (err) {
+        console.error('Users Error:', err); // Log error ลง server console
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });

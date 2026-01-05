@@ -1491,7 +1491,76 @@
                 reload();
             }
         }
+        // ------------------------------------------------
+        // 🔥 เพิ่มฟังก์ชัน loadLogs ที่หายไป
+        // ------------------------------------------------
+        async function loadLogs() {
+            if (user.role !== 'admin') return;
+            try {
+                // เรียก API
+                const res = await fetch('/logs?t=' + Date.now(), {
+                    headers: getAuthHeaders() // ส่ง Token ไปด้วยเพื่อความปลอดภัย
+                });
 
+                if (!res.ok) throw new Error('โหลด Logs ไม่ได้');
+
+                const data = await res.json();
+
+                // เก็บข้อมูลไว้ global เผื่อใช้ (ถ้ามี)
+                allLogsData = data;
+
+                renderLogs();
+            } catch (e) {
+                console.error('Logs Error:', e);
+                document.getElementById('logTableBody').innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">โหลดไม่ได้: ${e.message}</td></tr>`;
+            }
+        }
+
+        function renderLogs() {
+            const tb = document.getElementById('logTableBody');
+            tb.innerHTML = '';
+
+            if (!allLogsData || allLogsData.length === 0) {
+                tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">ไม่มีประวัติการใช้งาน</td></tr>';
+                return;
+            }
+
+            // แสดงแค่ 5-10 แถวแรกก่อน (Pagination แบบง่าย)
+            const show = allLogsData.slice(0, logLimit);
+
+            show.forEach(l => {
+                // แปลงเวลาให้เป็น format ไทย
+                const dateStr = new Date(l.created_at).toLocaleString('th-TH');
+
+                tb.innerHTML += `<tr>
+                    <td>${dateStr}</td>
+                    <td>${l.username}</td>
+                    <td>${l.action}</td>
+                    <td>${l.details}</td>
+                </tr>`;
+            });
+
+            // จัดการปุ่ม "ดูเพิ่มเติม"
+            const btn = document.getElementById('btnToggleLogs');
+            if (btn) {
+                if (allLogsData.length > 5) {
+                    btn.style.display = 'inline-block';
+                    btn.innerText = logLimit < allLogsData.length ? '⬇️ ดูเพิ่มเติม' : '⬆️ ย่อกลับ';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        }
+
+        // ฟังก์ชันสำหรับปุ่มดูเพิ่มเติม
+        function toggleLogs() {
+            if (logLimit < allLogsData.length) {
+                logLimit += 10; // โชว์เพิ่มทีละ 10
+            } else {
+                logLimit = 5; // กลับไปเริ่มที่ 5
+            }
+            renderLogs();
+        }
         // --- User Management (Admin Only) ---
         async function loadUsers() {
             if (user.role !== 'admin') return;
