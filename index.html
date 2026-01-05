@@ -20,12 +20,11 @@
     <style>
         /* --- Global Reset --- */
         :root {
-            --primary: #2563eb;
-            --bg-body: #f8fafc;
-            --text-main: #1e293b;
+            --primary: #c0392b; /* สีแดงเข้มแบบทหาร */
+            --bg-body: #ffffff;
+            --text-main: #333;
             --text-muted: #64748b;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         body {
@@ -36,283 +35,223 @@
             overflow-y: scroll;
         }
 
-        /* --- Header --- */
+        /* --- 🔥 HEADER (แบบใหม่ ตามรูป) --- */
         .header-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-sm);
-            border-bottom: 1px solid #f1f5f9;
+            justify-content: center; /* จัดกึ่งกลาง */
+            padding: 30px 20px;
+            background-color: white;
+            /* box-shadow: var(--shadow-sm); เอาเงาออกเพื่อให้ดูคลีนเหมือนในรูป */
+            gap: 20px;
+            text-decoration: none;
         }
 
-        .header-brand {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            cursor: pointer;
+        .header-logo {
+            width: 70px; /* ปรับขนาดโลโก้ให้พอดี */
+            height: auto;
             transition: transform 0.2s;
         }
-        .header-brand:hover { transform: scale(1.02); }
-
-        .header-logo { width: 55px; height: auto; margin-bottom: 5px; object-fit: contain; }
-        .header-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 0; line-height: 1.2; text-align: center; }
-        .header-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 400; }
-
-        /* --- Search Section --- */
-        .search-wrapper {
-            padding: 30px 20px;
+        
+        .header-content {
             display: flex;
+            flex-direction: column;
             justify-content: center;
         }
 
-        .search-box {
-            background: white;
-            padding: 5px;
-            border-radius: 50px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            max-width: 700px;
-            transition: box-shadow 0.3s;
-            position: relative;
+        .header-title {
+            font-size: 28px; /* ขนาดตัวอักษรใหญ่ชัดเจน */
+            font-weight: 600;
+            margin: 0;
+            color: #333;
+            line-height: 1.2;
         }
 
-        .search-box:focus-within {
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            border-color: var(--primary);
+        /* Link ครอบ Header */
+        .header-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            gap: 15px;
+        }
+        .header-link:hover .header-logo { transform: scale(1.05); }
+
+        /* --- Search Section --- */
+        .search-section {
+            background: #f8f9fa; /* พื้นหลังสีเทาอ่อนแยกส่วนค้นหา */
+            padding: 20px;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .search-input {
-            border: none;
-            background: transparent;
             padding: 12px 20px;
-            font-family: 'Sarabun';
+            border: 1px solid #e2e8f0;
+            border-radius: 50px; /* ขอบมนรี */
             font-size: 15px;
+            font-family: 'Sarabun';
             outline: none;
-            flex: 1;
-            border-radius: 50px;
-            min-width: 150px;
+            transition: 0.2s;
+            background: #fff;
+            box-shadow: var(--shadow-sm);
         }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1); }
 
         .date-input {
-            border: none;
-            border-left: 1px solid #e2e8f0;
-            background: transparent;
-            padding: 12px 15px;
-            font-family: 'Sarabun';
-            font-size: 14px;
-            outline: none;
-            width: 220px;
             text-align: center;
-            color: var(--text-muted);
-            border-radius: 0;
             cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 15px center;
+            padding-left: 45px; /* เว้นที่ให้ไอคอน */
         }
-        .date-input:hover { background-color: #f8fafc; color: var(--primary); }
 
         .btn-clear {
-            background: #f1f5f9;
+            padding: 12px 25px;
             border: none;
-            color: var(--text-muted);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            margin-right: 5px;
+            background: #f1f5f9;
+            color: #64748b;
+            border-radius: 50px;
             cursor: pointer;
             font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Sarabun';
             transition: 0.2s;
-            flex-shrink: 0;
+            font-weight: 500;
         }
-        .btn-clear:hover { background: #fee2e2; color: #ef4444; }
+        .btn-clear:hover { background: #e2e8f0; color: #333; }
 
-        /* --- Gallery --- */
-        .gallery-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        /* --- Gallery Grid --- */
+        .gallery-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .activity-section { margin-bottom: 60px; }
         
         .activity-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; padding-left: 15px; border-left: 4px solid var(--primary);
+            margin-bottom: 25px; padding-left: 15px;
+            border-left: 5px solid var(--primary);
         }
-        .activity-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin: 0; }
-
+        .activity-title { font-size: 22px; font-weight: 600; color: #333; margin: 0; }
+        
         .btn-download-zip {
             font-size: 13px; color: var(--primary); text-decoration: none;
-            background: white; border: 1px solid #e2e8f0; padding: 6px 12px;
-            border-radius: 20px; transition: 0.2s; font-weight: 500;
+            background: white; border: 1px solid #e2e8f0; padding: 8px 15px;
+            border-radius: 30px; transition: 0.2s; font-weight: 500; display: flex; align-items: center; gap: 5px;
         }
-        .btn-download-zip:hover { border-color: var(--primary); background: #eff6ff; }
+        .btn-download-zip:hover { border-color: var(--primary); background: #fff5f5; }
 
         .sub-gallery {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px;
         }
 
         .news-card {
             background: white; border-radius: 16px; overflow: hidden; text-decoration: none;
-            box-shadow: var(--shadow-sm); transition: all 0.3s; position: relative; border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: all 0.3s;
+            border: 1px solid #f1f5f9; position: relative;
         }
-        .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
 
-        .news-img-wrapper {
-            width: 100%; height: 180px; overflow: hidden; background: #e2e8f0;
-        }
-        .news-img-wrapper img {
-            width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;
-        }
+        .news-img-wrapper { width: 100%; height: 180px; overflow: hidden; background: #e2e8f0; position: relative; }
+        .news-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
         .news-card:hover .news-img-wrapper img { transform: scale(1.08); }
 
         .news-info { padding: 15px; }
         .news-date { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
 
-        /* 🔥 SKELETON LOADING CSS */
+        /* 🔥 SKELETON LOADING */
         .skeleton {
-            background: #f0f0f0;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-            border-radius: 8px;
+            background: #f1f5f9;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
         }
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
         .skeleton-card {
-            background: white; border-radius: 16px; overflow: hidden;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; height: 260px;
+            background: white; border-radius: 16px; overflow: hidden; height: 260px;
+            border: 1px solid #f1f5f9;
         }
         .skeleton-img { width: 100%; height: 180px; }
-        .skeleton-text { height: 16px; margin: 15px; width: 60%; }
+        .skeleton-text { height: 16px; width: 60%; margin: 15px; border-radius: 4px; }
 
-        /* 🔥 INFINITE SCROLL LOADER CSS */
-        #scroll-sentinel {
-            height: 20px; width: 100%; margin-top: 20px;
-        }
+        /* 🔥 INFINITE SCROLL LOADER */
+        #scroll-sentinel { height: 20px; width: 100%; margin-top: 20px; }
         .loader-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2563eb;
-            border-radius: 50%;
-            width: 30px; height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-            display: none;
+            border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%;
+            width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 🔥 CUSTOM FLATPICKR */
+        /* 🔥🔥🔥 CUSTOM FLATPICKR (Minimal Style) 🔥🔥🔥 */
         .flatpickr-calendar {
             font-family: 'Sarabun', sans-serif !important; border-radius: 16px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important; border: none !important;
-            margin-top: 5px !important; width: 360px !important; max-width: 95vw !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; border: 1px solid #eee !important;
+            margin-top: 8px !important; width: 320px !important; padding: 10px !important;
         }
-        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
-            background: var(--primary) !important; border-color: var(--primary) !important; color: white !important;
+        .flatpickr-months { align-items: center; margin-bottom: 10px; }
+        .flatpickr-current-month { display: flex; align-items: center; justify-content: center; padding: 0 !important; }
+        
+        /* Dropdown เดือน */
+        .flatpickr-monthDropdown-months {
+            font-weight: 600 !important; font-size: 16px !important; color: #333 !important;
+            background: transparent; border: none; padding: 5px; cursor: pointer; appearance: none;
         }
-        .flatpickr-weekdays {
-            background: #fff !important; padding: 0 10px !important; margin-top: 5px !important;
-            height: 30px !important; display: flex; align-items: center;
+        .flatpickr-monthDropdown-months:hover { background: #f8fafc; border-radius: 6px; }
+
+        /* Input ปี (ตัวเลขธรรมดา) */
+        .flatpickr-current-month input.cur-year {
+            font-weight: 600 !important; font-size: 16px !important; color: #333 !important;
+            padding: 0 5px !important; margin: 0 !important; height: auto !important; border: none !important;
         }
-        .flatpickr-weekdaycontainer {
-            display: flex; flex: 1; width: 100%; justify-content: space-around;
-        }
-        span.flatpickr-weekday {
-            color: #64748b !important; font-weight: 600 !important; font-size: 14px !important;
-            text-align: center; flex: 1;
-        }
-        .flatpickr-days {
-            width: 100% !important; padding: 5px 10px 10px 10px !important; border-top: 1px solid #f1f5f9;
-        }
-        .dayContainer {
-            width: 100% !important; min-width: 100% !important; max-width: 100% !important;
-            display: flex !important; flex-wrap: wrap !important; justify-content: space-around !important;
-        }
-        .flatpickr-day {
-            height: 40px !important; line-height: 40px !important;
-            flex-basis: 14.28% !important; max-width: 14.28% !important;
-            margin: 0 !important; border-radius: 8px !important; border: 1px solid transparent !important;
-        }
-        .flatpickr-months { 
-            background: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .flatpickr-current-month {
-            position: static !important; width: auto !important; left: auto !important;
-            display: flex; align-items: center; gap: 8px; padding: 0 !important;
-            flex: 1; justify-content: center;
-        }
-        .flatpickr-current-month .numInputWrapper { display: none !important; }
-        .flatpickr-monthDropdown-months, .year-dropdown {
-            font-family: 'Sarabun' !important; font-weight: 500; font-size: 16px;
-            background: transparent; border: none; padding: 4px 8px; cursor: pointer; color: #1e293b;
-            border-radius: 4px; transition: all 0.2s; text-align: center;
-            appearance: none; -webkit-appearance: none;
-        }
-        .flatpickr-monthDropdown-months:hover, .year-dropdown:hover {
-            background: #f8fafc; color: var(--primary);
-        }
-        .flatpickr-prev-month, .flatpickr-next-month {
-            position: static !important; padding: 0 !important; height: 28px !important;
-            width: 28px !important; display: flex !important; align-items: center !important;
-            justify-content: center !important; border-radius: 6px;
-        }
+        .flatpickr-current-month input.cur-year:hover { background: #f8fafc; border-radius: 6px; }
+        .numInputWrapper span { display: none !important; } /* ซ่อนลูกศรปี */
+
+        .flatpickr-weekdays { height: 30px; margin-bottom: 5px; }
+        span.flatpickr-weekday { color: #64748b !important; font-weight: 600 !important; font-size: 13px !important; }
+        
+        .flatpickr-day { border-radius: 8px !important; height: 38px; line-height: 38px; color: #333; margin: 2px 0; }
+        .flatpickr-day.selected { background: var(--primary) !important; border-color: var(--primary) !important; }
+        .flatpickr-day:hover { background: #f1f5f9 !important; }
 
         /* --- Mobile --- */
         @media (max-width: 768px) {
-            .header-brand { flex-direction: row; gap: 12px; }
-            .header-logo { width: 40px; margin: 0; }
-            .header-title { font-size: 16px; text-align: left; }
+            .header-title { font-size: 22px; }
+            .header-logo { width: 60px; }
             
-            .search-box { flex-direction: column; border-radius: 16px; padding: 10px; gap: 10px; align-items: stretch; }
-            .search-input { width: 100% !important; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; }
-            .date-input { width: 100% !important; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; }
-            .btn-clear { width: 100%; border-radius: 8px; margin: 0; padding: 8px; }
+            .search-section { flex-direction: column; align-items: stretch; padding: 15px; }
+            .search-input, .date-input, .btn-clear { width: 100% !important; margin-bottom: 10px; }
             
-            .sub-gallery { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .sub-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
             .news-img-wrapper { height: 130px; }
-            .news-info { padding: 10px; }
-            .news-date { font-size: 11px; }
-
             .skeleton-card { height: 200px; }
             .skeleton-img { height: 130px; }
-
-            .flatpickr-calendar {
-                left: 50% !important; transform: translateX(-50%) !important; top: auto !important;
-            }
+            
+            .flatpickr-calendar { left: 50% !important; transform: translateX(-50%) !important; max-width: 90vw; }
         }
     </style>
 </head>
 
 <body>
 
-    <header class="header-container">
-        <a href="login.html" class="header-brand" title="เข้าสู่ระบบเจ้าหน้าที่">
-            <img src="Royal_Thai_Army_3_Logo.png" alt="ทภ.3" class="header-logo" onerror="this.style.display='none'">
-            <div>
-                <h1 class="header-title">ข่าวประชาสัมพันธ์</h1>
-                <span class="header-subtitle">กองทัพภาคที่ 3</span>
+    <header>
+        <a href="login.html" class="header-link" title="เข้าสู่ระบบเจ้าหน้าที่">
+            <div class="header-container">
+                <img src="Royal_Thai_Army_3_Logo.png" alt="ทภ.3" class="header-logo" onerror="this.style.display='none'">
+                <h1 class="header-title">ข่าวประชาสัมพันธ์ ทภ.3</h1>
             </div>
         </a>
     </header>
 
-    <div class="search-wrapper">
-        <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหากิจกรรม..." onkeyup="resetAndFetch()">
-            <input type="text" id="dateRange" class="date-input" placeholder="📅 เลือกวันที่ (พ.ศ.)">
-            <button onclick="resetFilter()" class="btn-clear" title="ล้างค่า">✕</button>
-        </div>
+    <div class="search-section">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..." onkeyup="resetAndFetch()" style="flex: 2; min-width: 250px;">
+        <input type="text" id="dateRange" class="search-input date-input" placeholder="เลือกช่วงเวลา..." style="flex: 1; min-width: 200px;">
+        <button onclick="resetFilter()" class="btn-clear">ล้างค่า</button>
     </div>
 
-    <div id="gallery" class="gallery-container">
-        </div>
+    <div id="gallery" class="gallery-container"></div>
 
     <div id="scroll-sentinel"></div>
     <div id="loader" class="loader-spinner"></div>
@@ -325,20 +264,16 @@
         const ITEMS_PER_PAGE = 12;
         let lightbox;
         let selectedDates = [];
-        let isLoading = false; // สถานะโหลด
+        let isLoading = false;
 
-        // ตั้งค่า Flatpickr + Dropdown ปี
+        // 🔥 Config Flatpickr (Minimal + พ.ศ.)
         const datePicker = flatpickr("#dateRange", {
-            mode: "range", 
-            dateFormat: "d/m/Y", 
-            locale: "th",
-            disableMobile: "true",
-            static: true,
-            monthSelectorType: "dropdown", 
+            mode: "range", dateFormat: "d/m/Y", locale: "th", disableMobile: "true",
+            monthSelectorType: "dropdown", // เดือน Dropdown
             
-            onReady: (d, s, fp) => { createYearDropdown(fp); },
-            onMonthChange: (d, s, fp) => { setTimeout(() => updateYearDropdown(fp), 0); },
-            onYearChange: (d, s, fp) => { setTimeout(() => updateYearDropdown(fp), 0); },
+            onReady: (d, s, fp) => { updateYearToThai(fp); },
+            onYearChange: (d, s, fp) => { updateYearToThai(fp); },
+            onMonthChange: (d, s, fp) => { updateYearToThai(fp); },
             formatDate: (date, format, locale) => {
                 const buddhistYear = date.getFullYear() + 543;
                 return flatpickr.formatDate(date, format, locale).replace(date.getFullYear(), buddhistYear);
@@ -346,39 +281,8 @@
             onClose: function (dates) { selectedDates = dates; resetAndFetch(); }
         });
 
-        // สร้าง Year Dropdown
-        function createYearDropdown(fp) {
-            const monthContainer = fp.calendarContainer.querySelector('.flatpickr-current-month');
-            if (!monthContainer) return;
-
-            const yearSelect = document.createElement('select');
-            yearSelect.className = 'year-dropdown';
-            
-            const currentYear = new Date().getFullYear();
-            const startYear = currentYear - 10;
-            const endYear = currentYear + 5;
-
-            for (let i = startYear; i <= endYear; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.text = i + 543; 
-                yearSelect.appendChild(option);
-            }
-
-            yearSelect.value = fp.currentYear;
-
-            yearSelect.addEventListener('change', (e) => {
-                fp.changeYear(parseInt(e.target.value));
-            });
-
-            monthContainer.appendChild(yearSelect);
-            fp.yearSelectElement = yearSelect;
-        }
-
-        function updateYearDropdown(fp) {
-            if (fp.yearSelectElement) {
-                fp.yearSelectElement.value = fp.currentYear;
-            }
+        function updateYearToThai(fp) {
+            if(fp.currentYearElement) fp.currentYearElement.value = fp.currentYear + 543;
         }
 
         function getThumbnailUrl(url) {
@@ -387,7 +291,7 @@
             return url.replace('/upload/', '/upload/w_500,c_scale,q_auto,f_auto/');
         }
 
-        // 🔥 Skeleton Loading Function
+        // 🔥 Skeleton Loading
         function showSkeleton() {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
@@ -395,7 +299,6 @@
             const skeletonGrid = document.createElement('div');
             skeletonGrid.className = 'sub-gallery';
             
-            // สร้าง Skeleton Card 8 ใบ
             for(let i=0; i<8; i++) {
                 skeletonGrid.innerHTML += `
                     <div class="skeleton-card">
@@ -409,16 +312,14 @@
 
         async function fetchPhotos() {
             try {
-                showSkeleton(); // แสดง Skeleton ก่อนโหลดจริง
-                
+                showSkeleton();
                 const response = await fetch('/photos?limit=100&t=' + Date.now());
                 if (!response.ok) throw new Error('Network Error');
                 allPhotos = await response.json();
                 filteredPhotos = allPhotos;
-                
-                resetGallery(); // แสดงรูปจริง
+                resetGallery();
             } catch (error) {
-                document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:#ef4444;">โหลดข้อมูลไม่สำเร็จ</p>';
+                document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:#ef4444;">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</p>';
             }
         }
 
@@ -441,22 +342,19 @@
         function resetGallery() {
             document.getElementById('gallery').innerHTML = '';
             currentDisplayCount = 0;
-            document.getElementById('loader').style.display = 'none'; // ซ่อน Loader
-            
+            document.getElementById('loader').style.display = 'none';
             if (filteredPhotos.length === 0) {
-                document.getElementById('gallery').innerHTML = '<div style="text-align:center; padding:50px; color:#94a3b8;"><div style="font-size:40px; margin-bottom:10px;">🔍</div>ไม่พบข้อมูล</div>';
+                document.getElementById('gallery').innerHTML = '<p style="text-align:center; padding:40px; color:#999;">ไม่พบข้อมูลรูปภาพ</p>';
             } else {
                 loadMore();
             }
         }
 
-        // 🔥 ฟังก์ชัน Load More (Infinite Scroll)
         function loadMore() {
-            if (isLoading) return; 
+            if (isLoading) return;
             isLoading = true;
             document.getElementById('loader').style.display = 'block';
 
-            // จำลอง Delay เล็กน้อยเพื่อให้เห็น Animation
             setTimeout(() => {
                 const galleryContainer = document.getElementById('gallery');
                 const nextPhotos = filteredPhotos.slice(currentDisplayCount, currentDisplayCount + ITEMS_PER_PAGE);
@@ -504,7 +402,7 @@
                         
                         card.innerHTML = `
                             <div class="news-img-wrapper">
-                                <img src="${thumbUrl}" alt="${rawName}" loading="lazy" onerror="this.style.display='none'">
+                                <img src="${thumbUrl}" alt="${rawName}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,...'">
                             </div>
                             <div class="news-info">
                                 <div class="news-date">🗓️ ${dateStr}</div>
@@ -529,7 +427,7 @@
             resetAndFetch();
         }
 
-        // 🔥 Observer สำหรับ Infinite Scroll
+        // Infinite Scroll Observer
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting && !isLoading && currentDisplayCount < filteredPhotos.length) {
                 loadMore();
