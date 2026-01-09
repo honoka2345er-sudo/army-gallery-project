@@ -22,11 +22,9 @@
         * { box-sizing: border-box; }
         :root {
             --primary: #c0392b;
-            --bg-body: #fdfdfd;
-            --text-main: #2c3e50;
-            --text-muted: #7f8c8d;
-            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --bg-body: #ffffff; /* พื้นหลังขาวล้วนแบบ Minimal */
+            --text-main: #2d3436;
+            --text-muted: #636e72;
         }
 
         body {
@@ -42,240 +40,189 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
-            background-color: white;
+            padding: 40px 20px 20px 20px;
             gap: 25px;
         }
 
         .logo-link {
-            display: block;
-            text-decoration: none;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: block; text-decoration: none;
+            transition: transform 0.2s;
         }
         .logo-link:hover { transform: scale(1.1); }
 
-        .header-logo { width: 90px; height: auto; display: block; }
+        .header-logo { width: 85px; height: auto; display: block; }
 
         .header-title {
-            font-size: 36px; /* ใหญ่ขึ้น */
-            font-weight: 700;
-            margin: 0;
-            color: var(--text-main);
-            line-height: 1.2;
-            letter-spacing: -0.5px;
+            font-size: 34px; font-weight: 700; margin: 0;
+            color: var(--text-main); line-height: 1.2; letter-spacing: -0.5px;
         }
 
-        /* --- SEARCH SECTION --- */
+        /* --- SEARCH (Clean Style) --- */
         .search-section {
-            background: white;
-            padding: 0 20px 30px 20px; /* รวมกับ Header ให้ดูเป็นก้อนเดียว */
-            display: flex;
-            justify-content: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* เงาบางๆ ใต้เมนู */
+            padding: 10px 20px 40px 20px;
+            display: flex; justify-content: center;
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255, 255, 255, 0.95); /* โปร่งแสงนิดๆ */
+            backdrop-filter: blur(10px);
         }
 
         .search-container {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            width: 100%;
-            max-width: 950px;
-            background: #f1f5f9;
-            padding: 8px;
-            border-radius: 60px; /* ทรงแคปซูลใหญ่ */
-            border: 1px solid #e2e8f0;
+            display: flex; gap: 10px; align-items: center;
+            width: 100%; max-width: 900px;
+            background: #f1f2f6; /* สีเทาอ่อนมาก */
+            padding: 6px;
+            border-radius: 12px; /* โค้งนิดหน่อย */
+            border: 1px solid #dfe6e9;
         }
 
         .search-input {
-            padding: 12px 25px;
-            border: none;
-            background: transparent;
-            font-size: 16px;
-            font-family: 'Sarabun';
-            outline: none;
-            flex: 2;
-            min-width: 250px;
-            height: 48px;
-            color: var(--text-main);
+            padding: 12px 20px; border: none; background: transparent;
+            font-size: 16px; font-family: 'Sarabun'; outline: none;
+            flex: 2; min-width: 200px; height: 45px;
         }
 
         .date-input {
-            text-align: center;
-            cursor: pointer;
-            border-left: 1px solid #cbd5e1; /* เส้นคั่น */
-            border-right: 1px solid #cbd5e1;
-            padding: 0 20px;
-            flex: 1;
-            min-width: 200px;
-            height: 48px;
-            background: transparent;
+            text-align: center; cursor: pointer;
+            border-left: 1px solid #dfe6e9; padding: 0 15px;
+            flex: 1; min-width: 180px; height: 45px; background: transparent;
         }
 
         .btn-clear {
-            padding: 0 30px;
-            height: 48px;
-            border: none;
-            background: var(--primary);
-            color: white;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 15px;
-            font-family: 'Sarabun';
-            font-weight: 600;
-            transition: 0.3s;
-            white-space: nowrap;
-            box-shadow: 0 4px 6px rgba(192, 57, 43, 0.2);
+            padding: 0 25px; height: 45px; border: none;
+            background: #fff; color: var(--text-main);
+            border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-family: 'Sarabun'; font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;
         }
-        .btn-clear:hover { background: #a93226; transform: translateY(-1px); }
+        .btn-clear:hover { background: var(--primary); color: white; }
 
-        /* --- GALLERY GRID (ปรับใหม่ สไตล์ Premium) --- */
+        /* --- GALLERY (New Layout) --- */
         .gallery-container { 
-            max-width: 1400px; /* 🔥 กว้างขึ้น */
-            margin: 0 auto; 
-            padding: 50px 30px; 
+            max-width: 1400px; margin: 0 auto; padding: 20px 40px 60px 40px; 
         }
         
-        .activity-section { margin-bottom: 70px; }
+        .activity-section { margin-bottom: 80px; }
         
         .activity-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 30px; padding-left: 20px;
-            border-left: 6px solid var(--primary);
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px;
         }
-        .activity-title { font-size: 26px; font-weight: 700; color: var(--text-main); margin: 0; }
+        .activity-title { font-size: 28px; font-weight: 700; color: var(--text-main); margin: 0; }
         
         .btn-download-zip {
-            font-size: 14px; color: var(--primary); text-decoration: none;
-            background: white; border: 2px solid #e2e8f0; padding: 10px 20px;
-            border-radius: 50px; transition: 0.3s; font-weight: 600; 
-            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; color: var(--text-muted); text-decoration: none;
+            background: #f1f2f6; padding: 8px 16px; border-radius: 8px; 
+            transition: 0.2s; font-weight: 500; display: flex; align-items: center; gap: 6px;
         }
-        .btn-download-zip:hover { border-color: var(--primary); background: var(--primary); color: white; }
+        .btn-download-zip:hover { background: var(--text-main); color: white; }
 
-        /* 🔥 GRID แบบใหม่: การ์ดใหญ่ขึ้น */
+        /* 🔥 GRID ใหม่: 3 คอลัมน์ (รูปใหญ่) */
         .sub-gallery {
             display: grid; 
-            /* ปรับ minmax เป็น 320px เพื่อให้การ์ดใหญ่ขึ้น (แสดง 3-4 คอลัมน์บนจอใหญ่) */
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); /* รูปใหญ่สะใจ */
+            gap: 40px; /* ระยะห่างเยอะขึ้น */
         }
 
-        /* 🔥 CARD STYLE ใหม่ */
+        /* 🔥 CARD STYLE: Minimalist (ไม่มีกรอบ) */
         .news-card {
-            background: white; border-radius: 20px; overflow: hidden; text-decoration: none;
-            box-shadow: var(--shadow-card); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0,0,0,0.03); position: relative;
-            display: flex; flex-direction: column;
+            text-decoration: none; display: flex; flex-direction: column;
+            transition: transform 0.3s ease;
         }
-        /* Hover แล้วลอยขึ้น + เงาชัด */
-        .news-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+        .news-card:hover { transform: translateY(-5px); }
 
         .news-img-wrapper { 
             width: 100%; 
-            height: 240px; /* 🔥 รูปสูงขึ้น เห็นชัด */
+            height: 260px; /* สูงขึ้น */
             overflow: hidden; 
-            background: #f1f5f9; 
+            border-radius: 16px; /* มุมรูปโค้งมน */
+            background: #eee; 
             position: relative; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* เงาที่รูป */
+            transition: box-shadow 0.3s ease;
         }
+        .news-card:hover .news-img-wrapper { 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15); /* เงาชัดขึ้นตอน Hover */
+        }
+
         .news-img-wrapper img { 
             width: 100%; height: 100%; object-fit: cover; 
-            transition: transform 0.6s ease; 
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
         }
-        /* Hover แล้วรูปซูมเข้า */
-        .news-card:hover .news-img-wrapper img { transform: scale(1.1); }
+        .news-card:hover .news-img-wrapper img { transform: scale(1.05); }
 
         .news-info { 
-            padding: 20px; 
-            background: white;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
+            padding-top: 15px; /* เว้นระยะจากรูป */
         }
         .news-date { 
             font-size: 15px; color: var(--text-muted); font-weight: 500;
             display: flex; align-items: center; gap: 8px; 
         }
-        .news-date::before { content: '📅'; font-size: 18px; }
+        .news-date::before { 
+            content: ''; display: block; width: 6px; height: 6px; 
+            background: var(--primary); border-radius: 50%; /* จุดสีแดงหน้าวันที่ */
+        }
 
         /* Skeleton & Loader */
         .skeleton {
-            background: #f1f5f9;
-            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background: #eee;
+            background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
             background-size: 200% 100%; animation: shimmer 1.5s infinite;
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         
-        .skeleton-card { background: white; border-radius: 20px; overflow: hidden; height: 320px; border: 1px solid #f1f5f9; }
-        .skeleton-img { width: 100%; height: 240px; }
-        .skeleton-text { height: 18px; width: 70%; margin: 20px; border-radius: 4px; }
+        .skeleton-card { height: 300px; }
+        .skeleton-img { width: 100%; height: 260px; border-radius: 16px; }
+        .skeleton-text { height: 16px; width: 50%; margin-top: 15px; border-radius: 4px; }
 
         #scroll-sentinel { height: 20px; width: 100%; margin-top: 20px; }
         .loader-spinner {
-            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%;
-            width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 30px auto; display: none;
+            border: 3px solid #eee; border-top: 3px solid var(--primary); border-radius: 50%;
+            width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin: 40px auto; display: none;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Custom Flatpickr */
+        /* Custom Flatpickr (Minimal) */
         .flatpickr-calendar {
-            font-family: 'Sarabun', sans-serif !important; border-radius: 16px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important; border: 1px solid #eee !important;
-            margin-top: 8px !important; width: 340px !important; padding: 15px !important;
+            font-family: 'Sarabun', sans-serif !important; border-radius: 12px !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important; border: none !important;
+            margin-top: 10px !important; width: 320px !important; padding: 15px !important;
         }
-        .flatpickr-months { align-items: center; margin-bottom: 15px; }
+        .flatpickr-months { align-items: center; margin-bottom: 10px; }
         .flatpickr-current-month { display: flex; align-items: center; justify-content: center; padding: 0 !important; gap: 5px; }
-        
         .flatpickr-monthDropdown-months, .year-dropdown {
-            font-family: 'Sarabun' !important; font-weight: 700 !important; font-size: 18px !important; color: #333 !important;
+            font-family: 'Sarabun' !important; font-weight: 700 !important; font-size: 16px !important; color: #333 !important;
             background: transparent; border: none; padding: 5px; cursor: pointer; appearance: none; -webkit-appearance: none;
         }
-        .flatpickr-monthDropdown-months:hover, .year-dropdown:hover { background: #f8fafc; border-radius: 6px; }
+        .flatpickr-monthDropdown-months:hover, .year-dropdown:hover { background: #f1f2f6; border-radius: 6px; }
         .flatpickr-current-month input.cur-year, .numInputWrapper { display: none !important; } 
-
         .flatpickr-weekdays { height: 30px; margin-bottom: 5px; }
-        span.flatpickr-weekday { color: #64748b !important; font-weight: 600 !important; font-size: 14px !important; }
-        .flatpickr-day { border-radius: 8px !important; height: 40px; line-height: 40px; color: #333; margin: 2px 0; font-size: 15px; }
+        span.flatpickr-weekday { color: #64748b !important; font-weight: 600 !important; font-size: 13px !important; }
+        .flatpickr-day { border-radius: 8px !important; height: 38px; line-height: 38px; color: #333; margin: 2px 0; }
         .flatpickr-day.selected { background: var(--primary) !important; border-color: var(--primary) !important; }
-        .flatpickr-day:hover { background: #f1f5f9 !important; }
+        .flatpickr-day:hover { background: #f1f2f6 !important; }
 
-        /* --- 🔥 MOBILE RESPONSIVE (ปรับให้พอดี ไม่ล้น) --- */
+        /* --- MOBILE RESPONSIVE (คงเดิม) --- */
         @media (max-width: 768px) {
-            .header-container { flex-direction: column; text-align: center; gap: 15px; padding: 25px 20px; }
+            .header-container { flex-direction: column; text-align: center; gap: 15px; padding: 30px 20px; }
             .header-title { font-size: 24px; }
             .header-logo { width: 70px; }
             
-            .search-section { padding: 15px; display: block; }
-            .search-container { 
-                flex-direction: column; align-items: stretch; gap: 10px; 
-                padding: 15px; border-radius: 20px; background: white; border: none;
-            }
-            /* ช่องค้นหาในมือถือให้มีขอบปกติ */
-            .search-input, .date-input { 
-                width: 100% !important; min-width: 0; margin: 0; 
-                border: 1px solid #e2e8f0; border-radius: 10px; height: 45px;
-                padding-left: 15px;
-            }
-            .date-input { border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; background-position: 15px center; padding-left: 45px; }
-            .btn-clear { width: 100%; border-radius: 10px; height: 45px; }
+            .search-section { padding: 10px 15px 20px 15px; display: block; }
+            .search-container { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
+            .search-input, .date-input { width: 100% !important; border-left: none; border-bottom: 1px solid #dfe6e9; }
+            .btn-clear { width: 100%; border: 1px solid #dfe6e9; }
             
-            .gallery-container { padding: 15px; }
-            .activity-header { flex-direction: column; align-items: flex-start; gap: 10px; border-left: 4px solid var(--primary); }
-            .activity-title { font-size: 20px; }
+            .gallery-container { padding: 20px; }
+            .activity-header { flex-direction: column; align-items: flex-start; gap: 10px; border-bottom: none; border-left: 4px solid var(--primary); padding-left: 15px; }
+            .activity-title { font-size: 22px; }
             
-            /* Grid มือถือ 2 คอลัมน์ */
-            .sub-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
-            .news-card { border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-            .news-img-wrapper { height: 130px; }
-            .news-info { padding: 10px; }
-            .news-date { font-size: 11px; }
-            .news-date::before { font-size: 14px; }
+            .sub-gallery { grid-template-columns: 1fr 1fr; gap: 15px; }
+            .news-img-wrapper { height: 130px; border-radius: 10px; }
+            .news-info { padding-top: 10px; }
+            .news-date { font-size: 12px; }
             
-            .skeleton-card { height: 200px; border-radius: 12px; }
-            .skeleton-img { height: 130px; }
-            .skeleton-text { margin: 10px; height: 14px; }
+            .skeleton-card { height: 200px; }
+            .skeleton-img { height: 130px; border-radius: 10px; }
             
             .flatpickr-calendar { left: 50% !important; transform: translateX(-50%) !important; max-width: 90vw; }
         }
@@ -288,7 +235,6 @@
         <a href="login.html" class="logo-link" title="เข้าสู่ระบบเจ้าหน้าที่">
             <img src="Royal_Thai_Army_3_Logo.png" alt="ทภ.3" class="header-logo" onerror="this.style.display='none'">
         </a>
-        
         <div class="header-title">ข่าวประชาสัมพันธ์ ทภ.3</div>
     </header>
 
