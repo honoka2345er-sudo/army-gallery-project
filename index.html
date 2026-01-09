@@ -18,17 +18,15 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <style>
-        /* --- Global Reset & Box Sizing (สำคัญมากสำหรับมือถือ) --- */
-        * {
-            box-sizing: border-box; /* 🔥 ป้องกันช่องค้นหาบวมล้นจอ */
-        }
-
+        /* --- Global Reset --- */
+        * { box-sizing: border-box; }
         :root {
-            --primary: #c0392b; /* สีแดงทหาร */
-            --bg-body: #ffffff;
-            --text-main: #333;
-            --text-muted: #64748b;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --primary: #c0392b;
+            --bg-body: #fdfdfd;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         body {
@@ -44,42 +42,39 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 30px 20px;
+            padding: 40px 20px;
             background-color: white;
-            gap: 20px;
+            gap: 25px;
         }
 
         .logo-link {
             display: block;
             text-decoration: none;
-            transition: transform 0.2s;
-            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .logo-link:hover { transform: scale(1.1); }
 
-        .header-logo {
-            width: 80px;
-            height: auto;
-            display: block;
-        }
+        .header-logo { width: 90px; height: auto; display: block; }
 
         .header-title {
-            font-size: 32px;
-            font-weight: 600;
+            font-size: 36px; /* ใหญ่ขึ้น */
+            font-weight: 700;
             margin: 0;
-            color: #333;
+            color: var(--text-main);
             line-height: 1.2;
-            cursor: default;
+            letter-spacing: -0.5px;
         }
 
         /* --- SEARCH SECTION --- */
         .search-section {
-            background: #f8f9fa;
-            padding: 20px; /* ลด Padding ให้พอดี */
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
+            background: white;
+            padding: 0 20px 30px 20px; /* รวมกับ Header ให้ดูเป็นก้อนเดียว */
             display: flex;
             justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* เงาบางๆ ใต้เมนู */
         }
 
         .search-container {
@@ -87,90 +82,123 @@
             gap: 15px;
             align-items: center;
             width: 100%;
-            max-width: 900px;
-            flex-wrap: wrap;
+            max-width: 950px;
+            background: #f1f5f9;
+            padding: 8px;
+            border-radius: 60px; /* ทรงแคปซูลใหญ่ */
+            border: 1px solid #e2e8f0;
         }
 
         .search-input {
             padding: 12px 25px;
-            border: 1px solid #e2e8f0;
-            border-radius: 50px;
-            font-size: 15px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
             font-family: 'Sarabun';
             outline: none;
-            transition: 0.2s;
-            background: #fff;
-            box-shadow: var(--shadow-sm);
             flex: 2;
             min-width: 250px;
-            height: 48px; /* กำหนดความสูงให้เท่ากัน */
+            height: 48px;
+            color: var(--text-main);
         }
-        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1); }
 
         .date-input {
             text-align: center;
             cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: 15px center;
-            padding-left: 45px;
+            border-left: 1px solid #cbd5e1; /* เส้นคั่น */
+            border-right: 1px solid #cbd5e1;
+            padding: 0 20px;
             flex: 1;
             min-width: 200px;
             height: 48px;
+            background: transparent;
         }
 
         .btn-clear {
-            padding: 0 25px;
+            padding: 0 30px;
             height: 48px;
             border: none;
-            background: #f1f5f9;
-            color: #64748b;
+            background: var(--primary);
+            color: white;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
             font-family: 'Sarabun';
-            transition: 0.2s;
-            font-weight: 500;
+            font-weight: 600;
+            transition: 0.3s;
             white-space: nowrap;
-            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px rgba(192, 57, 43, 0.2);
         }
-        .btn-clear:hover { background: #e2e8f0; color: #333; }
+        .btn-clear:hover { background: #a93226; transform: translateY(-1px); }
 
-        /* --- Gallery Grid --- */
-        .gallery-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .activity-section { margin-bottom: 60px; }
+        /* --- GALLERY GRID (ปรับใหม่ สไตล์ Premium) --- */
+        .gallery-container { 
+            max-width: 1400px; /* 🔥 กว้างขึ้น */
+            margin: 0 auto; 
+            padding: 50px 30px; 
+        }
+        
+        .activity-section { margin-bottom: 70px; }
         
         .activity-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-left: 15px;
-            border-left: 5px solid var(--primary);
+            margin-bottom: 30px; padding-left: 20px;
+            border-left: 6px solid var(--primary);
         }
-        .activity-title { font-size: 22px; font-weight: 600; color: #333; margin: 0; }
+        .activity-title { font-size: 26px; font-weight: 700; color: var(--text-main); margin: 0; }
         
         .btn-download-zip {
-            font-size: 13px; color: var(--primary); text-decoration: none;
-            background: white; border: 1px solid #e2e8f0; padding: 8px 15px;
-            border-radius: 30px; transition: 0.2s; font-weight: 500; display: flex; align-items: center; gap: 5px;
+            font-size: 14px; color: var(--primary); text-decoration: none;
+            background: white; border: 2px solid #e2e8f0; padding: 10px 20px;
+            border-radius: 50px; transition: 0.3s; font-weight: 600; 
+            display: flex; align-items: center; gap: 8px;
         }
-        .btn-download-zip:hover { border-color: var(--primary); background: #fff5f5; }
+        .btn-download-zip:hover { border-color: var(--primary); background: var(--primary); color: white; }
 
+        /* 🔥 GRID แบบใหม่: การ์ดใหญ่ขึ้น */
         .sub-gallery {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px;
+            display: grid; 
+            /* ปรับ minmax เป็น 320px เพื่อให้การ์ดใหญ่ขึ้น (แสดง 3-4 คอลัมน์บนจอใหญ่) */
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+            gap: 30px;
         }
 
+        /* 🔥 CARD STYLE ใหม่ */
         .news-card {
-            background: white; border-radius: 16px; overflow: hidden; text-decoration: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: all 0.3s;
-            border: 1px solid #f1f5f9; position: relative;
+            background: white; border-radius: 20px; overflow: hidden; text-decoration: none;
+            box-shadow: var(--shadow-card); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.03); position: relative;
+            display: flex; flex-direction: column;
         }
-        .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        /* Hover แล้วลอยขึ้น + เงาชัด */
+        .news-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
 
-        .news-img-wrapper { width: 100%; height: 180px; overflow: hidden; background: #e2e8f0; position: relative; }
-        .news-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-        .news-card:hover .news-img-wrapper img { transform: scale(1.08); }
+        .news-img-wrapper { 
+            width: 100%; 
+            height: 240px; /* 🔥 รูปสูงขึ้น เห็นชัด */
+            overflow: hidden; 
+            background: #f1f5f9; 
+            position: relative; 
+        }
+        .news-img-wrapper img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            transition: transform 0.6s ease; 
+        }
+        /* Hover แล้วรูปซูมเข้า */
+        .news-card:hover .news-img-wrapper img { transform: scale(1.1); }
 
-        .news-info { padding: 15px; }
-        .news-date { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .news-info { 
+            padding: 20px; 
+            background: white;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        .news-date { 
+            font-size: 15px; color: var(--text-muted); font-weight: 500;
+            display: flex; align-items: center; gap: 8px; 
+        }
+        .news-date::before { content: '📅'; font-size: 18px; }
 
         /* Skeleton & Loader */
         .skeleton {
@@ -180,64 +208,74 @@
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         
-        .skeleton-card { background: white; border-radius: 16px; overflow: hidden; height: 260px; border: 1px solid #f1f5f9; }
-        .skeleton-img { width: 100%; height: 180px; }
-        .skeleton-text { height: 16px; width: 60%; margin: 15px; border-radius: 4px; }
+        .skeleton-card { background: white; border-radius: 20px; overflow: hidden; height: 320px; border: 1px solid #f1f5f9; }
+        .skeleton-img { width: 100%; height: 240px; }
+        .skeleton-text { height: 18px; width: 70%; margin: 20px; border-radius: 4px; }
 
         #scroll-sentinel { height: 20px; width: 100%; margin-top: 20px; }
         .loader-spinner {
-            border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%;
-            width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none;
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%;
+            width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 30px auto; display: none;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Custom Flatpickr */
         .flatpickr-calendar {
             font-family: 'Sarabun', sans-serif !important; border-radius: 16px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; border: 1px solid #eee !important;
-            margin-top: 8px !important; width: 340px !important; padding: 10px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important; border: 1px solid #eee !important;
+            margin-top: 8px !important; width: 340px !important; padding: 15px !important;
         }
-        .flatpickr-months { align-items: center; margin-bottom: 10px; }
+        .flatpickr-months { align-items: center; margin-bottom: 15px; }
         .flatpickr-current-month { display: flex; align-items: center; justify-content: center; padding: 0 !important; gap: 5px; }
+        
         .flatpickr-monthDropdown-months, .year-dropdown {
-            font-family: 'Sarabun' !important; font-weight: 600 !important; font-size: 16px !important; color: #333 !important;
+            font-family: 'Sarabun' !important; font-weight: 700 !important; font-size: 18px !important; color: #333 !important;
             background: transparent; border: none; padding: 5px; cursor: pointer; appearance: none; -webkit-appearance: none;
         }
         .flatpickr-monthDropdown-months:hover, .year-dropdown:hover { background: #f8fafc; border-radius: 6px; }
-        .flatpickr-current-month input.cur-year, .numInputWrapper { display: none !important; }
+        .flatpickr-current-month input.cur-year, .numInputWrapper { display: none !important; } 
+
         .flatpickr-weekdays { height: 30px; margin-bottom: 5px; }
-        span.flatpickr-weekday { color: #64748b !important; font-weight: 600 !important; font-size: 13px !important; }
-        .flatpickr-day { border-radius: 8px !important; height: 38px; line-height: 38px; color: #333; margin: 2px 0; }
+        span.flatpickr-weekday { color: #64748b !important; font-weight: 600 !important; font-size: 14px !important; }
+        .flatpickr-day { border-radius: 8px !important; height: 40px; line-height: 40px; color: #333; margin: 2px 0; font-size: 15px; }
         .flatpickr-day.selected { background: var(--primary) !important; border-color: var(--primary) !important; }
         .flatpickr-day:hover { background: #f1f5f9 !important; }
 
-        /* --- 🔥 MOBILE RESPONSIVE --- */
+        /* --- 🔥 MOBILE RESPONSIVE (ปรับให้พอดี ไม่ล้น) --- */
         @media (max-width: 768px) {
-            .header-container { 
-                flex-direction: column; text-align: center; 
-                gap: 15px; padding: 30px 20px; 
-            }
-            .header-title { font-size: 22px; } /* ปรับขนาดฟอนต์ให้พอดี */
+            .header-container { flex-direction: column; text-align: center; gap: 15px; padding: 25px 20px; }
+            .header-title { font-size: 24px; }
             .header-logo { width: 70px; }
             
-            /* 🔥 ปรับช่องค้นหาในมือถือ */
-            .search-section { padding: 15px; }
+            .search-section { padding: 15px; display: block; }
             .search-container { 
-                flex-direction: column; /* เรียงแนวตั้ง */
-                align-items: stretch; /* ยืดเต็มจอ */
-                gap: 12px;
-                width: 100%;
+                flex-direction: column; align-items: stretch; gap: 10px; 
+                padding: 15px; border-radius: 20px; background: white; border: none;
             }
-            .search-input, .date-input, .btn-clear { 
-                width: 100% !important; /* กว้างเต็มจอ */
-                min-width: 0; 
-                margin: 0; /* ลบ margin เกิน */
+            /* ช่องค้นหาในมือถือให้มีขอบปกติ */
+            .search-input, .date-input { 
+                width: 100% !important; min-width: 0; margin: 0; 
+                border: 1px solid #e2e8f0; border-radius: 10px; height: 45px;
+                padding-left: 15px;
             }
+            .date-input { border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; background-position: 15px center; padding-left: 45px; }
+            .btn-clear { width: 100%; border-radius: 10px; height: 45px; }
             
-            .sub-gallery { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .news-img-wrapper { height: 120px; }
-            .skeleton-card { height: 200px; }
-            .skeleton-img { height: 120px; }
+            .gallery-container { padding: 15px; }
+            .activity-header { flex-direction: column; align-items: flex-start; gap: 10px; border-left: 4px solid var(--primary); }
+            .activity-title { font-size: 20px; }
+            
+            /* Grid มือถือ 2 คอลัมน์ */
+            .sub-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .news-card { border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            .news-img-wrapper { height: 130px; }
+            .news-info { padding: 10px; }
+            .news-date { font-size: 11px; }
+            .news-date::before { font-size: 14px; }
+            
+            .skeleton-card { height: 200px; border-radius: 12px; }
+            .skeleton-img { height: 130px; }
+            .skeleton-text { margin: 10px; height: 14px; }
             
             .flatpickr-calendar { left: 50% !important; transform: translateX(-50%) !important; max-width: 90vw; }
         }
@@ -250,6 +288,7 @@
         <a href="login.html" class="logo-link" title="เข้าสู่ระบบเจ้าหน้าที่">
             <img src="Royal_Thai_Army_3_Logo.png" alt="ทภ.3" class="header-logo" onerror="this.style.display='none'">
         </a>
+        
         <div class="header-title">ข่าวประชาสัมพันธ์ ทภ.3</div>
     </header>
 
@@ -262,6 +301,7 @@
     </div>
 
     <div id="gallery" class="gallery-container"></div>
+
     <div id="scroll-sentinel"></div>
     <div id="loader" class="loader-spinner"></div>
 
@@ -428,10 +468,10 @@
                         
                         card.innerHTML = `
                             <div class="news-img-wrapper">
-                                <img src="${thumbUrl}" alt="${rawName}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23eee%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23aaa%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                                <img src="${thumbUrl}" alt="${rawName}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,...'">
                             </div>
                             <div class="news-info">
-                                <div class="news-date">🗓️ ${dateStr}</div>
+                                <div class="news-date"> ${dateStr}</div>
                             </div>
                         `;
                         grid.appendChild(card);
