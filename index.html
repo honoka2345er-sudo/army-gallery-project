@@ -36,110 +36,56 @@
             overflow-y: scroll;
         }
 
-        /* --- HEADER (แบบเดิม: กลางจอ + คลิกแค่โลโก้) --- */
+        /* --- HEADER --- */
         .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px 20px;
-            background-color: white;
-            gap: 25px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 30px 20px; background-color: white; gap: 25px;
         }
-
-        .logo-link {
-            display: block;
-            text-decoration: none;
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
+        .logo-link { display: block; text-decoration: none; transition: transform 0.2s; cursor: pointer; }
         .logo-link:hover { transform: scale(1.1); }
-
         .header-logo { width: 80px; height: auto; display: block; }
-
-        .header-title {
-            font-size: 32px;
-            font-weight: 600;
-            margin: 0;
-            color: #333;
-            line-height: 1.2;
-            cursor: default;
-        }
+        .header-title { font-size: 32px; font-weight: 600; margin: 0; color: #333; line-height: 1.2; cursor: default; }
 
         /* --- SEARCH SECTION --- */
         .search-section {
-            background: #f8f9fa;
-            padding: 25px 20px;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: center;
+            background: #f8f9fa; padding: 25px 20px;
+            border-top: 1px solid #eee; border-bottom: 1px solid #eee;
+            display: flex; justify-content: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-
         .search-container {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            width: 100%;
-            max-width: 900px;
-            flex-wrap: wrap;
+            display: flex; gap: 15px; align-items: center;
+            width: 100%; max-width: 900px; flex-wrap: wrap;
         }
-
         .search-input {
-            padding: 12px 25px;
-            border: 1px solid #e2e8f0;
-            border-radius: 50px;
-            font-size: 15px;
-            font-family: 'Sarabun';
-            outline: none;
-            transition: 0.2s;
-            background: #fff;
-            box-shadow: var(--shadow-sm);
-            flex: 2;
-            min-width: 250px;
-            height: 48px;
+            padding: 12px 25px; border: 1px solid #e2e8f0; border-radius: 50px;
+            font-size: 15px; font-family: 'Sarabun'; outline: none; transition: 0.2s;
+            background: #fff; box-shadow: var(--shadow-sm); flex: 2; min-width: 250px; height: 48px;
         }
         .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1); }
-
+        
         .date-input {
-            text-align: center;
-            cursor: pointer;
+            text-align: center; cursor: pointer;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: 15px center;
-            padding-left: 45px;
-            flex: 1;
-            min-width: 200px;
-            height: 48px;
+            background-repeat: no-repeat; background-position: 15px center; padding-left: 45px;
+            flex: 1; min-width: 200px; height: 48px;
         }
-
         .btn-clear {
-            padding: 0 25px;
-            height: 48px;
-            border: none;
-            background: #f1f5f9;
-            color: #64748b;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 14px;
-            font-family: 'Sarabun';
-            transition: 0.2s;
-            font-weight: 500;
-            white-space: nowrap;
-            display: flex; align-items: center; justify-content: center;
+            padding: 0 25px; height: 48px; border: none; background: #f1f5f9; color: #64748b;
+            border-radius: 50px; cursor: pointer; font-size: 14px; font-family: 'Sarabun';
+            transition: 0.2s; font-weight: 500; white-space: nowrap;
         }
         .btn-clear:hover { background: #e2e8f0; color: #333; }
 
-        /* --- GALLERY GRID (ปรับเป็น 3 Columns) --- */
+        /* --- GALLERY GRID (3 Columns) --- */
         .gallery-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .activity-section { margin-bottom: 60px; }
-        
         .activity-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-left: 15px;
-            border-left: 5px solid var(--primary);
+            margin-bottom: 25px; padding-left: 15px; border-left: 5px solid var(--primary);
         }
         .activity-title { font-size: 22px; font-weight: 600; color: #333; margin: 0; }
-        
         .btn-download-zip {
             font-size: 13px; color: var(--primary); text-decoration: none;
             background: white; border: 1px solid #e2e8f0; padding: 8px 15px;
@@ -147,11 +93,8 @@
         }
         .btn-download-zip:hover { border-color: var(--primary); background: #fff5f5; }
 
-        /* 🔥 GRID 3 ช่อง (PC) */
         .sub-gallery {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 👈 บังคับ 3 ช่อง */
-            gap: 25px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;
         }
 
         .news-card {
@@ -161,8 +104,14 @@
         }
         .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
 
-        .news-img-wrapper { width: 100%; height: 220px; /* เพิ่มความสูงรูปให้สมส่วนกับ 3 ช่อง */ overflow: hidden; background: #e2e8f0; position: relative; }
-        .news-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .news-img-wrapper { width: 100%; height: 220px; overflow: hidden; background: #e2e8f0; position: relative; }
+        
+        /* 🔥 FADE IN EFFECT */
+        .news-img-wrapper img { 
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease, opacity 0.5s ease; 
+            opacity: 0; /* เริ่มต้นจาง */
+        }
+        .news-img-wrapper img.loaded { opacity: 1; /* โหลดเสร็จค่อยโผล่ */ }
         .news-card:hover .news-img-wrapper img { transform: scale(1.08); }
 
         .news-info { padding: 15px; }
@@ -170,12 +119,10 @@
 
         /* Skeleton & Loader */
         .skeleton {
-            background: #f1f5f9;
-            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background: #f1f5f9; background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
             background-size: 200% 100%; animation: shimmer 1.5s infinite;
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        
         .skeleton-card { background: white; border-radius: 16px; overflow: hidden; height: 280px; border: 1px solid #f1f5f9; }
         .skeleton-img { width: 100%; height: 220px; }
         .skeleton-text { height: 16px; width: 60%; margin: 15px; border-radius: 4px; }
@@ -187,18 +134,22 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Custom Flatpickr */
-        .flatpickr-calendar {
-            font-family: 'Sarabun', sans-serif !important; border-radius: 16px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; border: 1px solid #eee !important;
-            margin-top: 8px !important; width: 340px !important; padding: 10px !important;
+        /* 🔥 BACK TO TOP BUTTON */
+        #btnBackToTop {
+            position: fixed; bottom: 30px; right: 30px;
+            background: var(--primary); color: white; border: none;
+            width: 50px; height: 50px; border-radius: 50%;
+            font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: none; align-items: center; justify-content: center; z-index: 999;
+            transition: transform 0.3s, background 0.3s;
         }
+        #btnBackToTop:hover { transform: scale(1.1); background: #a93226; }
+
+        /* Custom Flatpickr */
+        .flatpickr-calendar { font-family: 'Sarabun', sans-serif !important; border-radius: 16px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; border: 1px solid #eee !important; margin-top: 8px !important; width: 340px !important; padding: 10px !important; }
         .flatpickr-months { align-items: center; margin-bottom: 10px; }
         .flatpickr-current-month { display: flex; align-items: center; justify-content: center; padding: 0 !important; gap: 5px; }
-        .flatpickr-monthDropdown-months, .year-dropdown {
-            font-family: 'Sarabun' !important; font-weight: 600 !important; font-size: 16px !important; color: #333 !important;
-            background: transparent; border: none; padding: 5px; cursor: pointer; appearance: none; -webkit-appearance: none;
-        }
+        .flatpickr-monthDropdown-months, .year-dropdown { font-family: 'Sarabun' !important; font-weight: 600 !important; font-size: 16px !important; color: #333 !important; background: transparent; border: none; padding: 5px; cursor: pointer; appearance: none; -webkit-appearance: none; }
         .flatpickr-monthDropdown-months:hover, .year-dropdown:hover { background: #f8fafc; border-radius: 6px; }
         .flatpickr-current-month input.cur-year, .numInputWrapper { display: none !important; } 
         .flatpickr-weekdays { height: 30px; margin-bottom: 5px; }
@@ -207,25 +158,20 @@
         .flatpickr-day.selected { background: var(--primary) !important; border-color: var(--primary) !important; }
         .flatpickr-day:hover { background: #f1f5f9 !important; }
 
-        /* --- MOBILE RESPONSIVE --- */
+        /* --- MOBILE --- */
         @media (max-width: 768px) {
-            .header-container { flex-direction: column; text-align: center; gap: 15px; padding: 30px 20px; }
+            .header-container { flex-direction: column; text-align: center; gap: 15px; padding: 25px 20px; }
             .header-title { font-size: 24px; }
-            .header-logo { width: 70px; }
-            
-            .search-section { padding: 15px; }
-            .search-container { flex-direction: column; align-items: stretch; gap: 12px; }
+            .header-logo { width: 65px; }
+            .search-section { padding: 15px; position: static; }
+            .search-container { flex-direction: column; align-items: stretch; gap: 10px; }
             .search-input, .date-input, .btn-clear { width: 100% !important; min-width: 0; margin: 0; }
-            
-            /* 🔥 มือถือ 2 ช่องเหมือนเดิม */
             .sub-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
             .news-img-wrapper { height: 130px; }
-            .news-info { padding: 10px; }
-            .news-date { font-size: 11px; }
-            
             .skeleton-card { height: 200px; }
             .skeleton-img { height: 130px; }
             .flatpickr-calendar { left: 50% !important; transform: translateX(-50%) !important; max-width: 90vw; }
+            #btnBackToTop { bottom: 20px; right: 20px; width: 45px; height: 45px; font-size: 20px; }
         }
     </style>
 </head>
@@ -241,7 +187,7 @@
 
     <div class="search-section">
         <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..." onkeyup="resetAndFetch()">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อกิจกรรม..." onkeyup="debouncedSearch()">
             <input type="text" id="dateRange" class="search-input date-input" placeholder="เลือกช่วงเวลา...">
             <button onclick="resetFilter()" class="btn-clear">ล้างค่า</button>
         </div>
@@ -250,6 +196,8 @@
     <div id="gallery" class="gallery-container"></div>
     <div id="scroll-sentinel"></div>
     <div id="loader" class="loader-spinner"></div>
+
+    <button id="btnBackToTop" onclick="scrollToTop()">⬆</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.js"></script>
     <script>
@@ -260,6 +208,7 @@
         let lightbox;
         let selectedDates = [];
         let isLoading = false;
+        let searchTimeout;
 
         const datePicker = flatpickr("#dateRange", {
             mode: "range", dateFormat: "d/m/Y", locale: "th", disableMobile: "true",
@@ -311,7 +260,7 @@
             gallery.innerHTML = '';
             const skeletonGrid = document.createElement('div');
             skeletonGrid.className = 'sub-gallery';
-            for(let i=0; i<6; i++) { /* โชว์แค่ 6 อันพอสำหรับ 3 cols */
+            for(let i=0; i<6; i++) {
                 skeletonGrid.innerHTML += `
                     <div class="skeleton-card">
                         <div class="skeleton skeleton-img"></div>
@@ -335,6 +284,13 @@
             }
         }
 
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                resetAndFetch();
+            }, 500); 
+        }
+
         function resetAndFetch() {
             const keyword = document.getElementById('searchInput').value.toLowerCase();
             filteredPhotos = allPhotos.filter(photo => {
@@ -356,7 +312,11 @@
             currentDisplayCount = 0;
             document.getElementById('loader').style.display = 'none';
             if (filteredPhotos.length === 0) {
-                document.getElementById('gallery').innerHTML = '<p style="text-align:center; padding:40px; color:#999;">ไม่พบข้อมูลรูปภาพ</p>';
+                document.getElementById('gallery').innerHTML = `
+                    <div style="text-align:center; padding:50px; color:#94a3b8;">
+                        <div style="font-size:40px; margin-bottom:10px;">🔍</div>
+                        <div>ไม่พบข้อมูลที่ค้นหา</div>
+                    </div>`;
             } else {
                 loadMore();
             }
@@ -414,7 +374,9 @@
                         
                         card.innerHTML = `
                             <div class="news-img-wrapper">
-                                <img src="${thumbUrl}" alt="${rawName}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,...'">
+                                <img src="${thumbUrl}" alt="${rawName}" loading="lazy" 
+                                     onload="this.classList.add('loaded')"
+                                     onerror="this.src='data:image/svg+xml;base64,...'">
                             </div>
                             <div class="news-info">
                                 <div class="news-date">📅 ${dateStr}</div>
@@ -437,6 +399,19 @@
             document.getElementById('searchInput').value = '';
             datePicker.clear();
             resetAndFetch();
+        }
+
+        window.onscroll = function() {
+            const btn = document.getElementById("btnBackToTop");
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.style.display = "flex";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         const observer = new IntersectionObserver((entries) => {
