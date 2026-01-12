@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1042/1042339.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -669,25 +669,48 @@
         .small-modal-popup {
             width: 400px !important;
             max-width: 90% !important;
-            padding: 25px !important;
+            padding: 30px 25px !important;
             border-radius: 15px !important;
         }
+
         .small-modal-title {
             font-size: 22px !important;
             color: #2c3e50 !important;
             margin-bottom: 15px !important;
         }
+
         .small-modal-input {
             margin: 10px auto !important;
             width: 100% !important;
             font-size: 16px !important;
-            height: 45px !important;
+            height: 48px !important;
             border-radius: 8px !important;
             border: 1px solid #ddd !important;
             box-sizing: border-box !important;
         }
+
         .small-modal-actions {
-            margin-top: 20px !important;
+            width: 100% !important;
+            display: flex !important;
+            /* ใช้ Flexbox จัดเรียง */
+            justify-content: center !important;
+            gap: 15px !important;
+            margin-top: 25px !important;
+        }
+
+        .small-modal-btn {
+            flex: 1 !important;
+            /* สั่งให้ปุ่มยืดจนเท่ากัน */
+            padding: 12px 0 !important;
+            /* ความสูงปุ่มเท่ากัน */
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            margin: 0 !important;
+            /* ลบ Margin เดิมของ SweetAlert */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
 
         /* Mobile Responsive */
@@ -837,9 +860,12 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #9b59b6;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">💾 พื้นที่จัดเก็บข้อมูล (Cloudinary)</h3>
-                <button onclick="loadStorageStats()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+                <button onclick="loadStorageStats()"
+                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
+                    รีเฟรช</button>
             </div>
             <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:25px;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -847,16 +873,20 @@
                     <span id="storagePercentage" style="font-weight:bold; color:#e74c3c;">0%</span>
                 </div>
                 <div style="width:100%; height:30px; background:#ecf0f1; border-radius:15px; position:relative;">
-                    <div id="storageBar" style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px; border-radius:15px; white-space:nowrap; overflow:visible;">
-                        <span id="storageBarText" style="color:#333; font-weight:bold; font-size:12px; margin-left:10px;">0.00%</span>
+                    <div id="storageBar"
+                        style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.5s; display:flex; align-items:center; padding-left: 10px; border-radius:15px; white-space:nowrap; overflow:visible;">
+                        <span id="storageBarText"
+                            style="color:#333; font-weight:bold; font-size:12px; margin-left:10px;">0.00%</span>
                     </div>
                 </div>
-                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
+                <div
+                    style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#7f8c8d;">
                     <span id="storageUsed">Bandwidth+Storage: 0 MB</span>
                     <span id="storageLimit">Plan Limit: ~25 GB</span>
                 </div>
             </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
+            <div
+                style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
                 <div style="background:#e3f2fd; padding:15px; border-radius:8px; border-left:4px solid #2196f3;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">รูปทั้งหมด</div>
                     <div id="totalPhotosCount" style="font-size:24px; font-weight:bold; color:#2196f3;">0</div>
@@ -867,7 +897,8 @@
                 </div>
                 <div style="background:#f3e5f5; padding:15px; border-radius:8px; border-left:4px solid #9c27b0;">
                     <div style="font-size:12px; color:#666; margin-bottom:5px;">แพลน</div>
-                    <div id="cloudinaryPlan" style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
+                    <div id="cloudinaryPlan"
+                        style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
                 </div>
             </div>
             <div>
@@ -876,7 +907,8 @@
                     <p style="text-align:center; color:#999;">กำลังโหลด...</p>
                 </div>
             </div>
-            <div id="storageWarning" style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
+            <div id="storageWarning"
+                style="display:none; background:#fff3cd; border-left:4px solid #ffc107; padding:15px; margin-top:20px; border-radius:5px;">
                 <strong style="color:#856404;">⚠️ คำเตือน:</strong>
                 <span style="color:#856404;">พื้นที่ใกล้เต็มแล้ว! กรุณาลบไฟล์ที่ไม่จำเป็นออก</span>
             </div>
@@ -888,7 +920,8 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
                         <label><b>1. ชื่อกิจกรรม</b></label>
-                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..."
+                            required>
                         <datalist id="categoryList"></datalist>
                     </div>
                     <div>
@@ -904,23 +937,27 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%; margin-top:15px; padding:15px; font-size:16px;">📤 อัปโหลด (ขึ้นทันที)</button>
+                <button type="submit" class="btn-primary"
+                    style="width:100%; margin-top:15px; padding:15px; font-size:16px;">📤 อัปโหลด (ขึ้นทันที)</button>
             </form>
         </div>
 
         <div class="card" style="border-top: 5px solid #2c3e50;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 id="photoSectionTitle" style="border:none; margin:0; padding:0;">📚 จัดการรูปภาพ (แก้ไข/ลบ)</h3>
             </div>
             <div class="search-toolbar">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
                 <select id="filterCategory" class="filter-select">
                     <option value="">📁 ทุกหมวดหมู่</option>
                 </select>
                 <button onclick="loadApprovedPhotos(1)" class="btn-search">ค้นหา</button>
             </div>
             <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllApproved" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllApproved" class="btn-primary"
+                    style="background:#34495e;">เลือกทั้งหมด</button>
                 <div><button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button></div>
             </div>
             <div id="approvedList" class="approval-grid">
@@ -934,12 +971,16 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                 <h3 style="border:none; margin:0; padding:0;">🗑️ ถังขยะ</h3>
-                <button onclick="loadTrash()" style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+                <button onclick="loadTrash()"
+                    style="cursor:pointer; padding:5px 10px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄
+                    รีเฟรช</button>
             </div>
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllTrash" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllTrash" class="btn-primary"
+                    style="background:#34495e;">เลือกทั้งหมด</button>
                 <div>
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
@@ -963,24 +1004,30 @@
                         </tr>
                     </thead>
                     <tbody id="logTableBody">
-                        <tr><td colspan="4" style="text-align:center;">กำลังโหลด...</td></tr>
+                        <tr>
+                            <td colspan="4" style="text-align:center;">กำลังโหลด...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
             <div style="text-align:center; margin-top:15px;">
-                <button id="btnToggleLogs" onclick="toggleLogs()" style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️ ดูเพิ่มเติม</button>
+                <button id="btnToggleLogs" onclick="toggleLogs()"
+                    style="background:none; border:none; color:#3498db; cursor:pointer; font-size:14px; font-weight:bold; display:none;">⬇️
+                    ดูเพิ่มเติม</button>
             </div>
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="border:none; margin:0; padding:0;">👥 จัดการเจ้าหน้าที่</h3>
-                <button onclick="openAddUserModal()" class="btn-primary" style="background:#8e44ad; width:auto; display:flex; align-items:center; gap:5px; padding: 10px 20px;">
+                <button onclick="openAddUserModal()" class="btn-primary"
+                    style="background:#8e44ad; width:auto; display:flex; align-items:center; gap:5px; padding: 10px 20px;">
                     <span style="font-size:18px;">+</span> เพิ่มเจ้าหน้าที่
                 </button>
             </div>
 
-            <input type="text" id="userSearch" class="search-input" style="margin-bottom:15px;" placeholder="🔍 ค้นหาเจ้าหน้าที่..." onkeyup="filterUsers()">
+            <input type="text" id="userSearch" class="search-input" style="margin-bottom:15px;"
+                placeholder="🔍 ค้นหาเจ้าหน้าที่..." onkeyup="filterUsers()">
 
             <div style="overflow-x: auto;">
                 <table class="user-table">
@@ -992,7 +1039,9 @@
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
-                        <tr><td colspan="3" style="text-align:center;">กำลังโหลด...</td></tr>
+                        <tr>
+                            <td colspan="3" style="text-align:center;">กำลังโหลด...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -1306,7 +1355,7 @@
                 const color = colors[x.username.charCodeAt(0) % colors.length];
                 const avatar = x.username.charAt(0).toUpperCase();
                 const badgeClass = x.role === 'admin' ? 'badge-admin' : 'badge-uploader';
-                
+
                 tbody.innerHTML += `
                 <tr class="user-row">
                     <td>
@@ -1338,7 +1387,7 @@
 
         async function openAddUserModal() {
             if (user.role !== 'admin') return Swal.fire('Error', 'Admin Only', 'error');
-            
+
             // 🔥 ใช้ customClass เพื่อเรียกใช้สไตล์ที่เรากำหนดไว้ใน CSS
             const { value: formValues } = await Swal.fire({
                 title: 'เพิ่มเจ้าหน้าที่ใหม่',
