@@ -333,10 +333,21 @@
             color: white;
         }
 
-        .btn-delete { background: #c0392b; }
-        .btn-restore { background: #3498db; }
-        .btn-rename { background: #9b59b6; }
-        .btn-edit { background: #f39c12; }
+        .btn-delete {
+            background: #c0392b;
+        }
+
+        .btn-restore {
+            background: #3498db;
+        }
+
+        .btn-rename {
+            background: #9b59b6;
+        }
+
+        .btn-edit {
+            background: #f39c12;
+        }
 
         .btn-bulk-delete {
             background: #c0392b;
@@ -398,7 +409,8 @@
             margin-top: 10px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 10px;
             border-bottom: 1px solid #eee;
             text-align: left;
@@ -416,7 +428,8 @@
             color: #2c3e50;
         }
 
-        input, select {
+        input,
+        select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -452,8 +465,13 @@
         }
 
         @keyframes zoom {
-            from { transform: scale(0) }
-            to { transform: scale(1) }
+            from {
+                transform: scale(0)
+            }
+
+            to {
+                transform: scale(1)
+            }
         }
 
         .close-modal {
@@ -530,8 +548,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* 🔥 User Management Styling (New & Premium) */
@@ -542,15 +567,18 @@
             font-size: 13px;
             border-bottom: 2px solid #e0e0e0;
         }
+
         .user-row:hover {
             background-color: #f9fafb;
             transition: background 0.2s;
         }
+
         .user-cell {
             display: flex;
             align-items: center;
             gap: 12px;
         }
+
         .avatar {
             width: 42px;
             height: 42px;
@@ -562,22 +590,26 @@
             font-weight: bold;
             font-size: 18px;
             text-transform: uppercase;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .user-detail {
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
+
         .user-username {
             font-weight: 600;
             color: #333;
             font-size: 15px;
         }
+
         .user-id {
             font-size: 12px;
             color: #999;
         }
+
         .role-badge {
             padding: 5px 12px;
             border-radius: 20px;
@@ -585,21 +617,25 @@
             font-weight: 600;
             text-transform: capitalize;
         }
+
         .badge-admin {
             background-color: #f3e5f5;
             color: #8e44ad;
             border: 1px solid #e1bee7;
         }
+
         .badge-uploader {
             background-color: #e3f2fd;
             color: #1976d2;
             border: 1px solid #bbdefb;
         }
+
         .action-btn-group {
             display: flex;
             gap: 8px;
             justify-content: flex-end;
         }
+
         .btn-icon {
             width: 34px;
             height: 34px;
@@ -614,17 +650,44 @@
             font-size: 14px;
             color: #64748b;
         }
+
         .btn-icon:hover {
             background-color: #f1f5f9;
             border-color: #cbd5e1;
             color: #333;
             transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
+
         .btn-icon.delete:hover {
             background-color: #fef2f2;
             border-color: #fecaca;
             color: #ef4444;
+        }
+
+        /* 🔥🔥🔥 Custom SweetAlert2 Styling (สำหรับ Popup เพิ่มเจ้าหน้าที่) 🔥🔥🔥 */
+        .small-modal-popup {
+            width: 400px !important;
+            max-width: 90% !important;
+            padding: 25px !important;
+            border-radius: 15px !important;
+        }
+        .small-modal-title {
+            font-size: 22px !important;
+            color: #2c3e50 !important;
+            margin-bottom: 15px !important;
+        }
+        .small-modal-input {
+            margin: 10px auto !important;
+            width: 100% !important;
+            font-size: 16px !important;
+            height: 45px !important;
+            border-radius: 8px !important;
+            border: 1px solid #ddd !important;
+            box-sizing: border-box !important;
+        }
+        .small-modal-actions {
+            margin-top: 20px !important;
         }
 
         /* Mobile Responsive */
@@ -1276,16 +1339,25 @@
         async function openAddUserModal() {
             if (user.role !== 'admin') return Swal.fire('Error', 'Admin Only', 'error');
             
+            // 🔥 ใช้ customClass เพื่อเรียกใช้สไตล์ที่เรากำหนดไว้ใน CSS
             const { value: formValues } = await Swal.fire({
                 title: 'เพิ่มเจ้าหน้าที่ใหม่',
                 html:
-                    '<input id="swal-user" class="swal2-input" placeholder="Username">' +
-                    '<input id="swal-pass" type="password" class="swal2-input" placeholder="Password">' +
-                    '<select id="swal-role" class="swal2-input"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>',
+                    '<input id="swal-user" class="swal2-input small-modal-input" placeholder="Username">' +
+                    '<input id="swal-pass" type="password" class="swal2-input small-modal-input" placeholder="Password">' +
+                    '<select id="swal-role" class="swal2-input small-modal-input"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>',
                 focusConfirm: false,
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
+                customClass: {
+                    popup: 'small-modal-popup',       // เรียกใช้ class สำหรับ popup (ขนาดเล็ก)
+                    title: 'small-modal-title',       // ปรับขนาดหัวข้อ
+                    confirmButton: 'btn-primary small-modal-btn', // ปุ่มยืนยัน
+                    cancelButton: 'btn-delete small-modal-btn',  // ปุ่มยกเลิก
+                    actions: 'small-modal-actions'    // ระยะห่างปุ่ม
+                },
+                buttonsStyling: false, // ปิดการใช้งานสไตล์เริ่มต้นของปุ่ม SweetAlert2 เพื่อใช้สไตล์เราเอง
                 preConfirm: () => {
                     return [
                         document.getElementById('swal-user').value,
