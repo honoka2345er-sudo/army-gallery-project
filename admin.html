@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบจัดการคลังภาพ (Admin)</title>
+    <title>ระบบจัดการคลังภาพ (Admin Panel)</title>
 
     <link rel="manifest" href="manifest.json">
+    
     <meta name="theme-color" content="#2c3e50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,24 +18,30 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* =========================================
-           1. GLOBAL SETTINGS
-           ========================================= */
+        /* ==========================================================================
+           1. CORE STYLES & VARIABLES
+           ========================================================================== */
         :root {
             --primary-color: #3498db;
+            --primary-dark: #2980b9;
             --secondary-color: #2c3e50;
             --success-color: #27ae60;
             --warning-color: #f39c12;
             --danger-color: #c0392b;
+            --danger-dark: #a93226;
             --light-bg: #f4f6f9;
             --white: #ffffff;
             --text-dark: #333333;
             --text-muted: #7f8c8d;
             --border-color: #e0e0e0;
+            --sidebar-width: 250px;
+            --card-radius: 12px;
+            --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
 
         * {
             box-sizing: border-box;
+            outline: none;
         }
 
         body {
@@ -47,11 +54,11 @@
             color: var(--text-dark);
         }
 
-        /* =========================================
-           2. SIDEBAR
-           ========================================= */
+        /* ==========================================================================
+           2. SIDEBAR NAVIGATION
+           ========================================================================== */
         .sidebar {
-            width: 260px;
+            width: var(--sidebar-width);
             background-color: var(--secondary-color);
             color: var(--white);
             padding: 20px;
@@ -60,11 +67,11 @@
             flex-shrink: 0;
             height: 100%;
             overflow-y: auto;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             z-index: 1000;
             position: relative;
             left: 0;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-header {
@@ -73,7 +80,7 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header h2 {
@@ -102,7 +109,7 @@
         }
 
         .user-info {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 10px;
@@ -135,25 +142,14 @@
         }
 
         .menu-link:hover {
-            background-color: rgba(255,255,255,0.1);
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .btn-logout {
-            background: var(--danger-color);
-            color: var(--white);
-            border: none;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-family: 'Sarabun', sans-serif;
-            font-weight: 600;
-            width: 100%;
+        .sidebar-footer {
             margin-top: auto;
-            transition: 0.2s;
-        }
-
-        .btn-logout:hover {
-            background-color: #a93226;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .btn-profile {
@@ -166,17 +162,33 @@
             font-family: 'Sarabun', sans-serif;
             font-weight: 600;
             width: 100%;
-            margin-bottom: 10px;
-            transition: 0.2s;
+            transition: background 0.2s;
         }
 
         .btn-profile:hover {
-            background: #2980b9;
+            background: var(--primary-dark);
         }
 
-        /* =========================================
-           3. MAIN CONTENT
-           ========================================= */
+        .btn-logout {
+            background: var(--danger-color);
+            color: var(--white);
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover {
+            background-color: var(--danger-dark);
+        }
+
+        /* ==========================================================================
+           3. MAIN CONTENT AREA
+           ========================================================================== */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -184,6 +196,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* Mobile Header */
         .mobile-nav {
             display: none;
             background-color: var(--secondary-color);
@@ -194,7 +207,7 @@
             position: sticky;
             top: 0;
             z-index: 900;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .hamburger {
@@ -204,7 +217,7 @@
             font-size: 26px;
             cursor: pointer;
         }
-        
+
         .overlay {
             display: none;
             position: fixed;
@@ -217,14 +230,14 @@
             backdrop-filter: blur(2px);
         }
 
-        /* =========================================
-           4. CARDS & LAYOUTS
-           ========================================= */
+        /* ==========================================================================
+           4. CARDS & SECTIONS
+           ========================================================================== */
         .card {
             background: var(--white);
             padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
             margin-bottom: 30px;
             border: 1px solid var(--border-color);
         }
@@ -237,6 +250,9 @@
             margin-bottom: 20px;
             font-size: 18px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         /* Stats Grid */
@@ -249,10 +265,10 @@
 
         .stat-card {
             background: var(--white);
-            padding: 20px;
-            border-radius: 8px;
+            padding: 25px;
+            border-radius: var(--card-radius);
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: var(--card-shadow);
             border-left: 5px solid transparent;
             transition: transform 0.2s;
         }
@@ -264,19 +280,19 @@
         .stat-number {
             font-size: 40px;
             font-weight: 700;
-            margin: 10px 0;
+            margin: 15px 0;
             color: var(--text-dark);
         }
 
         .stat-label {
             color: var(--text-muted);
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 500;
         }
 
-        /* =========================================
+        /* ==========================================================================
            5. FORMS & INPUTS
-           ========================================= */
+           ========================================================================== */
         label {
             font-weight: 600;
             display: block;
@@ -284,8 +300,8 @@
             color: var(--secondary-color);
         }
 
-        input[type="text"], 
-        input[type="password"], 
+        input[type="text"],
+        input[type="password"],
         select {
             width: 100%;
             padding: 12px 15px;
@@ -301,7 +317,7 @@
 
         input:focus, select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         /* File Upload */
@@ -366,9 +382,9 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* =========================================
-           6. PHOTO MANAGEMENT & GRIDS
-           ========================================= */
+        /* ==========================================================================
+           6. PHOTO MANAGEMENT & TRASH
+           ========================================================================== */
         .approval-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -385,12 +401,13 @@
             position: relative;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
-        
+
         .approval-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .approval-item img {
@@ -399,12 +416,12 @@
             object-fit: cover;
             border-radius: 8px;
             pointer-events: none;
+            transition: 0.3s;
         }
 
         .approval-item img.clickable {
             pointer-events: auto;
             cursor: zoom-in;
-            transition: transform 0.2s;
         }
 
         .approval-item img.clickable:hover {
@@ -438,7 +455,61 @@
             display: none;
         }
 
-        /* Toolbars */
+        /* --- Trash Specific Styles --- */
+        .approval-item.trash-item {
+            border: 1px solid #fab1a0; /* Red tint border */
+            background-color: #fff5f5; /* Red tint bg */
+        }
+        
+        .approval-item.trash-item img {
+            filter: grayscale(100%);
+            opacity: 0.7;
+        }
+
+        .approval-item.trash-item:hover img {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        .trash-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .btn-trash-action {
+            flex: 1;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: 0.2s;
+        }
+
+        .btn-trash-restore {
+            background-color: #3498db;
+        }
+        .btn-trash-restore:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-trash-delete {
+            background-color: #e74c3c;
+        }
+        .btn-trash-delete:hover {
+            background-color: #c0392b;
+        }
+
+        /* ==========================================================================
+           7. TOOLBARS & BUTTONS
+           ========================================================================== */
         .bulk-toolbar, .search-toolbar {
             display: flex;
             gap: 15px;
@@ -477,7 +548,7 @@
             filter: brightness(1.1);
         }
 
-        /* Action Buttons in Grid */
+        /* Gallery Action Buttons */
         .btn-delete, .btn-restore, .btn-rename, .btn-edit {
             border: none;
             padding: 6px 12px;
@@ -544,9 +615,9 @@
             font-size: 16px;
         }
 
-        /* =========================================
-           7. TABLES (User & Logs)
-           ========================================= */
+        /* ==========================================================================
+           8. TABLES (USER & LOGS)
+           ========================================================================== */
         .user-table, .log-table {
             width: 100%;
             border-collapse: collapse;
@@ -576,7 +647,7 @@
             background-color: #f9fafb;
         }
 
-        /* User Specific Styles */
+        /* User Table Specifics */
         .user-cell {
             display: flex;
             align-items: center;
@@ -612,7 +683,7 @@
             font-size: 12px;
             color: var(--text-muted);
         }
-        
+
         .role-badge {
             padding: 6px 14px;
             border-radius: 50px;
@@ -641,6 +712,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-size: 14px;
             color: var(--text-muted);
         }
 
@@ -673,9 +745,10 @@
         .badge-edit { background-color: #fff8e1; color: #f9a825; border: 1px solid #ffecb3; }
         .badge-other { background-color: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
 
-        /* =========================================
-           8. MODALS & POPUPS
-           ========================================= */
+        /* ==========================================================================
+           9. MODALS & POPUPS
+           ========================================================================== */
+        /* Image Viewer Modal */
         .modal {
             display: none;
             position: fixed;
@@ -696,7 +769,8 @@
             max-width: 900px;
             max-height: 90vh;
             object-fit: contain;
-            animation: zoom 0.3s;
+            animation-name: zoom;
+            animation-duration: 0.3s;
         }
 
         .close-modal {
@@ -715,17 +789,12 @@
             to { transform: scale(1) }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px) }
-            to { opacity: 1; transform: translateY(0) }
-        }
-
-        /* 🔥 Custom SweetAlert2 Styling (สำหรับ Popup เพิ่มเจ้าหน้าที่) */
+        /* 🔥 Custom SweetAlert2 Styling (Popup เพิ่มเจ้าหน้าที่) */
         .small-modal-popup {
-            width: 420px !important;
+            width: 450px !important;
             max-width: 90% !important;
             padding: 30px !important;
-            border-radius: 20px !important;
+            border-radius: 16px !important;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
         }
 
@@ -737,17 +806,17 @@
         }
 
         .small-modal-input {
-            margin: 12px auto !important;
+            margin: 10px auto !important;
             width: 100% !important;
             font-size: 16px !important;
-            height: 50px !important;
-            border-radius: 10px !important;
+            height: 48px !important;
+            border-radius: 8px !important;
             border: 1px solid var(--border-color) !important;
-            padding: 0 15px !important;
             box-sizing: border-box !important;
+            padding: 0 15px !important;
         }
 
-        /* จัดการปุ่มให้เท่ากันและสวยงาม */
+        /* Container for Buttons */
         .small-modal-actions {
             width: 100% !important;
             display: flex !important;
@@ -756,23 +825,24 @@
             margin-top: 30px !important;
         }
 
+        /* Styling for BOTH buttons to make them equal */
         .small-modal-btn {
-            flex: 1 !important;
+            flex: 1 !important; /* This makes them equal width */
             padding: 12px 0 !important;
             font-size: 16px !important;
             font-weight: 600 !important;
-            border-radius: 10px !important;
+            border-radius: 8px !important;
             margin: 0 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             cursor: pointer !important;
-            transition: 0.2s !important;
+            border: none !important;
         }
 
-        /* =========================================
-           9. MOBILE RESPONSIVE
-           ========================================= */
+        /* ==========================================================================
+           10. MOBILE RESPONSIVE
+           ========================================================================== */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -808,7 +878,7 @@
                 grid-template-columns: 1fr;
             }
 
-            #uploadForm>div {
+            #uploadForm > div {
                 grid-template-columns: 1fr !important;
                 gap: 20px !important;
             }
@@ -1304,25 +1374,33 @@
                 const dateVal = p.date || '';
                 const actVal = p.activity || '';
                 
-                let btns = '';
-                if (user.role === 'admin') {
-                    if (type == 'approved') {
+                let html = '';
+                // 🔥 TRASH DESIGN (NEW)
+                if (type === 'trash') {
+                    html = `
+                    <div class="approval-item trash-item" onclick="toggleSel(this)" data-id="${id}">
+                        <input type="checkbox" class="check-overlay trash-check" value="${id}">
+                        <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
+                        <div class="trash-actions">
+                            <button onclick="evt(event,restorePhoto,${id})" class="btn-trash-action btn-trash-restore">♻️ กู้คืน</button>
+                            <button onclick="evt(event,permanentDelete,${id})" class="btn-trash-action btn-trash-delete">💥 ลบถาวร</button>
+                        </div>
+                    </div>`;
+                } else {
+                    // GALLERY DESIGN
+                    let btns = '';
+                    if (user.role === 'admin') {
                         btns = `<button onclick="evt(event,copyLink,'${url}')" class="btn-edit" style="background:#3498db;" title="คัดลอกลิงก์">🔗</button>
                                 <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-edit" title="แก้ไข">📝</button>
                                 <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-rename" title="เปลี่ยนชื่อ">✏️</button>
                                 <button onclick="evt(event,softDelete,${id})" class="btn-delete" title="ลบ">🗑️</button>`;
-                    } else {
-                        btns = `<button onclick="evt(event,restorePhoto,${id})" class="btn-restore">♻️ กู้คืน</button>
-                                <button onclick="evt(event,permanentDelete,${id})" class="btn-delete">💥 ลบถาวร</button>`;
                     }
+                    const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay approved-check" value="${id}">` : '';
+                    html = `<div class="approval-item" onclick="toggleSel(this)" data-id="${id}">
+                        ${chk} <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable"> <div style="margin-top:10px; display:flex; justify-content:center; gap:2px;">${btns}</div>
+                    </div>`;
                 }
-                
-                const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}">` : '';
-                const click = user.role === 'admin' ? `onclick="toggleSel(this)"` : '';
-                
-                el.innerHTML += `<div class="approval-item ${type}-item" ${click} data-id="${id}">
-                    ${chk} <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable"> <div style="margin-top:10px;">${btns}</div>
-                </div>`;
+                el.innerHTML += html;
             });
             
             // Bulk Select Logic
@@ -1396,8 +1474,6 @@
                 const res = await fetch('/logs?t=' + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) throw new Error();
                 allLogsData = await res.json();
-                // ถ้าต้องการเรียงจากใหม่ไปเก่า (ถ้า API ไม่ได้เรียงมา)
-                // allLogsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 renderLogs();
             } catch (e) {
                 document.getElementById('logTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">โหลดประวัติไม่ได้</td></tr>';
@@ -1496,6 +1572,61 @@
             const term = document.getElementById('userSearch').value.toLowerCase();
             const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(term));
             renderUserTable(filtered);
+        }
+
+        async function openAddUserModal() {
+            if (user.role !== 'admin') {
+                return Swal.fire('Error', 'Admin Only', 'error');
+            }
+            
+            // 🔥 ใช้ customClass เพื่อเรียกใช้สไตล์ที่เรากำหนดไว้ใน CSS
+            const { value: formValues } = await Swal.fire({
+                title: 'เพิ่มเจ้าหน้าที่ใหม่',
+                html:
+                    '<input id="swal-user" class="swal2-input small-modal-input" placeholder="Username">' +
+                    '<input id="swal-pass" type="password" class="swal2-input small-modal-input" placeholder="Password">' +
+                    '<select id="swal-role" class="swal2-input small-modal-input"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                customClass: {
+                    popup: 'small-modal-popup',       // เรียกใช้ class สำหรับ popup (ขนาดเล็ก)
+                    title: 'small-modal-title',       // ปรับขนาดหัวข้อ
+                    confirmButton: 'btn-primary small-modal-btn', // ปุ่มยืนยัน
+                    cancelButton: 'btn-delete small-modal-btn',  // ปุ่มยกเลิก
+                    actions: 'small-modal-actions'    // ระยะห่างปุ่ม
+                },
+                buttonsStyling: false, // ปิดการใช้งานสไตล์เริ่มต้นของปุ่ม SweetAlert2 เพื่อใช้สไตล์เราเอง
+                preConfirm: () => {
+                    return [
+                        document.getElementById('swal-user').value,
+                        document.getElementById('swal-pass').value,
+                        document.getElementById('swal-role').value
+                    ]
+                }
+            });
+
+            if (formValues) {
+                const [u, p, r] = formValues;
+                if (!u || !p) {
+                    return Swal.fire('เตือน', 'กรอกให้ครบ', 'warning');
+                }
+                
+                const h = getAuthHeaders();
+                const res = await fetch('/users', {
+                    method: 'POST',
+                    headers: h,
+                    body: JSON.stringify({ username: u, password: p, role: r })
+                });
+                
+                if (res.ok) {
+                    Swal.fire('สำเร็จ', 'เพิ่มผู้ใช้แล้ว', 'success');
+                    loadUsers();
+                } else {
+                    Swal.fire('ผิดพลาด', 'เพิ่มไม่ได้ (ชื่ออาจซ้ำ)', 'error');
+                }
+            }
         }
 
         // --- Storage & Settings ---
@@ -1619,56 +1750,7 @@
             }
         }
 
-        // --- Action Functions ---
-        async function openAddUserModal() {
-            if (user.role !== 'admin') {
-                return Swal.fire('Error', 'Admin Only', 'error');
-            }
-            
-            const { value: formValues } = await Swal.fire({
-                title: 'เพิ่มเจ้าหน้าที่ใหม่',
-                html: '<input id="swal-user" class="swal2-input small-modal-input" placeholder="Username"><input id="swal-pass" type="password" class="swal2-input small-modal-input" placeholder="Password"><select id="swal-role" class="swal2-input small-modal-input"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>',
-                focusConfirm: false,
-                showCancelButton: true,
-                confirmButtonText: 'บันทึก',
-                cancelButtonText: 'ยกเลิก',
-                customClass: {
-                    popup: 'small-modal-popup',
-                    title: 'small-modal-title',
-                    confirmButton: 'btn-primary small-modal-btn',
-                    cancelButton: 'btn-delete small-modal-btn',
-                    actions: 'small-modal-actions'
-                },
-                buttonsStyling: false,
-                preConfirm: () => [
-                    document.getElementById('swal-user').value,
-                    document.getElementById('swal-pass').value,
-                    document.getElementById('swal-role').value
-                ]
-            });
-
-            if (formValues) {
-                const [u, p, r] = formValues;
-                if (!u || !p) {
-                    return Swal.fire('เตือน', 'กรอกให้ครบ', 'warning');
-                }
-                
-                const h = getAuthHeaders();
-                const res = await fetch('/users', {
-                    method: 'POST',
-                    headers: h,
-                    body: JSON.stringify({ username: u, password: p, role: r })
-                });
-                
-                if (res.ok) {
-                    Swal.fire('สำเร็จ', 'เพิ่มผู้ใช้แล้ว', 'success');
-                    loadUsers();
-                } else {
-                    Swal.fire('ผิดพลาด', 'เพิ่มไม่ได้ (ชื่ออาจซ้ำ)', 'error');
-                }
-            }
-        }
-
+        // --- Other Actions ---
         async function editDetails(id, oldCat, oldDate) {
             let dateStr = oldDate ? new Date(oldDate).toISOString().slice(0, 16) : '';
             const { value: f } = await Swal.fire({
