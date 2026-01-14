@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบจัดการคลังภาพ (Admin Panel)</title>
+    <title>ระบบจัดการคลังภาพ (Admin)</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
@@ -18,7 +18,7 @@
 
     <style>
         /* =========================================
-           1. Global Styles (ตั้งค่าพื้นฐาน)
+           1. GLOBAL SETTINGS
            ========================================= */
         :root {
             --primary-color: #3498db;
@@ -48,10 +48,10 @@
         }
 
         /* =========================================
-           2. Sidebar (เมนูข้าง)
+           2. SIDEBAR
            ========================================= */
         .sidebar {
-            width: 250px;
+            width: 260px;
             background-color: var(--secondary-color);
             color: var(--white);
             padding: 20px;
@@ -78,7 +78,7 @@
 
         .sidebar-header h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -126,7 +126,7 @@
             color: var(--white);
             text-decoration: none;
             font-size: 16px;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             transition: background 0.2s;
             display: flex;
@@ -175,7 +175,7 @@
         }
 
         /* =========================================
-           3. Main Content (ส่วนเนื้อหาหลัก)
+           3. MAIN CONTENT
            ========================================= */
         .main-content {
             flex: 1;
@@ -218,13 +218,13 @@
         }
 
         /* =========================================
-           4. Cards & Stats (การ์ดและสถิติ)
+           4. CARDS & LAYOUTS
            ========================================= */
         .card {
             background: var(--white);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             margin-bottom: 30px;
             border: 1px solid var(--border-color);
         }
@@ -239,6 +239,7 @@
             font-weight: 700;
         }
 
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -274,7 +275,7 @@
         }
 
         /* =========================================
-           5. Forms (ฟอร์ม)
+           5. FORMS & INPUTS
            ========================================= */
         label {
             font-weight: 600;
@@ -300,6 +301,7 @@
 
         input:focus, select:focus {
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
 
         /* File Upload */
@@ -344,6 +346,7 @@
             font-size: 16px;
         }
 
+        /* Preview Grid */
         .preview-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -364,11 +367,11 @@
         }
 
         /* =========================================
-           6. Photo Grid & Tools (จัดการรูปภาพ)
+           6. PHOTO MANAGEMENT & GRIDS
            ========================================= */
         .approval-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
@@ -392,7 +395,7 @@
 
         .approval-item img {
             width: 100%;
-            height: 140px;
+            height: 150px;
             object-fit: cover;
             border-radius: 8px;
             pointer-events: none;
@@ -469,12 +472,12 @@
             font-weight: 600;
             transition: 0.3s;
         }
-        
+
         .btn-primary:hover {
             filter: brightness(1.1);
         }
 
-        /* Small Action Buttons */
+        /* Action Buttons in Grid */
         .btn-delete, .btn-restore, .btn-rename, .btn-edit {
             border: none;
             padding: 6px 12px;
@@ -542,7 +545,7 @@
         }
 
         /* =========================================
-           7. TABLES (User Management & Logs)
+           7. TABLES (User & Logs)
            ========================================= */
         .user-table, .log-table {
             width: 100%;
@@ -573,7 +576,7 @@
             background-color: #f9fafb;
         }
 
-        /* Styles for User Table */
+        /* User Specific Styles */
         .user-cell {
             display: flex;
             align-items: center;
@@ -618,7 +621,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
         .badge-admin { background-color: #f3e5f5; color: #8e44ad; border: 1px solid #e1bee7; }
         .badge-uploader { background-color: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb; }
 
@@ -646,6 +648,7 @@
             background: #f0f0f0;
             color: var(--text-dark);
             transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
         .btn-icon.delete:hover {
@@ -654,7 +657,7 @@
             border-color: #fecaca;
         }
 
-        /* Styles for Log Table Badges */
+        /* Log Table Badges */
         .log-badge {
             display: inline-flex;
             align-items: center;
@@ -671,54 +674,8 @@
         .badge-other { background-color: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
 
         /* =========================================
-           8. Custom SweetAlert2 (Popup)
+           8. MODALS & POPUPS
            ========================================= */
-        .small-modal-popup {
-            width: 400px !important;
-            max-width: 90% !important;
-            padding: 30px 25px !important;
-            border-radius: 16px !important;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .small-modal-title {
-            font-size: 22px !important;
-            color: var(--secondary-color) !important;
-            margin-bottom: 20px !important;
-            font-weight: 600 !important;
-        }
-
-        .small-modal-input {
-            margin: 10px auto !important;
-            width: 100% !important;
-            font-size: 16px !important;
-            height: 48px !important;
-            border-radius: 8px !important;
-            border: 1px solid #ddd !important;
-            padding: 0 15px !important;
-        }
-
-        .small-modal-actions {
-            width: 100% !important;
-            display: flex !important;
-            justify-content: center !important;
-            gap: 15px !important;
-            margin-top: 25px !important;
-        }
-
-        .small-modal-btn {
-            flex: 1 !important;
-            padding: 12px 0 !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            margin: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        /* Modal Image Viewer */
         .modal {
             display: none;
             position: fixed;
@@ -739,13 +696,7 @@
             max-width: 900px;
             max-height: 90vh;
             object-fit: contain;
-            animation-name: zoom;
-            animation-duration: 0.3s;
-        }
-
-        @keyframes zoom {
-            from { transform: scale(0) }
-            to { transform: scale(1) }
+            animation: zoom 0.3s;
         }
 
         .close-modal {
@@ -759,8 +710,68 @@
             cursor: pointer;
         }
 
+        @keyframes zoom {
+            from { transform: scale(0) }
+            to { transform: scale(1) }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px) }
+            to { opacity: 1; transform: translateY(0) }
+        }
+
+        /* 🔥 Custom SweetAlert2 Styling (สำหรับ Popup เพิ่มเจ้าหน้าที่) */
+        .small-modal-popup {
+            width: 420px !important;
+            max-width: 90% !important;
+            padding: 30px !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .small-modal-title {
+            font-size: 24px !important;
+            color: var(--secondary-color) !important;
+            margin-bottom: 25px !important;
+            font-weight: 700 !important;
+        }
+
+        .small-modal-input {
+            margin: 12px auto !important;
+            width: 100% !important;
+            font-size: 16px !important;
+            height: 50px !important;
+            border-radius: 10px !important;
+            border: 1px solid var(--border-color) !important;
+            padding: 0 15px !important;
+            box-sizing: border-box !important;
+        }
+
+        /* จัดการปุ่มให้เท่ากันและสวยงาม */
+        .small-modal-actions {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+            gap: 15px !important;
+            margin-top: 30px !important;
+        }
+
+        .small-modal-btn {
+            flex: 1 !important;
+            padding: 12px 0 !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: 0.2s !important;
+        }
+
         /* =========================================
-           9. Mobile Responsive
+           9. MOBILE RESPONSIVE
            ========================================= */
         @media (max-width: 768px) {
             body {
@@ -1021,7 +1032,7 @@
                         </tr>
                     </thead>
                     <tbody id="logTableBody">
-                        <tr><td colspan="4" style="text-align:center; padding: 30px;">กำลังโหลด...</td></tr>
+                        <tr><td colspan="4" style="text-align:center;">กำลังโหลด...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1055,7 +1066,7 @@
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
-                        <tr><td colspan="3" style="text-align:center; padding: 30px;">กำลังโหลด...</td></tr>
+                        <tr><td colspan="3" style="text-align:center;">กำลังโหลด...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1310,7 +1321,7 @@
                 const click = user.role === 'admin' ? `onclick="toggleSel(this)"` : '';
                 
                 el.innerHTML += `<div class="approval-item ${type}-item" ${click} data-id="${id}">
-                    ${chk} <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable"> <div style="margin-top:10px; display:flex; justify-content:center; gap:2px; flex-wrap:wrap;">${btns}</div>
+                    ${chk} <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable"> <div style="margin-top:10px;">${btns}</div>
                 </div>`;
             });
             
@@ -1385,6 +1396,8 @@
                 const res = await fetch('/logs?t=' + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) throw new Error();
                 allLogsData = await res.json();
+                // ถ้าต้องการเรียงจากใหม่ไปเก่า (ถ้า API ไม่ได้เรียงมา)
+                // allLogsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 renderLogs();
             } catch (e) {
                 document.getElementById('logTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">โหลดประวัติไม่ได้</td></tr>';
