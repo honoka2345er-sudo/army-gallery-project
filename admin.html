@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบจัดการคลังภาพ (Admin)</title>
+    <title>ระบบจัดการคลังภาพ (Admin Panel)</title>
 
     <link rel="manifest" href="manifest.json">
     
@@ -15,6 +15,8 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -86,7 +88,7 @@
 
         .sidebar-header h2 {
             margin: 0;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -169,6 +171,10 @@
             width: 100%;
             transition: background 0.2s;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-profile:hover {
@@ -186,6 +192,10 @@
             font-weight: 600;
             width: 100%;
             transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-logout:hover {
@@ -245,7 +255,7 @@
             border-radius: var(--card-radius);
             box-shadow: var(--card-shadow);
             margin-bottom: 30px;
-            border: 1px solid var(--white);
+            border: 1px solid var(--border-color);
         }
 
         .card h3 {
@@ -277,10 +287,19 @@
             box-shadow: var(--card-shadow);
             border-left: 5px solid transparent;
             transition: transform 0.2s;
+            position: relative;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
+        }
+        
+        .stat-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 40px;
+            opacity: 0.1;
         }
 
         .stat-number {
@@ -442,7 +461,9 @@
         }
 
         .approval-item.selected::after {
-            content: '✓';
+            content: '\f00c'; /* FontAwesome Check Icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
             position: absolute;
             top: 10px;
             right: 10px;
@@ -457,6 +478,7 @@
             font-weight: bold;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             z-index: 10;
+            font-size: 14px;
         }
 
         .check-overlay {
@@ -528,16 +550,22 @@
         }
 
         .btn-icon-action {
-            padding: 6px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
             border-radius: 4px;
             border: none;
             cursor: pointer;
             color: white;
             transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
         }
         .btn-icon-action:hover {
             opacity: 0.9;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
 
         /* ==========================================================================
@@ -560,10 +588,13 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 30px;
             cursor: pointer;
             font-family: 'Sarabun';
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .btn-primary {
@@ -575,6 +606,10 @@
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary:hover {
@@ -589,9 +624,30 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .btn-bulk-delete { background: var(--danger-color); }
         .btn-bulk-restore { background: var(--primary-color); }
+        
+        .btn-nav {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Sarabun';
+            font-weight: 500;
+            transition: all 0.2s;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-nav:hover {
+            background: #f0f0f0;
+        }
 
         /* Pagination */
         .pagination-container {
@@ -613,6 +669,9 @@
             font-family: 'Sarabun';
             font-weight: 500;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .btn-page:hover:not(:disabled) {
@@ -750,7 +809,7 @@
             border-color: #fecaca;
         }
 
-        /* 🔥 Log Table Badges (Pastel Colors) */
+        /* 🔥 Log Table Badges (Pastel Colors + Icons) */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -960,7 +1019,7 @@
 
     <div class="mobile-nav">
         <div style="display:flex; align-items:center; gap:15px;">
-            <button class="hamburger" onclick="toggleSidebar()">☰</button>
+            <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <span style="font-weight:bold; font-size:18px;">Admin Panel</span>
         </div>
     </div>
@@ -968,10 +1027,10 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:24px;">📸</span>
+                <span style="font-size:24px;"><i class="fas fa-camera-retro"></i></span>
                 <h2>Admin Panel</h2>
             </div>
-            <button class="close-btn" onclick="toggleSidebar()">✕</button>
+            <button class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         </div>
 
         <div class="menu-items">
@@ -979,11 +1038,11 @@
                 <p>เข้าสู่ระบบโดย:</p>
                 <span id="showUsername">...</span>
             </div>
-            <a href="index.html" target="_blank" class="menu-link">🔗 ไปหน้าแกลเลอรี</a>
+            <a href="index.html" target="_blank" class="menu-link"><i class="fas fa-external-link-alt"></i> ไปหน้าแกลเลอรี</a>
 
             <div style="margin-top: auto;">
-                <button onclick="openProfileSettings()" class="btn-profile">⚙️ ตั้งค่าข้อมูลส่วนตัว</button>
-                <button onclick="logout()" class="btn-logout">ออกจากระบบ</button>
+                <button onclick="openProfileSettings()" class="btn-profile"><i class="fas fa-cog"></i> ตั้งค่าข้อมูลส่วนตัว</button>
+                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
             </div>
         </div>
     </div>
@@ -992,14 +1051,17 @@
 
         <div class="stats-grid">
             <div class="stat-card" style="border-left: 5px solid #3498db;">
+                <div class="stat-icon" style="position:absolute; right:20px; top:20px; color:#3498db; opacity:0.2; font-size:40px;"><i class="fas fa-images"></i></div>
                 <div class="stat-label">รูปทั้งหมด</div>
                 <div class="stat-number" id="statTotal">0</div>
             </div>
             <div class="stat-card" style="border-left: 5px solid #2ecc71;">
+                <div class="stat-icon" style="position:absolute; right:20px; top:20px; color:#2ecc71; opacity:0.2; font-size:40px;"><i class="fas fa-folder"></i></div>
                 <div class="stat-label">หมวดหมู่</div>
                 <div class="stat-number" id="statCats">0</div>
             </div>
             <div class="stat-card admin-only" style="border-left: 5px solid #e74c3c;">
+                <div class="stat-icon" style="position:absolute; right:20px; top:20px; color:#e74c3c; opacity:0.2; font-size:40px;"><i class="fas fa-trash"></i></div>
                 <div class="stat-label">ในถังขยะ</div>
                 <div class="stat-number" id="statTrash">0</div>
             </div>
@@ -1007,8 +1069,8 @@
 
         <div class="card admin-only" style="border-top: 5px solid #9b59b6;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
-                <h3 style="border:none; margin:0; padding:0;">💾 พื้นที่จัดเก็บข้อมูล (Cloudinary)</h3>
-                <button onclick="loadStorageStats()" style="cursor:pointer; padding:8px 15px; border:1px solid #ddd; border-radius:4px; background:#fff; font-weight:500;">🔄 รีเฟรช</button>
+                <h3><i class="fas fa-hdd"></i> พื้นที่จัดเก็บข้อมูล (Cloudinary)</h3>
+                <button onclick="loadStorageStats()" class="btn-nav"><i class="fas fa-sync"></i> รีเฟรช</button>
             </div>
             
             <div style="background:#f8f9fa; padding:25px; border-radius:12px; margin-bottom:25px;">
@@ -1043,7 +1105,7 @@
             </div>
 
             <div>
-                <h4 style="color:#666; margin-bottom:15px; font-size:16px; font-weight:600;">⏱️ กิจกรรมที่อัปเดตล่าสุด</h4>
+                <h4 style="color:#666; margin-bottom:15px; font-size:16px; font-weight:600;"><i class="fas fa-clock"></i> กิจกรรมที่อัปเดตล่าสุด</h4>
                 <div id="topCategoriesList" style="max-height:300px; overflow-y:auto; padding-right:5px;">
                     <p style="text-align:center; color:#999; padding:20px;">กำลังโหลด...</p>
                 </div>
@@ -1056,19 +1118,19 @@
         </div>
 
         <div class="card">
-            <h3>🚀 อัปโหลดรูปภาพกิจกรรม</h3>
+            <h3><i class="fas fa-cloud-upload-alt"></i> อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
                     <div>
                         <label><b>1. ชื่อกิจกรรม</b></label>
-                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม หรือเลือกจากรายการ..." required>
+                        <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required>
                         <datalist id="categoryList"></datalist>
                     </div>
                     <div>
                         <label><b>2. เลือกรูปภาพ</b></label>
                         <div class="file-upload-wrapper">
                             <div id="uploadPlaceholder" style="text-align: center;">
-                                <span class="upload-icon">📷</span>
+                                <span class="upload-icon"><i class="fas fa-images"></i></span>
                                 <div class="upload-text">คลิกเพื่อเลือกรูป / ถ่ายภาพ</div>
                                 <span style="font-size:13px; color:#7f8c8d; margin-top:5px; display:block;">(เลือกได้สูงสุด 30 รูปต่อครั้ง)</span>
                             </div>
@@ -1077,26 +1139,28 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%; margin-top:25px; padding:15px; font-size:18px; border-radius:8px;">📤 อัปโหลดทันที</button>
+                <button type="submit" class="btn-primary" style="width:100%; margin-top:25px; padding:15px; font-size:18px; border-radius:8px;">
+                    <i class="fas fa-upload"></i> อัปโหลดทันที
+                </button>
             </form>
         </div>
 
         <div class="card" style="border-top: 5px solid #2c3e50;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 id="photoSectionTitle" style="border:none; margin:0; padding:0;">📚 จัดการรูปภาพ (แก้ไข/ลบ)</h3>
+                <h3><i class="fas fa-images"></i> จัดการรูปภาพ (แก้ไข/ลบ)</h3>
             </div>
             
             <div class="search-toolbar">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป หรือ ชื่อคนอัปโหลด...">
-                <select id="filterCategory" class="filter-select">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาชื่อรูป..." style="flex:1; border-radius:30px; padding-left:20px;">
+                <select id="filterCategory" class="filter-select" style="width:auto;">
                     <option value="">📁 ทุกหมวดหมู่</option>
                 </select>
-                <button onclick="loadApprovedPhotos(1)" class="btn-search">ค้นหา</button>
+                <button onclick="loadApprovedPhotos(1)" class="btn-search"><i class="fas fa-search"></i> ค้นหา</button>
             </div>
 
-            <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllApproved" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
-                <div><button onclick="bulkDelete()" class="btn-bulk-delete">🗑️ ลบที่เลือก</button></div>
+            <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none; justify-content:space-between;">
+                <button type="button" id="btnSelectAllApproved" class="btn-nav"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
+                <button onclick="bulkDelete()" class="btn-bulk-delete"><i class="fas fa-trash"></i> ลบที่เลือก</button>
             </div>
 
             <div id="approvedList" class="approval-grid">
@@ -1104,23 +1168,23 @@
             </div>
 
             <div class="pagination-container" id="paginationControls" style="display:none;">
-                <button onclick="changePage(-1)" class="btn-page" id="btnPrev">⬅️ ก่อนหน้า</button>
+                <button onclick="changePage(-1)" class="btn-page" id="btnPrev"><i class="fas fa-chevron-left"></i> ก่อนหน้า</button>
                 <span id="pageIndicator" style="font-size: 16px;">หน้า 1</span>
-                <button onclick="changePage(1)" class="btn-page" id="btnNext">ถัดไป ➡️</button>
+                <button onclick="changePage(1)" class="btn-page" id="btnNext">ถัดไป <i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="border:none; margin:0; padding:0;">🗑️ ถังขยะ (กู้คืนได้)</h3>
-                <button onclick="loadTrash()" style="cursor:pointer; padding:8px 15px; border:1px solid #ddd; border-radius:4px; background:#fff;">🔄 รีเฟรช</button>
+                <h3><i class="fas fa-trash-alt"></i> ถังขยะ (กู้คืนได้)</h3>
+                <button onclick="loadTrash()" class="btn-nav"><i class="fas fa-sync"></i> รีเฟรช</button>
             </div>
             
-            <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllTrash" class="btn-primary" style="background:#34495e;">เลือกทั้งหมด</button>
+            <div class="bulk-toolbar" id="trashToolbar" style="display:none; justify-content:space-between;">
+                <button type="button" id="btnSelectAllTrash" class="btn-nav"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
                 <div>
-                    <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">♻️ กู้คืน</button>
-                    <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">💥 ลบถาวร</button>
+                    <button onclick="bulkRestoreTrash()" class="btn-bulk-restore"><i class="fas fa-trash-restore"></i> กู้คืน</button>
+                    <button onclick="bulkDeleteTrash()" class="btn-bulk-delete"><i class="fas fa-times-circle"></i> ลบถาวร</button>
                 </div>
             </div>
 
@@ -1130,7 +1194,7 @@
         </div>
 
         <div class="card admin-only">
-            <h3>📝 ประวัติการใช้งาน (Logs)</h3>
+            <h3><i class="fas fa-history"></i> ประวัติการใช้งาน (Logs)</h3>
             <div style="overflow-x: auto;">
                 <table class="log-table">
                     <thead>
@@ -1147,17 +1211,17 @@
                 </table>
             </div>
             <div class="pagination-container" id="logPaginationControls" style="display:none; margin-top:20px;">
-                <button onclick="changeLogPage(-1)" class="btn-page" id="btnLogPrev" disabled>⬅️ ก่อนหน้า</button>
+                <button onclick="changeLogPage(-1)" class="btn-page" id="btnLogPrev" disabled><i class="fas fa-chevron-left"></i> ก่อนหน้า</button>
                 <span id="logPageIndicator" style="margin:0 15px;">หน้า 1</span>
-                <button onclick="changeLogPage(1)" class="btn-page" id="btnLogNext">ถัดไป ➡️</button>
+                <button onclick="changeLogPage(1)" class="btn-page" id="btnLogNext">ถัดไป <i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                <h3 style="border:none; margin:0; padding:0;">👥 จัดการเจ้าหน้าที่</h3>
+                <h3><i class="fas fa-users-cog"></i> จัดการเจ้าหน้าที่</h3>
                 <button onclick="openAddUserModal()" class="btn-primary" style="background:#8e44ad; width:auto; display:flex; align-items:center; gap:8px; padding: 10px 25px; border-radius: 30px; box-shadow: 0 4px 6px rgba(142, 68, 173, 0.2);">
-                    <span style="font-size:20px; line-height: 1;">+</span> เพิ่มเจ้าหน้าที่
+                    <span style="font-size:20px; line-height: 1;"><i class="fas fa-user-plus"></i></span> เพิ่มเจ้าหน้าที่
                 </button>
             </div>
 
@@ -1423,18 +1487,18 @@
                         <input type="checkbox" class="check-overlay trash-check" value="${id}">
                         <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
                         <div class="trash-actions">
-                            <button onclick="evt(event,restorePhoto,${id})" class="btn-trash-action btn-trash-restore">♻️ กู้คืน</button>
-                            <button onclick="evt(event,permanentDelete,${id})" class="btn-trash-action btn-trash-delete">💥 ลบถาวร</button>
+                            <button onclick="evt(event,restorePhoto,${id})" class="btn-trash-action btn-trash-restore"><i class="fas fa-trash-restore"></i> กู้คืน</button>
+                            <button onclick="evt(event,permanentDelete,${id})" class="btn-trash-action btn-trash-delete"><i class="fas fa-times-circle"></i> ลบถาวร</button>
                         </div>
                     </div>`;
                 } else {
                     // GALLERY DESIGN
                     let btns = '';
                     if (user.role === 'admin') {
-                        btns = `<button onclick="evt(event,copyLink,'${url}')" class="btn-icon-action" style="background:#3498db;" title="คัดลอกลิงก์">🔗</button>
-                                <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-icon-action" style="background:#f39c12;" title="แก้ไข">📝</button>
-                                <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-icon-action" style="background:#9b59b6;" title="เปลี่ยนชื่อ">✏️</button>
-                                <button onclick="evt(event,softDelete,${id})" class="btn-icon-action" style="background:#e74c3c;" title="ลบ">🗑️</button>`;
+                        btns = `<button onclick="evt(event,copyLink,'${url}')" class="btn-icon-action" style="background:#3498db;" title="คัดลอกลิงก์"><i class="fas fa-link"></i></button>
+                                <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-icon-action" style="background:#f39c12;" title="แก้ไข"><i class="fas fa-pen"></i></button>
+                                <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-icon-action" style="background:#9b59b6;" title="เปลี่ยนชื่อ"><i class="fas fa-font"></i></button>
+                                <button onclick="evt(event,softDelete,${id})" class="btn-icon-action" style="background:#e74c3c;" title="ลบ"><i class="fas fa-trash"></i></button>`;
                     }
                     const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay approved-check" value="${id}">` : '';
                     html = `<div class="approval-item" onclick="toggleSel(this)" data-id="${id}">
@@ -1540,13 +1604,13 @@
 
             show.forEach(l => {
                 let badgeClass = 'bg-other'; 
-                let icon = '📝';
+                let icon = '<i class="fas fa-file-alt"></i>';
                 const act = l.action.toLowerCase();
                 
-                if(act.includes('login')) { badgeClass='bg-login'; icon='🔑'; }
-                else if(act.includes('upload')) { badgeClass='bg-upload'; icon='📤'; }
-                else if(act.includes('delete')) { badgeClass='bg-delete'; icon='🗑️'; }
-                else if(act.includes('edit') || act.includes('update')) { badgeClass='bg-edit'; icon='✏️'; }
+                if(act.includes('login')) { badgeClass='bg-login'; icon='<i class="fas fa-key"></i>'; }
+                else if(act.includes('upload')) { badgeClass='bg-upload'; icon='<i class="fas fa-cloud-upload-alt"></i>'; }
+                else if(act.includes('delete')) { badgeClass='bg-delete'; icon='<i class="fas fa-trash"></i>'; }
+                else if(act.includes('edit') || act.includes('update')) { badgeClass='bg-edit'; icon='<i class="fas fa-pen"></i>'; }
 
                 tb.innerHTML += `<tr>
                     <td>${new Date(l.created_at).toLocaleString('th-TH')}</td>
@@ -1604,9 +1668,9 @@
                     <td><span class="role-badge ${badgeClass}">${x.role.toUpperCase()}</span></td>
                     <td>
                         <div class="action-btn-group">
-                            <button class="btn-icon" onclick="changeUsername(${x.user_id},'${x.username}')" title="แก้ไขชื่อ">✏️</button>
-                            <button class="btn-icon" onclick="resetPass(${x.user_id})" title="เปลี่ยนรหัส">🔒</button>
-                            <button class="btn-icon delete" onclick="deleteUser(${x.user_id})" title="ลบผู้ใช้">🗑️</button>
+                            <button class="btn-icon" onclick="changeUsername(${x.user_id},'${x.username}')" title="แก้ไขชื่อ"><i class="fas fa-pen"></i></button>
+                            <button class="btn-icon" onclick="resetPass(${x.user_id})" title="เปลี่ยนรหัส"><i class="fas fa-lock"></i></button>
+                            <button class="btn-icon delete" onclick="deleteUser(${x.user_id})" title="ลบผู้ใช้"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>`;
