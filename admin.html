@@ -20,10 +20,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* ==========================================================================
-           1. CORE STYLES & VARIABLES
-           ========================================================================== */
+        /* 1. ROOT VARIABLES */
         :root {
+            /* Theme Colors */
             --primary-color: #3498db;
             --primary-dark: #2980b9;
             --secondary-color: #2c3e50;
@@ -31,17 +30,23 @@
             --warning-color: #f39c12;
             --danger-color: #c0392b;
             --danger-dark: #a93226;
+            
+            /* Backgrounds */
             --light-bg: #f8f9fa;
             --white: #ffffff;
+            
+            /* Typography */
             --text-dark: #333333;
             --text-muted: #7f8c8d;
-            --border-color: #e0e0e0;
             
-            --sidebar-width: 260px;
+            /* UI Elements */
+            --border-color: #e0e0e0;
             --card-radius: 12px;
             --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --sidebar-width: 260px;
         }
 
+        /* 2. RESET & BASE STYLES */
         * {
             box-sizing: border-box;
             outline: none;
@@ -57,9 +62,7 @@
             color: var(--text-dark);
         }
 
-        /* ==========================================================================
-           2. SIDEBAR NAVIGATION
-           ========================================================================== */
+        /* 3. SIDEBAR NAVIGATION */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--secondary-color);
@@ -117,7 +120,7 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .user-info p {
@@ -150,6 +153,11 @@
 
         .menu-link:hover {
             background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-link i {
+            width: 24px;
+            text-align: center;
         }
 
         .sidebar-footer {
@@ -202,9 +210,7 @@
             background-color: var(--danger-dark);
         }
 
-        /* ==========================================================================
-           3. MAIN CONTENT AREA
-           ========================================================================== */
+        /* 4. MAIN CONTENT LAYOUT */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -212,7 +218,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Mobile Header Navigation */
+        /* Mobile Nav */
         .mobile-nav {
             display: none;
             background-color: var(--secondary-color);
@@ -246,9 +252,7 @@
             backdrop-filter: blur(2px);
         }
 
-        /* ==========================================================================
-           4. CARDS & LAYOUTS
-           ========================================================================== */
+        /* 5. CARDS & WIDGETS */
         .card {
             background: var(--white);
             padding: 30px;
@@ -271,11 +275,10 @@
             gap: 10px;
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 30px;
         }
 
@@ -316,9 +319,7 @@
             font-weight: 500;
         }
 
-        /* ==========================================================================
-           5. FORMS & INPUTS
-           ========================================================================== */
+        /* 6. FORMS & INPUTS */
         label {
             font-weight: 600;
             display: block;
@@ -347,11 +348,11 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        /* File Upload */
+        /* File Upload Area */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
-            min-height: 150px;
+            min-height: 160px;
             height: auto;
             border: 2px dashed var(--primary-color);
             border-radius: 12px;
@@ -389,7 +390,6 @@
             font-size: 16px;
         }
 
-        /* Preview Grid */
         .preview-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -409,9 +409,9 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* ==========================================================================
-           6. PHOTO MANAGEMENT & TRASH (ดีไซน์ใหม่)
-           ========================================================================== */
+        /* =========================================
+           7. GALLERY & TRASH (THE DESIGN YOU WANTED)
+           ========================================= */
         .approval-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -431,6 +431,8 @@
             transition: all 0.2s;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .approval-item:hover {
@@ -440,7 +442,7 @@
 
         .approval-item img {
             width: 100%;
-            height: 150px;
+            height: 160px; /* Fixed Height */
             object-fit: cover;
             border-radius: 8px;
             pointer-events: none;
@@ -462,7 +464,7 @@
         }
 
         .approval-item.selected::after {
-            content: '\f00c';
+            content: '\f00c'; /* FontAwesome Check */
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
@@ -485,24 +487,25 @@
             display: none;
         }
 
-        /* --- 🔥 TRASH ITEM DESIGN (ดีไซน์ใหม่) --- */
+        /* --- 🔥 TRASH ITEM DESIGN (MINIMAL & RED) --- */
         .approval-item.trash-item {
-            border: 2px dashed #ffb7b2; /* ขอบสีส้มแดงอ่อนๆ */
+            border: 2px dashed #ffb7b2; /* เส้นประสีแดงอ่อน */
             background-color: #fffbfb;  /* พื้นหลังชมพูจางๆ */
             position: relative;
         }
         
         .approval-item.trash-item img {
-            filter: grayscale(100%); /* ทำรูปเป็นขาวดำ */
+            filter: grayscale(100%); /* ขาวดำ */
             opacity: 0.85;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
 
         .approval-item.trash-item:hover img {
-            filter: grayscale(0%); /* คืนสีเมื่อเอาเมาส์ชี้ */
+            filter: grayscale(0%); /* คืนสี */
             opacity: 1;
         }
 
+        /* Deleted Badge */
         .deleted-badge {
             position: absolute;
             top: 15px;
@@ -519,12 +522,13 @@
             letter-spacing: 0.5px;
         }
 
-        /* ปุ่มจัดการในถังขยะ (Restore / Delete Forever) */
+        /* Trash Actions (Large Buttons) */
         .trash-actions {
             display: flex;
             gap: 8px;
             margin-top: 12px;
             padding: 5px;
+            margin-top: auto;
         }
 
         .btn-trash-action {
@@ -540,44 +544,52 @@
             align-items: center;
             justify-content: center;
             gap: 5px;
-            transition: 0.2s;
+            transition: all 0.2s;
             font-family: 'Sarabun', sans-serif;
+            background: white; /* Default bg for outline feel */
         }
 
+        /* ปุ่มกู้คืน (สีฟ้า) */
         .btn-trash-restore {
-            background-color: #3498db; /* ฟ้า */
+            border: 1px solid #3498db;
+            color: #3498db;
         }
         .btn-trash-restore:hover {
-            background-color: #2980b9;
+            background-color: #3498db;
+            color: white;
         }
 
+        /* ปุ่มลบถาวร (สีแดง) */
         .btn-trash-delete {
-            background-color: #e74c3c; /* แดง */
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
         }
         .btn-trash-delete:hover {
-            background-color: #c0392b;
+            background-color: #e74c3c;
+            color: white;
         }
 
-        /* --- Gallery Buttons (Normal) --- */
+        /* --- Gallery Action Buttons (Normal) --- */
         .gallery-actions {
-            padding: 10px;
+            margin-top: 10px;
             display: flex;
             justify-content: center;
-            gap: 5px;
+            gap: 4px;
+            margin-top: auto;
         }
 
         .btn-icon-action {
             width: 32px;
             height: 32px;
             padding: 0;
-            border-radius: 4px;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
             color: white;
-            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: 0.2s;
             font-size: 14px;
         }
         .btn-icon-action:hover {
@@ -586,18 +598,19 @@
         }
 
         /* ==========================================================================
-           7. TOOLBARS & BUTTONS (เครื่องมือและปุ่ม)
+           8. TOOLBARS & BUTTONS
            ========================================================================== */
         .bulk-toolbar, .search-toolbar {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 15px;
             flex-wrap: wrap;
             margin-bottom: 20px;
             background: #f8f9fa;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
-            align-items: center;
         }
 
         .btn-search {
@@ -605,11 +618,13 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 30px;
             cursor: pointer;
             font-family: 'Sarabun';
             font-weight: 500;
-            display: flex; align-items: center; gap: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .btn-primary {
@@ -621,26 +636,49 @@
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-
         .btn-primary:hover {
             filter: brightness(1.1);
         }
 
-        .btn-bulk-delete, .btn-bulk-restore {
+        /* Bulk Action Buttons (Right Side) */
+        .bulk-actions-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-bulk-restore {
+            background-color: #3498db;
             color: white;
             padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-family: 'Sarabun';
             font-weight: 600;
-            display: flex; align-items: center; gap: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .btn-bulk-delete { background: var(--danger-color); }
-        .btn-bulk-restore { background: var(--primary-color); }
-        
+
+        .btn-bulk-delete {
+            background-color: #c0392b;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Sarabun';
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .btn-nav {
             padding: 8px 16px;
             border: 1px solid #ddd;
@@ -651,7 +689,9 @@
             font-weight: 500;
             transition: all 0.2s;
             color: #555;
-            display: flex; align-items: center; gap: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .btn-nav:hover {
             background: #f0f0f0;
@@ -677,7 +717,9 @@
             font-family: 'Sarabun';
             font-weight: 500;
             transition: all 0.2s;
-            display: flex; align-items: center; gap: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .btn-page:hover:not(:disabled) {
@@ -699,7 +741,7 @@
         }
 
         /* ==========================================================================
-           8. TABLES (USER & LOGS) - (Design Updated)
+           9. TABLES (CLEAN DESIGN + PASTEL BADGES)
            ========================================================================== */
         .user-table, .log-table {
             width: 100%;
@@ -709,7 +751,7 @@
             background: white;
         }
 
-        /* 🔥 Table Header Design */
+        /* Table Header */
         .user-table th, .log-table th {
             padding: 15px;
             border-bottom: 2px solid var(--border-color);
@@ -718,9 +760,10 @@
             color: #444;
             font-weight: 600;
             text-transform: uppercase;
-            background: #f8f9fa; /* สีเทาอ่อน */
+            background: #f8f9fa; /* สีเทาอ่อนตามรูป */
         }
 
+        /* Table Body */
         .user-table td, .log-table td {
             padding: 15px;
             border-bottom: 1px solid var(--border-color);
@@ -732,6 +775,23 @@
         .user-row:hover, .log-row:hover {
             background-color: #f9fafb;
         }
+
+        /* 🔥 Pastel Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+        .bg-login { background-color: #e8f5e9; color: #166534; border-color: #bbf7d0; } /* เขียว */
+        .bg-upload { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; } /* ฟ้า */
+        .bg-delete { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; } /* แดง */
+        .bg-edit { background-color: #fff7ed; color: #9a3412; border-color: #fed7aa; }   /* ส้ม */
+        .bg-other { background-color: #f3f4f6; color: #374151; border-color: #e5e7eb; }   /* เทา */
 
         /* User Table Specifics */
         .user-cell {
@@ -801,39 +861,24 @@
             font-size: 14px;
             color: var(--text-muted);
         }
+
         .btn-icon:hover {
             background: #f0f0f0;
             color: var(--text-dark);
             transform: translateY(-2px);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
+
         .btn-icon.delete:hover {
             background: #fee2e2;
             color: var(--danger-color);
             border-color: #fecaca;
         }
 
-        /* 🔥 Log Table Badges (Pastel Colors) */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            border: 1px solid transparent;
-        }
-        .bg-login { background-color: #e8f5e9; color: #166534; border-color: #bbf7d0; } /* เขียว */
-        .bg-upload { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; } /* ฟ้า */
-        .bg-delete { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; } /* แดง */
-        .bg-edit { background-color: #fff7ed; color: #9a3412; border-color: #fed7aa; }   /* ส้ม */
-        .bg-other { background-color: #f3f4f6; color: #374151; border-color: #e5e7eb; }   /* เทา */
-
-
         /* ==========================================================================
-           9. MODALS & POPUPS (Custom Design)
+           10. POPUP MODALS (CUSTOM STYLE)
            ========================================================================== */
+        /* Image Viewer */
         .modal {
             display: none;
             position: fixed;
@@ -944,7 +989,7 @@
         }
 
         /* ==========================================================================
-           10. MOBILE RESPONSIVE
+           11. MOBILE RESPONSIVE
            ========================================================================== */
         @media (max-width: 768px) {
             body {
@@ -989,6 +1034,16 @@
             .bulk-toolbar, .search-toolbar {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            
+            .bulk-actions-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .btn-bulk-restore, .btn-bulk-delete {
+                flex: 1;
+                justify-content: center;
             }
 
             .card {
@@ -1124,7 +1179,7 @@
         <div class="card">
             <h3><i class="fas fa-cloud-upload-alt"></i> อัปโหลดรูปภาพกิจกรรม</h3>
             <form id="uploadForm">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
                     <div>
                         <label><b>1. ชื่อกิจกรรม</b></label>
                         <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..." required>
@@ -1184,9 +1239,9 @@
                 <button onclick="loadTrash()" class="btn-page"><i class="fas fa-sync"></i> รีเฟรช</button>
             </div>
             
-            <div class="bulk-toolbar" id="trashToolbar" style="display:none; justify-content:space-between;">
+            <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
                 <button type="button" id="btnSelectAllTrash" class="btn-nav"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
-                <div>
+                <div class="bulk-actions-right">
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore"><i class="fas fa-trash-restore"></i> กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete"><i class="fas fa-times-circle"></i> ลบถาวร</button>
                 </div>
