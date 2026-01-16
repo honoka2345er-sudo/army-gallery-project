@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -36,7 +36,6 @@
             --text-dark: #333333;
             --text-muted: #7f8c8d;
             --border-color: #e0e0e0;
-            
             --sidebar-width: 260px;
             --card-radius: 12px;
             --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -88,7 +87,7 @@
 
         .sidebar-header h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -117,7 +116,7 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .user-info p {
@@ -170,11 +169,7 @@
             font-weight: 600;
             width: 100%;
             transition: background 0.2s;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
         .btn-profile:hover {
@@ -192,10 +187,7 @@
             font-weight: 600;
             width: 100%;
             transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
         .btn-logout:hover {
@@ -212,7 +204,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Mobile Header Navigation */
         .mobile-nav {
             display: none;
             background-color: var(--secondary-color);
@@ -251,7 +242,7 @@
            ========================================================================== */
         .card {
             background: var(--white);
-            padding: 30px;
+            padding: 25px;
             border-radius: var(--card-radius);
             box-shadow: var(--card-shadow);
             margin-bottom: 30px;
@@ -263,7 +254,7 @@
             padding-bottom: 15px;
             color: var(--secondary-color);
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 20px;
             font-weight: 700;
             display: flex;
@@ -271,7 +262,6 @@
             gap: 10px;
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -293,7 +283,7 @@
         .stat-card:hover {
             transform: translateY(-3px);
         }
-        
+
         .stat-icon {
             position: absolute;
             top: 20px;
@@ -303,8 +293,8 @@
         }
 
         .stat-number {
-            font-size: 42px;
-            font-weight: 800;
+            font-size: 40px;
+            font-weight: 700;
             margin: 15px 0;
             color: var(--text-dark);
         }
@@ -346,7 +336,6 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        /* File Upload */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -362,7 +351,7 @@
             cursor: pointer;
             flex-direction: column;
             transition: 0.3s;
-            padding: 30px;
+            padding: 20px;
         }
 
         .file-upload-wrapper:hover {
@@ -388,7 +377,6 @@
             font-size: 16px;
         }
 
-        /* Preview Grid */
         .preview-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -409,7 +397,7 @@
         }
 
         /* ==========================================================================
-           6. PHOTO MANAGEMENT & TRASH (ดีไซน์ใหม่)
+           6. GALLERY MANAGEMENT
            ========================================================================== */
         .approval-grid {
             display: grid;
@@ -418,7 +406,6 @@
             margin-top: 20px;
         }
 
-        /* --- Normal Gallery Item --- */
         .approval-item {
             border: 1px solid var(--border-color);
             padding: 10px;
@@ -430,6 +417,8 @@
             transition: all 0.2s;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .approval-item:hover {
@@ -439,7 +428,7 @@
 
         .approval-item img {
             width: 100%;
-            height: 160px;
+            height: 160px; /* Fixed height standard */
             object-fit: cover;
             border-radius: 8px;
             pointer-events: none;
@@ -461,7 +450,7 @@
         }
 
         .approval-item.selected::after {
-            content: '\f00c'; /* FontAwesome Check Icon */
+            content: '\f00c'; /* FontAwesome Check */
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
@@ -478,98 +467,104 @@
             font-weight: bold;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             z-index: 10;
-            font-size: 14px;
         }
 
         .check-overlay {
             display: none;
         }
 
-        /* --- 🔥 TRASH ITEM DESIGN (ดีไซน์ใหม่) --- */
+        /* ==========================================================================
+           🔥 TRASH DESIGN (MINIMAL & INTERACTIVE) 🔥
+           ========================================================================== */
+        /* ตัวการ์ดในถังขยะ */
         .approval-item.trash-item {
-            border: 2px solid #fab1a0; /* ขอบสีส้มแดงอ่อนๆ */
-            background-color: #fff5f5; /* พื้นหลังชมพูจางๆ */
+            border: 2px dashed #ffb7b2; /* เส้นประสีแดงอ่อน */
+            background-color: #fffbfb;  /* พื้นหลังขาวอมชมพูจางๆ */
+            position: relative;
+        }
+
+        /* รูปภาพในถังขยะ (ขาวดำ) */
+        .approval-item.trash-item img {
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.3s ease;
         }
         
-        .approval-item.trash-item img {
-            filter: grayscale(100%); /* ทำรูปเป็นขาวดำ */
-            opacity: 0.85;
-            transition: 0.3s;
-        }
-
+        /* เมื่อเอาเมาส์ชี้ รูปกลับมาเป็นสี */
         .approval-item.trash-item:hover img {
-            filter: grayscale(0%); /* คืนสีเมื่อเอาเมาส์ชี้ */
+            filter: grayscale(0%);
             opacity: 1;
+            transform: scale(1.05);
         }
 
-        /* ปุ่มจัดการในถังขยะ (Restore / Delete Forever) */
+        /* ป้าย DELETED มุมซ้ายบน */
+        .deleted-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(231, 76, 60, 0.9); /* สีแดงเข้ม */
+            color: white;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 800;
+            z-index: 5;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
+        }
+
+        /* พื้นที่ปุ่มด้านล่าง (แยกส่วนชัดเจน) */
         .trash-actions {
+            margin-top: auto;
+            padding-top: 10px;
             display: flex;
             gap: 8px;
-            margin-top: 12px;
-            padding: 5px;
+            border-top: 1px solid #f0e0e0;
         }
 
+        /* ปุ่มในถังขยะ (Outline Style Minimal) */
         .btn-trash-action {
             flex: 1;
-            border: none;
             padding: 8px;
             border-radius: 6px;
-            color: white;
             font-size: 13px;
-            cursor: pointer;
             font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-            transition: 0.2s;
-            font-family: 'Sarabun', sans-serif;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: 'Sarabun';
+            background: white;
         }
 
+        /* ปุ่มกู้คืน (สีฟ้า) */
         .btn-trash-restore {
-            background-color: #3498db; /* ฟ้า */
+            border: 1px solid #3498db;
+            color: #3498db;
         }
         .btn-trash-restore:hover {
-            background-color: #2980b9;
+            background-color: #3498db;
+            color: white;
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
         }
 
+        /* ปุ่มลบถาวร (สีแดง) */
         .btn-trash-delete {
-            background-color: #e74c3c; /* แดง */
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
         }
         .btn-trash-delete:hover {
-            background-color: #c0392b;
-        }
-
-        /* --- Gallery Buttons (Normal) --- */
-        .gallery-actions {
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .btn-icon-action {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
+            background-color: #e74c3c;
             color: white;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
         }
-        .btn-icon-action:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
+
 
         /* ==========================================================================
-           7. TOOLBARS & BUTTONS (เครื่องมือและปุ่ม)
+           7. TOOLBARS & BUTTONS
            ========================================================================== */
         .bulk-toolbar, .search-toolbar {
             display: flex;
@@ -588,13 +583,11 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 6px;
             cursor: pointer;
             font-family: 'Sarabun';
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            display: flex; align-items: center; gap: 5px;
         }
 
         .btn-primary {
@@ -606,14 +599,38 @@
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
         .btn-primary:hover {
             filter: brightness(1.1);
+        }
+
+        /* Gallery Standard Buttons */
+        .gallery-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-icon-action {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        .btn-icon-action:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
         }
 
         .btn-bulk-delete, .btn-bulk-restore {
@@ -624,30 +641,10 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            display: flex; align-items: center; gap: 5px;
         }
         .btn-bulk-delete { background: var(--danger-color); }
         .btn-bulk-restore { background: var(--primary-color); }
-        
-        .btn-nav {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Sarabun';
-            font-weight: 500;
-            transition: all 0.2s;
-            color: #555;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .btn-nav:hover {
-            background: #f0f0f0;
-        }
 
         /* Pagination */
         .pagination-container {
@@ -669,9 +666,7 @@
             font-family: 'Sarabun';
             font-weight: 500;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            display: flex; align-items: center; gap: 5px;
         }
 
         .btn-page:hover:not(:disabled) {
@@ -693,7 +688,7 @@
         }
 
         /* ==========================================================================
-           8. TABLES (USER & LOGS) - (Design Updated)
+           8. TABLES (USER & LOGS) - CLEAN DESIGN
            ========================================================================== */
         .user-table, .log-table {
             width: 100%;
@@ -703,16 +698,15 @@
             background: white;
         }
 
-        /* 🔥 Table Header Design */
         .user-table th, .log-table th {
             padding: 15px;
             border-bottom: 2px solid var(--border-color);
             text-align: left;
             font-size: 14px;
-            color: #444;
+            color: #444; /* สีเทาเข้ม */
             font-weight: 600;
             text-transform: uppercase;
-            background: #f8f9fa; /* สีเทาอ่อน */
+            background: #f8f9fa; /* สีพื้นหลังหัวตาราง */
         }
 
         .user-table td, .log-table td {
@@ -726,6 +720,23 @@
         .user-row:hover, .log-row:hover {
             background-color: #f9fafb;
         }
+
+        /* Badges for Logs (Pastel) */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+        .bg-login { background-color: #e8f5e9; color: #166534; border-color: #bbf7d0; } /* เขียว */
+        .bg-upload { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; } /* ฟ้า */
+        .bg-delete { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; } /* แดง */
+        .bg-edit { background-color: #fff7ed; color: #9a3412; border-color: #fed7aa; }   /* ส้ม */
+        .bg-other { background-color: #f3f4f6; color: #374151; border-color: #e5e7eb; }   /* เทา */
 
         /* User Table Specifics */
         .user-cell {
@@ -800,7 +811,6 @@
             background: #f0f0f0;
             color: var(--text-dark);
             transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
         .btn-icon.delete:hover {
@@ -808,23 +818,6 @@
             color: var(--danger-color);
             border-color: #fecaca;
         }
-
-        /* 🔥 Log Table Badges (Pastel Colors + Icons) */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            border: 1px solid transparent;
-        }
-        .bg-login { background-color: #e8f5e9; color: #166534; border-color: #bbf7d0; } /* เขียว */
-        .bg-upload { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; } /* ฟ้า */
-        .bg-delete { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; } /* แดง */
-        .bg-edit { background-color: #fff7ed; color: #9a3412; border-color: #fed7aa; }   /* ส้ม */
-        .bg-other { background-color: #f3f4f6; color: #374151; border-color: #e5e7eb; }   /* เทา */
 
 
         /* ==========================================================================
@@ -870,7 +863,7 @@
             to { transform: scale(1) }
         }
 
-        /* 🔥 Custom SweetAlert2 Styling (Popup เพิ่มเจ้าหน้าที่) */
+        /* 🔥 Custom Popup (Add User) */
         .small-modal-popup {
             width: 450px !important;
             max-width: 90% !important;
@@ -897,12 +890,9 @@
             padding: 0 15px !important;
             box-shadow: none !important;
         }
+        .small-modal-input:focus { border-color: var(--primary-color) !important; }
 
-        .small-modal-input:focus {
-            border-color: var(--primary-color) !important;
-        }
-
-        /* Container for Buttons */
+        /* Container for Equal Buttons */
         .small-modal-actions {
             width: 100% !important;
             display: flex !important;
@@ -911,7 +901,7 @@
             margin-top: 30px !important;
         }
 
-        /* 🔥 ปุ่มบันทึก (สีเขียว) */
+        /* Confirm Button (Green) */
         .swal-btn-confirm {
             flex: 1 !important;
             background-color: #27ae60 !important;
@@ -925,7 +915,7 @@
             box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2) !important;
         }
 
-        /* 🔥 ปุ่มยกเลิก (สีแดง) */
+        /* Cancel Button (Red) */
         .swal-btn-cancel {
             flex: 1 !important;
             background-color: #c0392b !important;
@@ -948,11 +938,7 @@
                 height: auto;
                 overflow: auto;
             }
-
-            .mobile-nav {
-                display: flex;
-            }
-
+            .mobile-nav { display: flex; }
             .sidebar {
                 position: fixed;
                 left: -260px;
@@ -960,50 +946,16 @@
                 height: 100%;
                 box-shadow: 5px 0 15px rgba(0,0,0,0.3);
             }
-
-            .sidebar.active {
-                left: 0;
-            }
-
-            .close-btn {
-                display: block;
-            }
-
-            .main-content {
-                padding: 80px 15px 30px 15px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            #uploadForm > div {
-                grid-template-columns: 1fr !important;
-                gap: 20px !important;
-            }
-
-            .bulk-toolbar, .search-toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .card {
-                padding: 20px;
-                overflow-x: auto;
-            }
-
-            table {
-                min-width: 600px;
-            }
-
-            .modal-content {
-                width: 95%;
-            }
-
-            .approval-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
+            .sidebar.active { left: 0; }
+            .close-btn { display: block; }
+            .main-content { padding: 80px 15px 30px 15px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            #uploadForm > div { grid-template-columns: 1fr !important; gap: 20px !important; }
+            .bulk-toolbar, .search-toolbar { flex-direction: column; align-items: stretch; }
+            .card { padding: 20px; overflow-x: auto; }
+            table { min-width: 600px; }
+            .modal-content { width: 95%; }
+            .approval-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
     </style>
 </head>
@@ -1041,7 +993,7 @@
             <a href="index.html" target="_blank" class="menu-link"><i class="fas fa-external-link-alt"></i> ไปหน้าแกลเลอรี</a>
 
             <div style="margin-top: auto;">
-                <button onclick="openProfileSettings()" class="btn-profile"><i class="fas fa-cog"></i> ตั้งค่าข้อมูลส่วนตัว</button>
+                <button onclick="openProfileSettings()" class="btn-profile"><i class="fas fa-cog"></i> ตั้งค่าส่วนตัว</button>
                 <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
             </div>
         </div>
@@ -1051,17 +1003,17 @@
 
         <div class="stats-grid">
             <div class="stat-card" style="border-left: 5px solid #3498db;">
-                <div class="stat-icon" style="position:absolute; right:20px; top:20px; color:#3498db; opacity:0.2; font-size:40px;"><i class="fas fa-images"></i></div>
+                <div class="stat-icon"><i class="fas fa-images"></i></div>
                 <div class="stat-label">รูปทั้งหมด</div>
                 <div class="stat-number" id="statTotal">0</div>
             </div>
             <div class="stat-card" style="border-left: 5px solid #2ecc71;">
-                <div class="stat-icon" style="position:absolute; right:20px; top:20px; color:#2ecc71; opacity:0.2; font-size:40px;"><i class="fas fa-folder"></i></div>
+                <div class="stat-icon"><i class="fas fa-folder"></i></div>
                 <div class="stat-label">หมวดหมู่</div>
                 <div class="stat-number" id="statCats">0</div>
             </div>
             <div class="stat-card admin-only" style="border-left: 5px solid #e74c3c;">
-                <div class="stat-icon" style="position:absolute; right:20px; top:20px; color:#e74c3c; opacity:0.2; font-size:40px;"><i class="fas fa-trash"></i></div>
+                <div class="stat-icon"><i class="fas fa-trash"></i></div>
                 <div class="stat-label">ในถังขยะ</div>
                 <div class="stat-number" id="statTrash">0</div>
             </div>
@@ -1159,7 +1111,7 @@
             </div>
 
             <div class="bulk-toolbar admin-only" id="approvedToolbar" style="display:none; justify-content:space-between;">
-                <button type="button" id="btnSelectAllApproved" class="btn-nav"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllApproved" class="btn-page"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
                 <button onclick="bulkDelete()" class="btn-bulk-delete"><i class="fas fa-trash"></i> ลบที่เลือก</button>
             </div>
 
@@ -1177,11 +1129,11 @@
         <div class="card admin-only" style="border-top: 5px solid #e74c3c;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3><i class="fas fa-trash-alt"></i> ถังขยะ (กู้คืนได้)</h3>
-                <button onclick="loadTrash()" class="btn-nav"><i class="fas fa-sync"></i> รีเฟรช</button>
+                <button onclick="loadTrash()" class="btn-page"><i class="fas fa-sync"></i> รีเฟรช</button>
             </div>
             
             <div class="bulk-toolbar" id="trashToolbar" style="display:none; justify-content:space-between;">
-                <button type="button" id="btnSelectAllTrash" class="btn-nav"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
+                <button type="button" id="btnSelectAllTrash" class="btn-page"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
                 <div>
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore"><i class="fas fa-trash-restore"></i> กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete"><i class="fas fa-times-circle"></i> ลบถาวร</button>
@@ -1485,10 +1437,15 @@
                     html = `
                     <div class="approval-item trash-item" onclick="toggleSel(this)" data-id="${id}">
                         <input type="checkbox" class="check-overlay trash-check" value="${id}">
+                        <span class="deleted-badge">DELETED</span>
                         <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
                         <div class="trash-actions">
-                            <button onclick="evt(event,restorePhoto,${id})" class="btn-trash-action btn-trash-restore"><i class="fas fa-trash-restore"></i> กู้คืน</button>
-                            <button onclick="evt(event,permanentDelete,${id})" class="btn-trash-action btn-trash-delete"><i class="fas fa-times-circle"></i> ลบถาวร</button>
+                            <button onclick="evt(event,restorePhoto,${id})" class="btn-trash-action btn-trash-restore">
+                                <i class="fas fa-trash-restore"></i> กู้คืน
+                            </button>
+                            <button onclick="evt(event,permanentDelete,${id})" class="btn-trash-action btn-trash-delete">
+                                <i class="fas fa-times"></i> ลบถาวร
+                            </button>
                         </div>
                     </div>`;
                 } else {
@@ -1604,7 +1561,7 @@
 
             show.forEach(l => {
                 let badgeClass = 'bg-other'; 
-                let icon = '<i class="fas fa-file-alt"></i>';
+                let icon = '<i class="fas fa-info-circle"></i>';
                 const act = l.action.toLowerCase();
                 
                 if(act.includes('login')) { badgeClass='bg-login'; icon='<i class="fas fa-key"></i>'; }
