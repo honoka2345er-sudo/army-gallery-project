@@ -999,7 +999,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
             box-sizing: content-box !important;
         }
-        
+
 
         .small-modal-title {
             font-size: 24px !important;
@@ -1009,19 +1009,22 @@
         }
 
         .small-modal-input {
-            margin: 12px auto !important;
+            margin: 10px 0 !important;
             width: 100% !important;
-            font-size: 16px !important;
             height: 48px !important;
             border-radius: 8px !important;
             border: 2px solid #e0e0e0 !important;
-            box-sizing: border-box !important;
             padding: 0 15px !important;
+            box-sizing: border-box !important;
+            /* สำคัญ: ป้องกัน input ล้นกรอบ */
+            font-size: 16px !important;
             box-shadow: none !important;
+            font-family: 'Sarabun', sans-serif !important;
         }
 
         .small-modal-input:focus {
-            border-color: var(--primary-color) !important;
+            border-color: #3498db !important;
+            outline: none !important;
         }
 
         /* Container for Buttons */
@@ -1448,6 +1451,97 @@
         let logsPerPage = 10;
         let currentPage = 1;
         let allUsersData = [];
+        /* --- 🔥 เพิ่มตัวแปรนี้ไว้ส่วนบนของ script (ใต้บรรทัด let allUsersData...) --- */
+        const popupConfig = {
+            customClass: {
+                popup: 'small-modal-popup',
+                title: 'small-modal-title',
+                input: 'small-modal-input',
+                confirmButton: 'swal-btn-confirm',
+                cancelButton: 'swal-btn-cancel',
+                actions: 'small-modal-actions'
+            },
+            buttonsStyling: false, // ปิด Style เดิมของ SweetAlert
+            showCancelButton: true,
+            confirmButtonText: 'บันทึก',
+            cancelButtonText: 'ยกเลิก'
+        };
+
+        /* --- 🔥 แก้ไขฟังก์ชันต่างๆ ให้ใช้ popupConfig --- */
+
+        async function openAddUserModal() {
+            if (user.role !== 'admin') return;
+            const { value } = await Swal.fire({
+                ...popupConfig, // ดึงดีไซน์มาใช้
+                title: 'เพิ่มเจ้าหน้าที่ใหม่',
+                html: `<input id="u" class="swal2-input small-modal-input" placeholder="Username"><input id="p" type="password" class="swal2-input small-modal-input" placeholder="Password"><select id="r" class="swal2-input small-modal-input"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>`,
+                preConfirm: () => [document.getElementById('u').value, document.getElementById('p').value, document.getElementById('r').value]
+            });
+            // ... (ส่วน logic คงเดิม) ...
+            if (value) {
+                // ... code เดิม ...
+                const res = await fetch('/users', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ username: value[0], password: value[1], role: value[2] }) });
+                if (res.ok) { Swal.fire('สำเร็จ', 'เพิ่มแล้ว', 'success'); loadUsers(); } else Swal.fire('ผิดพลาด', 'Error', 'error');
+            }
+        }
+
+        async function changeUsername(id, o) {
+            if (user.role !== 'admin') return;
+            const { value: n } = await Swal.fire({
+                ...popupConfig, // ดึงดีไซน์มาใช้
+                title: 'เปลี่ยนชื่อ Username',
+                input: 'text',
+                inputValue: o
+            });
+
+            if (n) {
+                await fetch(`/users/${id}/username`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ newUsername: n }) });
+                loadUsers();
+            }
+        }
+
+        async function resetPass(id) {
+            if (user.role !== 'admin') return;
+            const { value: p } = await Swal.fire({
+                ...popupConfig, // ดึงดีไซน์มาใช้
+                title: 'ตั้งรหัสผ่านใหม่',
+                input: 'text',
+                inputPlaceholder: 'พิมพ์รหัสใหม่...'
+            });
+
+            if (p) {
+                await fetch(`/users/${id}/reset`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ newPassword: p }) });
+                Swal.fire('สำเร็จ', 'เปลี่ยนรหัสแล้ว', 'success');
+            }
+        }
+
+        async function renamePhoto(id, o) {
+            const { value: n } = await Swal.fire({
+                ...popupConfig, // ดึงดีไซน์มาใช้
+                title: 'เปลี่ยนชื่อไฟล์',
+                input: 'text',
+                inputValue: o
+            });
+
+            if (n) {
+                await fetch(`/photos/${id}/rename`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ new_name: n }) });
+                reload();
+            }
+        }
+
+        async function editDetails(id, c, d) {
+            const { value: f } = await Swal.fire({
+                ...popupConfig, // ดึงดีไซน์มาใช้
+                title: 'แก้ไข',
+                html: `<input id="c" class="swal2-input small-modal-input" value="${c}"><input id="d" type="datetime-local" class="swal2-input small-modal-input" value="${d}">`,
+                preConfirm: () => [document.getElementById('c').value, document.getElementById('d').value]
+            });
+
+            if (f) {
+                await fetch(`/photos/${id}/details`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ category_name: f[0], custom_date: f[1] }) });
+                reload();
+            }
+        }
         const itemsPerPage = 50;
 
         function getAuthHeaders() {
