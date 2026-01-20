@@ -20,9 +20,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* --- Root Variables --- */
+        /* 1. ROOT VARIABLES */
         :root {
-            /* Colors */
+            /* Theme Colors */
             --primary-color: #3498db;
             --primary-dark: #2980b9;
             --secondary-color: #2c3e50;
@@ -35,7 +35,7 @@
             --light-bg: #f8f9fa;
             --white: #ffffff;
             
-            /* Text */
+            /* Typography */
             --text-dark: #333333;
             --text-muted: #7f8c8d;
             
@@ -46,7 +46,7 @@
             --sidebar-width: 260px;
         }
 
-        /* --- Reset & Base Styles --- */
+        /* 2. RESET & BASE STYLES */
         * {
             box-sizing: border-box;
             outline: none;
@@ -62,7 +62,7 @@
             color: var(--text-dark);
         }
 
-        /* --- Sidebar Navigation --- */
+        /* 3. SIDEBAR NAVIGATION */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--secondary-color);
@@ -120,7 +120,7 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .user-info p {
@@ -155,6 +155,11 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
+        .menu-link i {
+            width: 24px;
+            text-align: center;
+        }
+
         .sidebar-footer {
             margin-top: auto;
             display: flex;
@@ -174,6 +179,10 @@
             width: 100%;
             transition: background 0.2s;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-profile:hover {
@@ -191,13 +200,17 @@
             font-weight: 600;
             width: 100%;
             transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-logout:hover {
             background-color: var(--danger-dark);
         }
 
-        /* --- Main Content Area --- */
+        /* 4. MAIN CONTENT LAYOUT */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -205,7 +218,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* --- Mobile Navigation --- */
+        /* Mobile Nav */
         .mobile-nav {
             display: none;
             background-color: var(--secondary-color);
@@ -239,7 +252,7 @@
             backdrop-filter: blur(2px);
         }
 
-        /* --- Cards & Layouts --- */
+        /* 5. CARDS & WIDGETS */
         .card {
             background: var(--white);
             padding: 30px;
@@ -249,13 +262,12 @@
             border: 1px solid var(--border-color);
         }
 
-        /* 🔥 Updated: Reduced Spacing for Card Header */
         .card h3 {
             border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             color: var(--secondary-color);
             margin-top: 0;
-            margin-bottom: 15px; /* Reduced from 25px */
+            margin-bottom: 25px;
             font-size: 20px;
             font-weight: 700;
             display: flex;
@@ -263,7 +275,6 @@
             gap: 10px;
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -291,7 +302,7 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            font-size: 48px;
+            font-size: 40px;
             opacity: 0.1;
         }
 
@@ -308,7 +319,7 @@
             font-weight: 500;
         }
 
-        /* --- Forms & Inputs --- */
+        /* 6. FORMS & INPUTS */
         label {
             font-weight: 600;
             display: block;
@@ -337,7 +348,7 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        /* File Upload */
+        /* File Upload Area */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -370,13 +381,13 @@
         }
 
         .upload-icon {
-            font-size: 56px;
-            margin-bottom: 15px;
+            font-size: 48px;
+            margin-bottom: 10px;
         }
 
         .upload-text {
             font-weight: 600;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .preview-grid {
@@ -398,9 +409,9 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* ==========================================================================
-           6. GALLERY MANAGEMENT
-           ========================================================================== */
+        /* =========================================
+           7. GALLERY & TRASH (THE DESIGN YOU WANTED)
+           ========================================= */
         .approval-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -453,7 +464,7 @@
         }
 
         .approval-item.selected::after {
-            content: '\f00c'; /* FontAwesome Check Icon */
+            content: '\f00c'; /* FontAwesome Check */
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
@@ -476,10 +487,10 @@
             display: none;
         }
 
-        /* --- 🔥 TRASH ITEM DESIGN (NEW & MINIMAL) --- */
+        /* --- 🔥 TRASH ITEM DESIGN (MINIMAL & RED) --- */
         .approval-item.trash-item {
             border: 2px dashed #ffb7b2; /* เส้นประสีแดงอ่อน */
-            background-color: #fffbfb;  /* พื้นหลังขาวอมชมพูจางๆ */
+            background-color: #fffbfb;  /* พื้นหลังชมพูจางๆ */
             position: relative;
         }
         
@@ -490,7 +501,7 @@
         }
 
         .approval-item.trash-item:hover img {
-            filter: grayscale(0%); /* คืนสีเมื่อเอาเมาส์ชี้ */
+            filter: grayscale(0%); /* คืนสี */
             opacity: 1;
         }
 
@@ -515,28 +526,27 @@
         .trash-actions {
             display: flex;
             gap: 8px;
-            margin-top: auto; /* ดันลงล่างสุด */
-            padding-top: 10px;
-            border-top: 1px solid #f0e0e0;
-            width: 100%;
+            margin-top: 12px;
+            padding: 5px;
+            margin-top: auto;
         }
 
-        /* ปุ่มใน Trash Card (Restore/Delete) */
         .btn-trash-action {
-            flex: 1; /* ขยายเต็มความกว้างเท่ากัน 50/50 */
-            padding: 8px 4px;
+            flex: 1;
+            border: none;
+            padding: 8px;
             border-radius: 6px;
+            color: white;
             font-size: 13px;
-            font-weight: 600;
             cursor: pointer;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 5px;
             transition: all 0.2s;
             font-family: 'Sarabun', sans-serif;
-            background: white;
-            white-space: nowrap;
+            background: white; /* Default bg for outline feel */
         }
 
         /* ปุ่มกู้คืน (สีฟ้า) */
@@ -572,8 +582,8 @@
             width: 32px;
             height: 32px;
             padding: 0;
-            border-radius: 4px;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
             color: white;
             display: flex;
@@ -588,9 +598,8 @@
         }
 
         /* ==========================================================================
-           7. TOOLBARS & BUTTONS
+           8. TOOLBARS & BUTTONS
            ========================================================================== */
-        /* 🔥 Updated: Flex Layout for Horizontal Buttons */
         .bulk-toolbar, .search-toolbar {
             display: flex;
             justify-content: space-between;
@@ -636,7 +645,7 @@
             filter: brightness(1.1);
         }
 
-        /* 🔥 Updated: Bulk Action Buttons (Right Side) */
+        /* Bulk Action Buttons (Right Side) */
         .bulk-actions-right {
             display: flex;
             gap: 10px;
@@ -688,7 +697,7 @@
             background: #f0f0f0;
         }
 
-        /* --- Pagination --- */
+        /* Pagination */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -751,7 +760,7 @@
             color: #444;
             font-weight: 600;
             text-transform: uppercase;
-            background: #f8f9fa;
+            background: #f8f9fa; /* สีเทาอ่อนตามรูป */
         }
 
         /* Table Body */
@@ -820,7 +829,7 @@
             font-size: 12px;
             color: var(--text-muted);
         }
-
+        
         .role-badge {
             padding: 6px 14px;
             border-radius: 50px;
@@ -852,12 +861,14 @@
             font-size: 14px;
             color: var(--text-muted);
         }
+
         .btn-icon:hover {
             background: #f0f0f0;
             color: var(--text-dark);
             transform: translateY(-2px);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
+
         .btn-icon.delete:hover {
             background: #fee2e2;
             color: var(--danger-color);
@@ -865,7 +876,7 @@
         }
 
         /* ==========================================================================
-           10. MODALS & POPUPS (CUSTOM DESIGN)
+           10. POPUP MODALS (CUSTOM STYLE)
            ========================================================================== */
         /* Image Viewer */
         .modal {
@@ -880,6 +891,7 @@
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.9);
         }
+
         .modal-content {
             margin: auto;
             display: block;
@@ -890,6 +902,7 @@
             animation-name: zoom;
             animation-duration: 0.3s;
         }
+
         .close-modal {
             position: absolute;
             top: 20px;
@@ -900,12 +913,13 @@
             transition: 0.3s;
             cursor: pointer;
         }
+
         @keyframes zoom {
             from { transform: scale(0) }
             to { transform: scale(1) }
         }
 
-        /* 🔥 Custom Popup (Add User) */
+        /* 🔥 Custom SweetAlert2 Styling (Popup เพิ่มเจ้าหน้าที่) */
         .small-modal-popup {
             width: 450px !important;
             max-width: 90% !important;
@@ -932,11 +946,12 @@
             padding: 0 15px !important;
             box-shadow: none !important;
         }
+
         .small-modal-input:focus {
             border-color: var(--primary-color) !important;
         }
 
-        /* Container for Equal Buttons */
+        /* Container for Buttons */
         .small-modal-actions {
             width: 100% !important;
             display: flex !important;
@@ -945,7 +960,7 @@
             margin-top: 30px !important;
         }
 
-        /* Confirm Button (Green) */
+        /* 🔥 ปุ่มบันทึก (สีเขียว) */
         .swal-btn-confirm {
             flex: 1 !important;
             background-color: #27ae60 !important;
@@ -959,7 +974,7 @@
             box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2) !important;
         }
 
-        /* Cancel Button (Red) */
+        /* 🔥 ปุ่มยกเลิก (สีแดง) */
         .swal-btn-cancel {
             flex: 1 !important;
             background-color: #c0392b !important;
@@ -1021,11 +1036,9 @@
                 align-items: stretch;
             }
             
-            /* Responsive Bulk Buttons */
             .bulk-actions-right {
                 width: 100%;
                 justify-content: space-between;
-                margin-top: 10px;
             }
             
             .btn-bulk-restore, .btn-bulk-delete {
@@ -1227,10 +1240,7 @@
             </div>
             
             <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
-                <button type="button" id="btnSelectAllTrash" class="btn-nav">
-                    <i class="fas fa-check-square"></i> เลือกทั้งหมด
-                </button>
-                
+                <button type="button" id="btnSelectAllTrash" class="btn-nav"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
                 <div class="bulk-actions-right">
                     <button onclick="bulkRestoreTrash()" class="btn-bulk-restore"><i class="fas fa-trash-restore"></i> กู้คืน</button>
                     <button onclick="bulkDeleteTrash()" class="btn-bulk-delete"><i class="fas fa-times-circle"></i> ลบถาวร</button>
@@ -1267,15 +1277,16 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h3><i class="fas fa-users-cog"></i> จัดการเจ้าหน้าที่</h3>
                 <button onclick="openAddUserModal()" class="btn-primary" style="background:#8e44ad; width:auto; display:flex; align-items:center; gap:8px; padding: 10px 25px; border-radius: 30px; box-shadow: 0 4px 6px rgba(142, 68, 173, 0.2);">
                     <span style="font-size:20px; line-height: 1;"><i class="fas fa-user-plus"></i></span> เพิ่มเจ้าหน้าที่
                 </button>
             </div>
 
-            <div style="position: relative; margin-bottom: 20px;">
-                <input type="text" id="userSearch" class="search-input" style="padding-left: 45px; border-radius: 30px; background: #f8f9fa; margin-top: 10px;" placeholder="🔍 ค้นหาชื่อเจ้าหน้าที่..." onkeyup="filterUsers()">
+            <div style="position: relative; margin-bottom: 45px;">
+                <input type="text" id="userSearch" class="search-input" style="padding-left: 45px; border-radius: 30px; background: #f8f9fa;" placeholder="🔍 ค้นหาชื่อเจ้าหน้าที่..." onkeyup="filterUsers()">
                 <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa;">🔍</span>
             </div>
 
@@ -1489,7 +1500,7 @@
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${s}&category=${c}&t=` + Date.now());
+            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now());
             const photos = await res.json();
             renderGrid('approvedList', photos, 'approved');
             
@@ -1541,7 +1552,7 @@
                                 <i class="fas fa-trash-restore"></i> กู้คืน
                             </button>
                             <button onclick="evt(event,permanentDelete,${id})" class="btn-trash-action btn-trash-delete">
-                                <i class="fas fa-times-circle"></i> ลบถาวร
+                                <i class="fas fa-times"></i> ลบถาวร
                             </button>
                         </div>
                     </div>`;
