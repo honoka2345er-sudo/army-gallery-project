@@ -13,7 +13,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1042/1042339.png">
 
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -262,7 +263,8 @@
             padding-bottom: 5px;
             color: var(--secondary-color);
             margin-top: 0;
-            margin-bottom: 10px !important; /* บังคับให้ระยะห่างเหลือ 10px */
+            margin-bottom: 10px !important;
+            /* บังคับให้ระยะห่างเหลือ 10px */
             font-size: 20px;
             font-weight: 700;
             display: flex;
@@ -522,7 +524,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 20px;
-            margin-top: 10px !important; /* 🔥 ดึงตารางขึ้นให้ชิด */
+            margin-top: 10px !important;
+            /* 🔥 ดึงตารางขึ้นให้ชิด */
         }
 
         /* Standard Item */
@@ -716,7 +719,8 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            margin-top: 0px; /* 🔥 แก้ไขระยะห่างตารางเป็น 0 เพื่อความชิด */
+            margin-top: 0px;
+            /* 🔥 แก้ไขระยะห่างตารางเป็น 0 เพื่อความชิด */
             background: white;
         }
 
@@ -1187,64 +1191,66 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #9b59b6;">
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px;">
-                <h3><i class="fas fa-hdd"></i> พื้นที่จัดเก็บข้อมูล (Cloudinary)</h3>
-                <button onclick="loadStorageStats()" class="btn-nav" style="padding: 4px 10px; font-size: 13px;"><i
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0; display:flex; align-items:center; gap:10px; font-size:20px;">
+                    <i class="fas fa-hdd"></i> พื้นที่จัดเก็บข้อมูล (Cloudinary)
+                </h3>
+                <button onclick="loadStorageStats()" class="btn-nav" style="padding: 5px 12px; font-size: 13px;"><i
                         class="fas fa-sync"></i> รีเฟรช</button>
             </div>
 
-            <div style="background:#f8f9fa; padding:15px; border-radius:12px; margin-bottom:15px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+            <div style="background:#f8f9fa; padding:20px; border-radius:12px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                     <span style="font-weight:bold; color:#333; font-size: 14px;">เครดิตที่ใช้ไป (Usage)</span>
-                    <span id="storagePercentage" style="font-weight:bold; color:#e74c3c; font-size:16px;">0%</span>
+                    <span id="storagePercentage" style="font-weight:bold; color:#e74c3c; font-size:18px;">0%</span>
                 </div>
 
                 <div
-                    style="width:100%; height:15px; background:#ecf0f1; border-radius:10px; position:relative; overflow:hidden;">
+                    style="width:100%; height:26px; background:#ecf0f1; border-radius:15px; position:relative; overflow:hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
                     <div id="storageBar"
-                        style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.8s cubic-bezier(0.4, 0, 0.2, 1); display:flex; align-items:center; padding-left: 10px;">
+                        style="height:100%; background:linear-gradient(90deg, #3498db, #9b59b6); width:0%; transition:width 0.8s cubic-bezier(0.4, 0, 0.2, 1); display:flex; align-items:center; padding-left: 12px;">
                         <span id="storageBarText"
-                            style="color:#fff; font-weight:bold; font-size:10px; text-shadow:0 1px 2px rgba(0,0,0,0.3); line-height: 15px;">0.00%</span>
+                            style="color:#fff; font-weight:bold; font-size:13px; text-shadow:0 1px 2px rgba(0,0,0,0.4); line-height: 26px; white-space: nowrap;">0.00%</span>
                     </div>
                 </div>
 
                 <div
-                    style="display:flex; justify-content:space-between; margin-top:5px; font-size:12px; color:#7f8c8d;">
+                    style="display:flex; justify-content:space-between; margin-top:8px; font-size:13px; color:#7f8c8d;">
                     <span id="storageUsed">Bandwidth+Storage: 0 MB</span>
                     <span id="storageLimit">Plan Limit: ~25 GB</span>
                 </div>
             </div>
 
             <div
-                style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-bottom:15px;">
+                style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:15px; margin-bottom:20px;">
                 <div style="background:#e3f2fd; padding:15px; border-radius:12px; border-left:4px solid #2196f3;">
-                    <div style="font-size:12px; color:#546e7a; margin-bottom:2px;">รูปทั้งหมด</div>
-                    <div id="totalPhotosCount" style="font-size:20px; font-weight:bold; color:#2196f3;">0</div>
+                    <div style="font-size:13px; color:#546e7a; margin-bottom:2px;">รูปทั้งหมด</div>
+                    <div id="totalPhotosCount" style="font-size:24px; font-weight:bold; color:#2196f3;">0</div>
                 </div>
                 <div style="background:#fff3e0; padding:15px; border-radius:12px; border-left:4px solid #ff9800;">
-                    <div style="font-size:12px; color:#5d4037; margin-bottom:2px;">ขนาดเฉลี่ย/รูป</div>
-                    <div id="avgPhotoSize" style="font-size:20px; font-weight:bold; color:#ff9800;">0 MB</div>
+                    <div style="font-size:13px; color:#5d4037; margin-bottom:2px;">ขนาดเฉลี่ย/รูป</div>
+                    <div id="avgPhotoSize" style="font-size:24px; font-weight:bold; color:#ff9800;">0 MB</div>
                 </div>
                 <div style="background:#f3e5f5; padding:15px; border-radius:12px; border-left:4px solid #9c27b0;">
-                    <div style="font-size:12px; color:#4a148c; margin-bottom:2px;">แพลน</div>
+                    <div style="font-size:13px; color:#4a148c; margin-bottom:2px;">แพลน</div>
                     <div id="cloudinaryPlan"
-                        style="font-size:20px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
+                        style="font-size:24px; font-weight:bold; color:#9c27b0; text-transform:uppercase;">FREE</div>
                 </div>
             </div>
 
             <div>
-                <h4 style="color:#666; margin-bottom:8px; font-size:14px; font-weight:600;"><i
+                <h4 style="color:#666; margin-bottom:10px; font-size:15px; font-weight:600;"><i
                         class="fas fa-clock"></i> กิจกรรมที่อัปเดตล่าสุด</h4>
-                <div id="topCategoriesList" style="max-height:200px; overflow-y:auto; padding-right:5px;">
-                    <p style="text-align:center; color:#999; padding:15px; font-size: 13px;">กำลังโหลด...</p>
+                <div id="topCategoriesList" style="max-height:250px; overflow-y:auto; padding-right:5px;">
+                    <p style="text-align:center; color:#999; padding:20px;">กำลังโหลด...</p>
                 </div>
             </div>
 
             <div id="storageWarning"
-                style="display:none; background:#fff3cd; border-left:5px solid #ffc107; padding:10px; margin-top:15px; border-radius:8px;">
+                style="display:none; background:#fff3cd; border-left:5px solid #ffc107; padding:15px; margin-top:20px; border-radius:8px;">
                 <strong style="color:#856404; font-size:14px; display:block; margin-bottom:2px;">⚠️ คำเตือน:</strong>
-                <span style="color:#856404; font-size: 12px;">พื้นที่ใกล้เต็มแล้ว! กรุณาลบไฟล์ที่ไม่จำเป็นออก</span>
+                <span style="color:#856404; font-size: 13px;">พื้นที่ใกล้เต็มแล้ว! กรุณาลบไฟล์ที่ไม่จำเป็นออก</span>
             </div>
         </div>
 
@@ -1299,7 +1305,8 @@
                 <button type="button" id="btnSelectAllApproved" class="btn-nav"><i class="fas fa-check-square"></i>
                     เลือกทั้งหมด</button>
                 <div class="bulk-actions-right">
-                    <button onclick="bulkDelete()" class="btn-bulk-delete"><i class="fas fa-trash"></i> ลบที่เลือก</button>
+                    <button onclick="bulkDelete()" class="btn-bulk-delete"><i class="fas fa-trash"></i>
+                        ลบที่เลือก</button>
                 </div>
             </div>
 
