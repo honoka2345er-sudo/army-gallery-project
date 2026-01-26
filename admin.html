@@ -1255,24 +1255,33 @@
             </div>
         </div>
 
-        <div class="card">
-            <h3><i class="fas fa-cloud-upload-alt"></i> อัปโหลดรูปภาพกิจกรรม</h3>
+        <div class="card" style="border-top: 5px solid #3498db;">
+
+            <div style="margin-bottom:15px;">
+                <h3
+                    style="margin:0; display:flex; align-items:center; gap:10px; font-size:20px; color: #3498db; border-bottom: none;">
+                    <i class="fas fa-cloud-upload-alt"></i> อัปโหลดรูปภาพกิจกรรม
+                </h3>
+            </div>
+
             <form id="uploadForm">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
-                        <label><b>1. ชื่อกิจกรรม</b></label>
+                        <label style="font-size:14px; color:#555;"><b>1. ชื่อกิจกรรม</b></label>
                         <input type="text" id="categoryName" list="categoryList" placeholder="พิมพ์ชื่อกิจกรรม..."
-                            required>
+                            required style="margin-bottom: 10px; font-size:14px;">
                         <datalist id="categoryList"></datalist>
                     </div>
                     <div>
-                        <label><b>2. เลือกรูปภาพ</b></label>
-                        <div class="file-upload-wrapper">
+                        <label style="font-size:14px; color:#555;"><b>2. เลือกรูปภาพ</b></label>
+                        <div class="file-upload-wrapper"
+                            style="min-height: 150px; padding: 20px; border-color: #3498db;">
                             <div id="uploadPlaceholder" style="text-align: center;">
-                                <span class="upload-icon"><i class="fas fa-images"></i></span>
-                                <div class="upload-text">คลิกเพื่อเลือกรูป / ถ่ายภาพ</div>
-                                <span
-                                    style="font-size:13px; color:#7f8c8d; margin-top:5px; display:block;">(เลือกได้สูงสุด
+                                <span class="upload-icon" style="font-size: 40px; color: #3498db;"><i
+                                        class="fas fa-images"></i></span>
+                                <div class="upload-text" style="font-size: 16px; color: #3498db;">คลิกเพื่อเลือกรูป /
+                                    ถ่ายภาพ</div>
+                                <span style="font-size:12px; color:#999; margin-top:5px; display:block;">(เลือกได้สูงสุด
                                     30 รูปต่อครั้ง)</span>
                             </div>
                             <div id="previewContainer" class="preview-grid"></div>
@@ -1280,8 +1289,9 @@
                         </div>
                     </div>
                 </div>
+
                 <button type="submit" class="btn-primary"
-                    style="width:100%; margin-top:25px; padding:15px; font-size:18px; border-radius:8px;">
+                    style="width:100%; margin-top:15px; padding:12px; font-size:16px; border-radius:8px; background-color: #3498db; font-weight:600;">
                     <i class="fas fa-upload"></i> อัปโหลดทันที
                 </button>
             </form>
