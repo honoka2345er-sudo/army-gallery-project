@@ -631,6 +631,8 @@
             padding-top: 10px;
             border-top: 1px solid #f0e0e0;
             width: 100%;
+            position: relative;
+            z-index: 20; /* 🔥 FIX: Z-Index for clickable buttons */
         }
 
         /* Button Style in Card */
@@ -679,6 +681,8 @@
             justify-content: center;
             gap: 4px;
             margin-top: auto;
+            position: relative;
+            z-index: 20; /* 🔥 FIX: Z-Index for clickable buttons */
         }
 
         .btn-icon-action {
@@ -1009,9 +1013,19 @@
             .bulk-actions-right { width: 100%; justify-content: space-between; }
             .btn-bulk-restore, .btn-bulk-delete { flex: 1; justify-content: center; }
             .card { padding: 20px; overflow-x: auto; }
-            table { min-width: 600px; }
+            
             .modal-content { width: 95%; }
             .approval-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+            /* 🔥 Table to Card View Transformation */
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; background: #fff; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            td { border: none; position: relative; padding-left: 0; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
+            td:last-child { border-bottom: none; }
+            td::before { content: attr(data-label); font-weight: 700; color: #555; font-size: 13px; margin-right: 10px; }
+            
+            .action-btn-group { justify-content: flex-end; }
         }
     </style>
 </head>
@@ -1281,7 +1295,7 @@
                 <button onclick="loadTrash()" class="btn-page"><i class="fas fa-sync"></i> รีเฟรช</button>
             </div>
 
-            <div class="bulk-toolbar" id="trashToolbar" style="display:none;">
+            <div class="bulk-toolbar" id="trashToolbar" style="display:none; justify-content:space-between; padding: 8px 12px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
                 <button type="button" id="btnSelectAllTrash" class="btn-nav">
                     <i class="fas fa-check-square"></i> เลือกทั้งหมด
                 </button>
@@ -1590,43 +1604,38 @@
                 const dateVal = p.date || '';
                 const actVal = p.activity || '';
 
-                let html = '';
+                let btns = '';
 
                 // 🔥 RENDER TRASH ITEM (Design Updated: Minimal, Red Border, Grayscale, Outline Buttons)
                 if (type === 'trash') {
-                    html = `
-                    <div class="approval-item trash-item" onclick="toggleSel(this)" data-id="${id}">
-                        <input type="checkbox" class="check-overlay trash-check" value="${id}">
-                        <div style="position: relative;">
-                            <span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>
-                            <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
-                        </div>
-
-                        <div class="trash-actions">
-                            <button onclick="evt(event,restorePhoto,${id})" class="btn-trash-action btn-trash-restore">
-                                <i class="fas fa-trash-restore"></i> กู้คืน
-                            </button>
-                            <button onclick="evt(event,permanentDelete,${id})" class="btn-trash-action btn-trash-delete">
-                                <i class="fas fa-times-circle"></i> ลบถาวร
-                            </button>
-                        </div>
+                    btns = `
+                    <div class="trash-actions">
+                        <button onclick="event.stopPropagation(); restorePhoto(${id})" class="btn-trash-action btn-trash-restore">
+                            <i class="fas fa-trash-restore"></i> กู้คืน
+                        </button>
+                        <button onclick="event.stopPropagation(); permanentDelete(${id})" class="btn-trash-action btn-trash-delete">
+                            <i class="fas fa-times-circle"></i> ลบถาวร
+                        </button>
                     </div>`;
                 } else {
                     // GALLERY DESIGN
-                    let btns = '';
                     if (user.role === 'admin') {
-                        btns = `<button onclick="evt(event,copyLink,'${url}')" class="btn-icon-action" style="background:#3498db;" title="คัดลอกลิงก์"><i class="fas fa-link"></i></button>
-                                <button onclick="evt(event,editDetails,${id},'${actVal}','${dateVal}')" class="btn-icon-action" style="background:#f39c12;" title="แก้ไข"><i class="fas fa-pen"></i></button>
-                                <button onclick="evt(event,renamePhoto,${id},'${safeFilename}')" class="btn-icon-action" style="background:#9b59b6;" title="เปลี่ยนชื่อ"><i class="fas fa-font"></i></button>
-                                <button onclick="evt(event,softDelete,${id})" class="btn-icon-action" style="background:#e74c3c;" title="ลบ"><i class="fas fa-trash"></i></button>`;
+                        btns = `<div class="gallery-actions">
+                                <button onclick="event.stopPropagation(); copyLink('${url}')" class="btn-icon-action" style="background:#3498db;" title="คัดลอกลิงก์"><i class="fas fa-link"></i></button>
+                                <button onclick="event.stopPropagation(); editDetails(${id},'${actVal}','${dateVal}')" class="btn-icon-action" style="background:#f39c12;" title="แก้ไข"><i class="fas fa-pen"></i></button>
+                                <button onclick="event.stopPropagation(); renamePhoto(${id},'${safeFilename}')" class="btn-icon-action" style="background:#9b59b6;" title="เปลี่ยนชื่อ"><i class="fas fa-font"></i></button>
+                                <button onclick="event.stopPropagation(); softDelete(${id})" class="btn-icon-action" style="background:#e74c3c;" title="ลบ"><i class="fas fa-trash"></i></button>
+                            </div>`;
                     }
-                    const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay approved-check" value="${id}">` : '';
-                    html = `<div class="approval-item" onclick="toggleSel(this)" data-id="${id}">
-                        ${chk} <img src="${p.url}" onclick="evt(event, openImage, '${p.url}')" class="clickable">
-                        <div class="gallery-actions">${btns}</div>
-                    </div>`;
                 }
-                el.innerHTML += html;
+
+                const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}" onclick="event.stopPropagation()">` : '';
+                
+                el.innerHTML += `<div class="approval-item ${type === 'trash' ? 'trash-item' : ''}" onclick="toggleSel(this)" data-id="${id}">
+                    ${chk} 
+                    <img src="${url}" onclick="event.stopPropagation(); openImage('${url}')" class="clickable">
+                    ${btns}
+                </div>`;
             });
 
             // Bulk Select Logic
@@ -1662,6 +1671,9 @@
         }
 
         function toggleSel(el) {
+            // 🔥 Check if click target is button to prevent conflict
+            if (event.target.tagName === 'BUTTON' || event.target.closest('button')) return;
+
             el.classList.toggle('selected');
             const c = el.querySelector('input');
             if (c) c.checked = !c.checked;
@@ -1692,6 +1704,52 @@
                 await loadStorageStats();
             }
         }
+        
+        async function softDelete(id) {
+            if(await cf('ลบรูปนี้?')) {
+                 await fetch(`/photos/${id}/soft-delete`, {method: 'DELETE', headers: getAuthHeaders()});
+                 loadApprovedPhotos(currentPage);
+            }
+        }
+
+        async function restorePhoto(id) {
+            if (await cf('กู้คืนรูปนี้?')) {
+                await fetch('/photos/trash/restore', {method:'POST', headers:getAuthHeaders(), body:JSON.stringify({photo_ids:[id]})});
+                loadTrash(); loadApprovedPhotos(currentPage);
+            }
+        }
+
+        async function permanentDelete(id) {
+            if (await cf('ลบถาวร?')) {
+                await fetch('/photos/trash/empty', {method:'DELETE', headers:getAuthHeaders(), body:JSON.stringify({photo_ids:[id]})});
+                loadTrash();
+            }
+        }
+
+        async function bulkDelete() {
+            const ids = Array.from(document.querySelectorAll('.approved-check:checked')).map(c => c.value);
+            if (ids.length && await cf('ลบที่เลือก?')) {
+                await fetch('/photos/bulk-delete', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ photo_ids: ids }) });
+                loadApprovedPhotos(currentPage);
+            }
+        }
+
+        async function bulkRestoreTrash() {
+            const ids = Array.from(document.querySelectorAll('.trash-check:checked')).map(c => c.value);
+            if (ids.length) {
+                await fetch('/photos/trash/restore', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ photo_ids: ids }) });
+                loadTrash(); loadApprovedPhotos(currentPage);
+            }
+        }
+
+        async function bulkDeleteTrash() {
+             const ids = Array.from(document.querySelectorAll('.trash-check:checked')).map(c => c.value);
+             if (ids.length && await cf('ลบถาวรหมดเลยนะ?')) {
+                 await fetch('/photos/trash/empty', { method: 'DELETE', headers: getAuthHeaders(), body: JSON.stringify({ photo_ids: ids }) });
+                 loadTrash();
+             }
+        }
+
 
         // --- Logs (With Pagination) ---
         async function loadLogs() {
@@ -1706,7 +1764,6 @@
             }
         }
 
-        // 🔥 Log Colors Logic
         function renderLogs() {
             const tb = document.getElementById('logTableBody');
             tb.innerHTML = '';
@@ -1727,45 +1784,18 @@
                 let badgeClass = 'bg-other';
                 let icon = '<i class="fas fa-info-circle"></i>';
 
-                const act = (l.action || '').toLowerCase();
-                const det = (l.details || '').toLowerCase();
+                const act = l.action.toLowerCase();
 
-                if (det.includes('fail') || det.includes('ไม่สำเร็จ') || det.includes('ผิดพลาด') || det.includes('error')) {
-                    badgeClass = 'bg-fail';
-                    icon = '<i class="fas fa-exclamation-triangle"></i>';
-                }
-                else if (act.includes('delete') || act.includes('ลบ')) {
-                    badgeClass = 'bg-fail';
-                    icon = '<i class="fas fa-trash-alt"></i>';
-                }
-                else if (act.includes('login')) {
-                    badgeClass = 'bg-success';
-                    icon = '<i class="fas fa-key"></i>';
-                }
-                else if (act.includes('upload')) {
-                    badgeClass = 'bg-upload';
-                    icon = '<i class="fas fa-cloud-upload-alt"></i>';
-                }
-                else if (act.includes('edit') || act.includes('update') || act.includes('change')) {
-                    badgeClass = 'bg-warning';
-                    icon = '<i class="fas fa-pen"></i>';
-                }
+                if (act.includes('login')) { badgeClass = 'bg-login'; icon = '<i class="fas fa-key"></i>'; }
+                else if (act.includes('upload')) { badgeClass = 'bg-upload'; icon = '<i class="fas fa-cloud-upload-alt"></i>'; }
+                else if (act.includes('delete')) { badgeClass = 'bg-delete'; icon = '<i class="fas fa-trash"></i>'; }
+                else if (act.includes('edit') || act.includes('update')) { badgeClass = 'bg-edit'; icon = '<i class="fas fa-pen"></i>'; }
 
-                const dateObj = new Date(l.created_at);
-                const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' });
-                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-
-                tb.innerHTML += `
-                <tr class="log-row">
-                    <td>
-                        <div style="display:flex; flex-direction:column;">
-                            <span style="font-weight:600; color:#444;">${dateStr}</span>
-                            <span style="font-size:12px; color:#888;">${timeStr} น.</span>
-                        </div>
-                    </td>
-                    <td style="font-weight:600; color:#333;">${l.username}</td>
-                    <td><span class="status-badge ${badgeClass}">${icon} ${l.action}</span></td>
-                    <td style="color:#555;">${l.details}</td>
+                tb.innerHTML += `<tr>
+                    <td data-label="เวลา">${new Date(l.created_at).toLocaleString('th-TH')}</td>
+                    <td data-label="ผู้ใช้" style="font-weight:600; color:#333;">${l.username}</td>
+                    <td data-label="การกระทำ"><span class="status-badge ${badgeClass}">${icon} ${l.action}</span></td>
+                    <td data-label="รายละเอียด" style="color:#64748b;">${l.details}</td>
                 </tr>`;
             });
 
@@ -1808,14 +1838,14 @@
 
                 tbody.innerHTML += `
                 <tr class="user-row">
-                    <td>
+                    <td data-label="ชื่อผู้ใช้">
                         <div class="user-cell">
                             <div class="avatar" style="background-color: ${color};">${avatar}</div>
                             <div class="user-detail"><span class="user-username">${x.username}</span><span class="user-id">ID: ${x.user_id}</span></div>
                         </div>
                     </td>
-                    <td><span class="role-badge ${badgeClass}">${x.role.toUpperCase()}</span></td>
-                    <td>
+                    <td data-label="บทบาท"><span class="role-badge ${badgeClass}">${x.role.toUpperCase()}</span></td>
+                    <td data-label="จัดการ">
                         <div class="action-btn-group">
                             <button class="btn-icon" onclick="changeUsername(${x.user_id},'${x.username}')" title="แก้ไขชื่อ"><i class="fas fa-pen"></i></button>
                             <button class="btn-icon" onclick="resetPass(${x.user_id})" title="เปลี่ยนรหัส"><i class="fas fa-lock"></i></button>
@@ -2157,6 +2187,13 @@
                 reload();
             }
         }
+        
+        async function deleteUser(id) {
+             if(await cf('ต้องการลบผู้ใช้นี้ใช่หรือไม่?')) {
+                  await fetch(`/users/${id}`, {method:'DELETE', headers: getAuthHeaders()});
+                  loadUsers();
+             }
+        }
 
         function logout() {
             autoCloseSidebar();
@@ -2166,4 +2203,4 @@
     </script>
 </body>
 
-</html>                                                                                                                                                                                                                                                                                                                                                           
+</html>
