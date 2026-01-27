@@ -1013,7 +1013,7 @@
             .bulk-actions-right { width: 100%; justify-content: space-between; }
             .btn-bulk-restore, .btn-bulk-delete { flex: 1; justify-content: center; }
             .card { padding: 20px; overflow-x: auto; }
-            
+            table { min-width: 600px; }
             .modal-content { width: 95%; }
             .approval-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
@@ -1295,15 +1295,9 @@
                 <button onclick="loadTrash()" class="btn-page"><i class="fas fa-sync"></i> รีเฟรช</button>
             </div>
 
-            <div class="bulk-toolbar" id="trashToolbar" style="display:none; justify-content:space-between; padding: 8px 12px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
-                <button type="button" id="btnSelectAllTrash" class="btn-nav">
-                    <i class="fas fa-check-square"></i> เลือกทั้งหมด
-                </button>
-
-                <div class="bulk-actions-right">
-                    <button onclick="bulkRestoreTrash()" class="btn-bulk-restore"><i class="fas fa-trash-restore"></i> กู้คืน</button>
-                    <button onclick="bulkDeleteTrash()" class="btn-bulk-delete"><i class="fas fa-times-circle"></i> ลบถาวร</button>
-                </div>
+            <div class="bulk-toolbar" id="trashToolbar" style="display:none; justify-content:flex-end;">
+                <button onclick="bulkRestoreTrash()" class="btn-bulk-restore">กู้คืน</button>
+                <button onclick="bulkDeleteTrash()" class="btn-bulk-delete">ลบถาวร</button>
             </div>
 
             <div id="trashList" class="approval-grid">
@@ -1452,10 +1446,10 @@
             }
         }
 
-        // --- Stats & Categories ---
+        // --- Stats & Categories (🔥 FIX: Added Auth Headers) ---
         async function loadStats() {
             try {
-                const res = await fetch('/stats?t=' + Date.now());
+                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
                 const data = await res.json();
                 document.getElementById('statTotal').innerText = data.total_photos;
                 document.getElementById('statCats').innerText = data.total_categories;
@@ -1467,7 +1461,7 @@
 
         async function loadCategories() {
             try {
-                const res = await fetch('/categories?t=' + Date.now());
+                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
                 const c = await res.json();
                 const dl = document.getElementById('categoryList');
                 const filter = document.getElementById('filterCategory');
@@ -1631,9 +1625,13 @@
 
                 const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}" onclick="event.stopPropagation()">` : '';
                 
-                el.innerHTML += `<div class="approval-item ${type === 'trash' ? 'trash-item' : ''}" onclick="toggleSel(this)" data-id="${id}">
+                el.innerHTML += `
+                <div class="approval-item ${type === 'trash' ? 'trash-item' : ''}" onclick="toggleSel(this)" data-id="${id}">
                     ${chk} 
-                    <img src="${url}" onclick="event.stopPropagation(); openImage('${url}')" class="clickable">
+                    <div style="position: relative;">
+                         ${type === 'trash' ? '<span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>' : ''}
+                        <img src="${p.url}" onclick="event.stopPropagation(); openImage('${p.url}')" class="clickable">
+                    </div>
                     ${btns}
                 </div>`;
             });
@@ -1764,6 +1762,7 @@
             }
         }
 
+        // 🔥 Log Colors Logic
         function renderLogs() {
             const tb = document.getElementById('logTableBody');
             tb.innerHTML = '';
@@ -1791,11 +1790,21 @@
                 else if (act.includes('delete')) { badgeClass = 'bg-delete'; icon = '<i class="fas fa-trash"></i>'; }
                 else if (act.includes('edit') || act.includes('update')) { badgeClass = 'bg-edit'; icon = '<i class="fas fa-pen"></i>'; }
 
-                tb.innerHTML += `<tr>
-                    <td data-label="เวลา">${new Date(l.created_at).toLocaleString('th-TH')}</td>
-                    <td data-label="ผู้ใช้" style="font-weight:600; color:#333;">${l.username}</td>
-                    <td data-label="การกระทำ"><span class="status-badge ${badgeClass}">${icon} ${l.action}</span></td>
-                    <td data-label="รายละเอียด" style="color:#64748b;">${l.details}</td>
+                const dateObj = new Date(l.created_at);
+                const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' });
+                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+                tb.innerHTML += `
+                <tr class="log-row">
+                    <td>
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="font-weight:600; color:#444;">${dateStr}</span>
+                            <span style="font-size:12px; color:#888;">${timeStr} น.</span>
+                        </div>
+                    </td>
+                    <td style="font-weight:600; color:#333;">${l.username}</td>
+                    <td><span class="status-badge ${badgeClass}">${icon} ${l.action}</span></td>
+                    <td style="color:#555;">${l.details}</td>
                 </tr>`;
             });
 
@@ -1838,14 +1847,14 @@
 
                 tbody.innerHTML += `
                 <tr class="user-row">
-                    <td data-label="ชื่อผู้ใช้">
+                    <td>
                         <div class="user-cell">
                             <div class="avatar" style="background-color: ${color};">${avatar}</div>
                             <div class="user-detail"><span class="user-username">${x.username}</span><span class="user-id">ID: ${x.user_id}</span></div>
                         </div>
                     </td>
-                    <td data-label="บทบาท"><span class="role-badge ${badgeClass}">${x.role.toUpperCase()}</span></td>
-                    <td data-label="จัดการ">
+                    <td><span class="role-badge ${badgeClass}">${x.role.toUpperCase()}</span></td>
+                    <td>
                         <div class="action-btn-group">
                             <button class="btn-icon" onclick="changeUsername(${x.user_id},'${x.username}')" title="แก้ไขชื่อ"><i class="fas fa-pen"></i></button>
                             <button class="btn-icon" onclick="resetPass(${x.user_id})" title="เปลี่ยนรหัส"><i class="fas fa-lock"></i></button>
