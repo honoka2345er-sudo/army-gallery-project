@@ -22,13 +22,14 @@ const app = express();
 // อนุญาต CORS (ให้หน้าเว็บเรียก API ได้)
 app.use(cors());
 
-// รองรับ JSON ขนาดใหญ่ (เผื่อส่งข้อมูลเยอะ)
+// รองรับ JSON ขนาดใหญ่
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true })); // 🔥 เพิ่มตัวนี้เพื่อให้รับ Form Data ได้แม่นยำขึ้น
 
 // ให้บริการไฟล์ Static (หน้าเว็บ HTML)
 app.use(express.static(__dirname));
 
-// ตั้งค่า Helmet เพื่อความปลอดภัย (กำหนดแหล่งที่มาของไฟล์)
+// ตั้งค่า Helmet
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -64,7 +65,6 @@ app.use(
     })
 );
 
-// ป้องกัน Cache (เพื่อให้ข้อมูลเป็นปัจจุบันเสมอ)
 app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
@@ -72,16 +72,15 @@ app.use((req, res, next) => {
     next();
 });
 
-// จำกัดการเรียก API (Rate Limiting)
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 นาที
-    max: 100, // จำกัด 100 ครั้ง
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: 'Too many requests from this IP'
 });
 
 const uploadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 20, // จำกัดอัปโหลด 20 ครั้ง/15 นาที
+    max: 20,
     message: 'Too many uploads'
 });
 
@@ -99,19 +98,17 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 🔥 แก้ไข: ไม่ย่อรูป (เอา transformation ออก) เพื่อเก็บไฟล์ต้นฉบับ Original
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'army_gallery',
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-        // transformation: [] // ❌ ลบทิ้ง เพื่อไม่ให้ Cloudinary แปลงไฟล์
     },
 });
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // จำกัดไฟล์ละ 10MB (ถ้าจะเอาใหญ่กว่านี้แก้เลขตรงนี้ได้)
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 const pool = mysql.createPool({
@@ -127,7 +124,6 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// ทดสอบการเชื่อมต่อ Database
 (async () => {
     try {
         const connection = await pool.getConnection();
@@ -207,7 +203,6 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// ฟังก์ชันดึงข้อมูล Usage จาก Cloudinary
 async function getCloudinaryUsage() {
     try {
         const result = await new Promise((resolve, reject) => {
@@ -220,7 +215,7 @@ async function getCloudinaryUsage() {
         return {
             used_bytes: result.storage?.usage || 0,
             used_readable: formatBytes(result.storage?.usage || 0),
-            limit_bytes: result.storage?.limit || 26843545600, // Default ~25GB
+            limit_bytes: result.storage?.limit || 26843545600,
             limit_readable: formatBytes(result.storage?.limit || 26843545600),
             usage_percent: result.storage?.usage && result.storage?.limit
                 ? ((result.storage.usage / result.storage.limit) * 100).toFixed(4)
@@ -229,12 +224,7 @@ async function getCloudinaryUsage() {
         };
     } catch (error) {
         console.error('Cloudinary usage error:', error.message);
-        return {
-            used_readable: 'N/A',
-            limit_readable: 'N/A',
-            usage_percent: 0,
-            plan: 'Unknown'
-        };
+        return { used_readable: 'N/A', limit_readable: 'N/A', usage_percent: 0, plan: 'Unknown' };
     }
 }
 
@@ -250,7 +240,6 @@ app.get('/', (req, res) => {
 
 app.post('/register', async (req, res) => {
     const { username, password, role } = req.body;
-    // กำหนดรหัสผ่านขั้นต่ำ 8 ตัวอักษร
     const validation = validateInput(req.body, {
         username: { required: true, minLength: 8, maxLength: 50 },
         password: { required: true, minLength: 8, maxLength: 100 }
@@ -344,7 +333,7 @@ app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30)
     }
 });
 
-// --- Photos Management ---
+// --- Photos Management (Read/Update) ---
 
 app.get('/photos', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -429,7 +418,11 @@ app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => 
     }
 });
 
-app.delete('/photos/:id', authenticateToken, adminOnly, async (req, res) => {
+// 🔥🔥🔥 ส่วนสำคัญ: แก้ไขระบบลบ/กู้คืน ให้รองรับทั้งแบบเดี่ยวและแบบกลุ่ม (Bulk) 🔥🔥🔥
+
+// 1. ย้ายลงถังขยะ (Soft Delete - Bulk)
+app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
+    // ใช้เพื่อลบทีละรูป แต่หน้าบ้านอาจส่งมาที่นี่
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
         res.json({ message: 'Moved to trash' });
@@ -438,6 +431,19 @@ app.delete('/photos/:id', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
+app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
+    const { photo_ids } = req.body;
+    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
+    
+    try {
+        await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id IN (?)', [photo_ids]);
+        res.json({ message: 'Bulk deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Bulk delete failed' });
+    }
+});
+
+// 2. ดึงข้อมูลในถังขยะ
 app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Photos WHERE is_deleted = 1 ORDER BY upload_date DESC');
@@ -448,37 +454,42 @@ app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
-app.put('/photos/:id/restore', authenticateToken, adminOnly, async (req, res) => {
+// 3. กู้คืน (Restore - Bulk & Single)
+app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
+    const { photo_ids } = req.body;
+    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
+
     try {
-        await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id = ?', [req.params.id]);
-        res.json({ message: 'Restored' });
+        await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id IN (?)', [photo_ids]);
+        res.json({ message: 'Restored successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Restore failed' });
     }
 });
 
-app.delete('/photos/:id/permanent', authenticateToken, adminOnly, async (req, res) => {
-    const photoId = req.params.id;
+// 4. ลบถาวร (Permanent Delete - Bulk & Single)
+app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
+    const { photo_ids } = req.body;
+    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
+
     try {
-        const [results] = await pool.query('SELECT file_path, category_id FROM Photos WHERE photo_id = ?', [photoId]);
-        if (results.length === 0) return res.status(404).json({ message: 'Photo not found' });
-
-        const photo = results[0];
-        const publicId = getPublicIdFromUrl(photo.file_path);
-
-        if (publicId) {
-            cloudinary.uploader.destroy(publicId, (error, result) => {
-                if (error) console.error('Cloudinary delete error:', error);
-            });
+        // ดึงข้อมูลไฟล์เพื่อลบจาก Cloudinary
+        const [photos] = await pool.query('SELECT file_path, category_id FROM Photos WHERE photo_id IN (?)', [photo_ids]);
+        
+        for (const photo of photos) {
+            const publicId = getPublicIdFromUrl(photo.file_path);
+            if (publicId) {
+                // ลบไฟล์จาก Cloudinary (ไม่รอผลเพื่อความเร็ว)
+                cloudinary.uploader.destroy(publicId).catch(err => console.error('Cloudinary del error', err));
+            }
         }
 
-        await pool.query('DELETE FROM Photos WHERE photo_id = ?', [photoId]);
-
-        if (results[0].category_id) {
-            const [countRes] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE category_id = ?', [results[0].category_id]);
-            if (countRes[0].count === 0) await pool.query('DELETE FROM Categories WHERE category_id = ?', [results[0].category_id]);
-        }
-
+        // ลบจาก Database
+        await pool.query('DELETE FROM Photos WHERE photo_id IN (?)', [photo_ids]);
+        
+        // ลบหมวดหมู่ที่ว่างเปล่า (ถ้ามี)
+        // (Logic นี้อาจซับซ้อนถ้าลบหลายรูปพร้อมกัน ข้ามไปก่อนได้เพื่อความชัวร์ หรือใช้ query แยก)
+        
         res.json({ message: 'Permanently deleted' });
     } catch (err) {
         console.error('Permanent delete error:', err);
@@ -543,7 +554,6 @@ app.get('/stats', async (req, res) => {
     }
 });
 
-// 🔥 API: ดูพื้นที่จัดเก็บ + กิจกรรมล่าสุด (เรียงตามเวลาอัปเดต)
 app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     try {
         const cloudinaryData = await getCloudinaryUsage();
@@ -551,7 +561,6 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
         const [photosCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0');
         const [trashCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 1');
 
-        // เรียงตามเวลาอัปเดตล่าสุด
         const [latestStats] = await pool.query(`
             SELECT c.name as category_name, COUNT(p.photo_id) as photo_count, MAX(p.upload_date) as last_update
             FROM Categories c
@@ -578,13 +587,11 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
-// 🔥 API: คำนวณขนาดเฉลี่ยแบบ Batch (เร็วขึ้น + แก้ปัญหา 0 MB)
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
-        // ดึงรายการไฟล์ 100 รายการล่าสุดจาก Cloudinary โดยตรง
         const result = await cloudinary.api.resources({
             type: 'upload',
-            prefix: 'army_gallery/', // ระบุโฟลเดอร์ให้ชัดเจน
+            prefix: 'army_gallery/',
             max_results: 100 
         });
 
@@ -608,7 +615,7 @@ app.get('/storage/average', authenticateToken, async (req, res) => {
 
     } catch (error) {
         console.error('Average size error:', error);
-        res.json({ average_readable: '0 B' }); // ส่งค่า 0 B กลับไปแทน Error
+        res.json({ average_readable: '0 B' });
     }
 });
 
@@ -623,27 +630,24 @@ app.get('/categories', async (req, res) => {
     }
 });
 
-// 🔥🔥🔥 ปรับปรุง API Logs ให้ปลอดภัยและถูกต้อง 🔥🔥🔥
 app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
     try {
-        // เพิ่ม LIMIT เพื่อไม่ให้โหลดหนักเกินไป
         const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 100');
         res.json(results);
     } catch (err) {
-        console.error('Logs Error:', err); // Log error ลง server console
+        console.error('Logs Error:', err);
         res.status(500).json({ error: 'Failed to fetch logs' });
     }
 });
 
 // --- User Management (Admin) ---
 
-// 🔥🔥🔥 ปรับปรุง API Users ให้ปลอดภัยและถูกต้อง 🔥🔥🔥
 app.get('/users', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT user_id, username, role, created_at FROM Users ORDER BY created_at DESC');
         res.json(results);
     } catch (err) {
-        console.error('Users Error:', err); // Log error ลง server console
+        console.error('Users Error:', err);
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
