@@ -631,8 +631,9 @@
             padding-top: 10px;
             border-top: 1px solid #f0e0e0;
             width: 100%;
+            /* 🔥 FIX: เพิ่ม Z-Index ให้ปุ่มกดติด */
             position: relative;
-            z-index: 20; /* 🔥 FIX: Z-Index for clickable buttons */
+            z-index: 20; 
         }
 
         /* Button Style in Card */
@@ -681,8 +682,9 @@
             justify-content: center;
             gap: 4px;
             margin-top: auto;
+            /* 🔥 FIX: เพิ่ม Z-Index ให้ปุ่มกดติด */
             position: relative;
-            z-index: 20; /* 🔥 FIX: Z-Index for clickable buttons */
+            z-index: 20;
         }
 
         .btn-icon-action {
@@ -1013,7 +1015,7 @@
             .bulk-actions-right { width: 100%; justify-content: space-between; }
             .btn-bulk-restore, .btn-bulk-delete { flex: 1; justify-content: center; }
             .card { padding: 20px; overflow-x: auto; }
-            table { min-width: 600px; }
+            
             .modal-content { width: 95%; }
             .approval-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
@@ -1309,19 +1311,8 @@
             <h3 style="margin-bottom: 10px;"><i class="fas fa-history"></i> ประวัติการใช้งาน (Logs)</h3>
             <div style="overflow-x: auto;">
                 <table class="log-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%;">เวลา</th>
-                            <th style="width: 15%;">ผู้ใช้</th>
-                            <th style="width: 15%;">การกระทำ</th>
-                            <th style="width: 50%;">รายละเอียด</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logTableBody">
-                        <tr>
-                            <td colspan="4" style="text-align:center;">กำลังโหลด...</td>
-                        </tr>
-                    </tbody>
+                    <thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead>
+                    <tbody id="logTableBody"><tr><td colspan="4">โหลด...</td></tr></tbody>
                 </table>
             </div>
             <div class="pagination-container" id="logPaginationControls" style="display:none; margin-top:20px;">
@@ -1446,10 +1437,11 @@
             }
         }
 
-        // --- Stats & Categories (🔥 FIX: Added Auth Headers) ---
+        // --- Stats & Categories (🔥 FIX: Added Headers for Uploader) ---
         async function loadStats() {
             try {
                 const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
+                if(!res.ok) return;
                 const data = await res.json();
                 document.getElementById('statTotal').innerText = data.total_photos;
                 document.getElementById('statCats').innerText = data.total_categories;
@@ -1462,6 +1454,7 @@
         async function loadCategories() {
             try {
                 const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
+                if(!res.ok) return;
                 const c = await res.json();
                 const dl = document.getElementById('categoryList');
                 const filter = document.getElementById('filterCategory');
@@ -1560,7 +1553,8 @@
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now());
+            // 🔥 FIX: Added Headers just in case
+            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
             const photos = await res.json();
             renderGrid('approvedList', photos, 'approved');
 
@@ -1600,7 +1594,7 @@
 
                 let btns = '';
 
-                // 🔥 RENDER TRASH ITEM (Design Updated: Minimal, Red Border, Grayscale, Outline Buttons)
+                // 🔥 RENDER TRASH ITEM (Fix Click)
                 if (type === 'trash') {
                     btns = `
                     <div class="trash-actions">
@@ -1630,7 +1624,7 @@
                     ${chk} 
                     <div style="position: relative;">
                          ${type === 'trash' ? '<span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>' : ''}
-                        <img src="${p.url}" onclick="event.stopPropagation(); openImage('${p.url}')" class="clickable">
+                        <img src="${url}" onclick="event.stopPropagation(); openImage('${url}')" class="clickable">
                     </div>
                     ${btns}
                 </div>`;
