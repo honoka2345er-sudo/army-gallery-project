@@ -22,14 +22,14 @@ const app = express();
 // อนุญาต CORS (ให้หน้าเว็บเรียก API ได้)
 app.use(cors());
 
-// รองรับ JSON ขนาดใหญ่
+// รองรับ JSON ขนาดใหญ่ (เผื่อส่งข้อมูลเยอะ)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ให้บริการไฟล์ Static (หน้าเว็บ HTML)
 app.use(express.static(__dirname));
 
-// ตั้งค่า Helmet
+// ตั้งค่า Helmet เพื่อความปลอดภัย (กำหนดแหล่งที่มาของไฟล์)
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -65,6 +65,7 @@ app.use(
     })
 );
 
+// ป้องกัน Cache (เพื่อให้ข้อมูลเป็นปัจจุบันเสมอ)
 app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
@@ -72,15 +73,16 @@ app.use((req, res, next) => {
     next();
 });
 
+// จำกัดการเรียก API (Rate Limiting)
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
+    windowMs: 15 * 60 * 1000, // 15 นาที
+    max: 100, // จำกัด 100 ครั้ง
     message: 'Too many requests from this IP'
 });
 
 const uploadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 20,
+    max: 20, // จำกัดอัปโหลด 20 ครั้ง/15 นาที
     message: 'Too many uploads'
 });
 
@@ -108,7 +110,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }
+    limits: { fileSize: 10 * 1024 * 1024 } // จำกัดไฟล์ละ 10MB
 });
 
 const pool = mysql.createPool({
@@ -124,6 +126,7 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+// ทดสอบการเชื่อมต่อ Database
 (async () => {
     try {
         const connection = await pool.getConnection();
@@ -215,7 +218,7 @@ async function getCloudinaryUsage() {
         return {
             used_bytes: result.storage?.usage || 0,
             used_readable: formatBytes(result.storage?.usage || 0),
-            limit_bytes: result.storage?.limit || 26843545600,
+            limit_bytes: result.storage?.limit || 26843545600, // Default ~25GB
             limit_readable: formatBytes(result.storage?.limit || 26843545600),
             usage_percent: result.storage?.usage && result.storage?.limit
                 ? ((result.storage.usage / result.storage.limit) * 100).toFixed(4)
@@ -224,7 +227,12 @@ async function getCloudinaryUsage() {
         };
     } catch (error) {
         console.error('Cloudinary usage error:', error.message);
-        return { used_readable: 'N/A', limit_readable: 'N/A', usage_percent: 0, plan: 'Unknown' };
+        return {
+            used_readable: 'N/A',
+            limit_readable: 'N/A',
+            usage_percent: 0,
+            plan: 'Unknown'
+        };
     }
 }
 
@@ -335,7 +343,8 @@ app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30)
 
 // --- Photos Management (Read/Update) ---
 
-app.get('/photos', async (req, res) => {
+// 🔥 แก้ไข: ใส่ authenticateToken และกรองรูปตาม Role
+app.get('/photos', authenticateToken, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 50, 1000);
     const offset = (page - 1) * limit;
@@ -351,6 +360,12 @@ app.get('/photos', async (req, res) => {
     `;
 
     const params = [];
+
+    // 🔥 ถ้าไม่ใช่ Admin ให้เห็นแค่ของตัวเอง
+    if (req.user.role !== 'admin') {
+        sql += ` AND Photos.uploader_id = ?`;
+        params.push(req.user.id);
+    }
 
     if (search) {
         sql += ` AND (Photos.file_name LIKE ? OR Users.username LIKE ?)`;
@@ -418,9 +433,6 @@ app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => 
     }
 });
 
-// 🔥🔥🔥 DELETE/RESTORE (Fixed for Bulk & Single) 🔥🔥🔥
-
-// 1. Soft Delete (Single or Bulk)
 app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
@@ -430,6 +442,7 @@ app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, 
     }
 });
 
+// 🔥 Bulk Delete (Soft)
 app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
@@ -441,7 +454,6 @@ app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) =
     }
 });
 
-// 2. Get Trash
 app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Photos WHERE is_deleted = 1 ORDER BY upload_date DESC');
@@ -452,36 +464,29 @@ app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
-// 3. Restore (Bulk)
 app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
-    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
-
+    if (!photo_ids || !photo_ids.length) return res.status(400).json({ error: 'No photo IDs provided' });
     try {
         await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id IN (?)', [photo_ids]);
-        res.json({ message: 'Restored successfully' });
+        res.json({ message: 'Restored' });
     } catch (err) {
         res.status(500).json({ error: 'Restore failed' });
     }
 });
 
-// 4. Permanent Delete (Bulk)
 app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
-    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
+    if (!photo_ids || !photo_ids.length) return res.status(400).json({ error: 'No photo IDs provided' });
 
     try {
-        const [photos] = await pool.query('SELECT file_path, category_id FROM Photos WHERE photo_id IN (?)', [photo_ids]);
-        
-        for (const photo of photos) {
+        const [results] = await pool.query('SELECT file_path FROM Photos WHERE photo_id IN (?)', [photo_ids]);
+        for (const photo of results) {
             const publicId = getPublicIdFromUrl(photo.file_path);
-            if (publicId) {
-                cloudinary.uploader.destroy(publicId).catch(err => console.error('Cloudinary del error', err));
-            }
+            if (publicId) cloudinary.uploader.destroy(publicId).catch(err => console.error('Cloudinary delete error:', err));
         }
-
         await pool.query('DELETE FROM Photos WHERE photo_id IN (?)', [photo_ids]);
-        res.json({ message: 'Permanently deleted' });
+        res.json({ message: 'Deleted permanently' });
     } catch (err) {
         console.error('Permanent delete error:', err);
         res.status(500).json({ error: 'Delete failed' });
@@ -523,11 +528,12 @@ app.put('/profile/username', authenticateToken, async (req, res) => {
     }
 });
 
-// 🔥🔥🔥 FIXED STATS (Separated Logic for Admin/Uploader) 🔥🔥🔥
+// --- Stats & Storage ---
 
+// 🔥 แก้ไข: แยกการนับตาม Role (Admin เห็นทั้งหมด / Uploader เห็นเฉพาะตัวเอง)
 app.get('/stats', authenticateToken, async (req, res) => {
     try {
-        // Only Admin can clean up categories
+        // ล้างหมวดหมู่เปล่า (ทำเฉพาะ Admin)
         if (req.user.role === 'admin') {
             await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         }
@@ -536,15 +542,14 @@ app.get('/stats', authenticateToken, async (req, res) => {
         let params = [];
 
         if (req.user.role === 'admin') {
-            // Admin: See Global
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1';
             catSql = 'SELECT COUNT(*) as count FROM Categories';
         } else {
-            // Uploader: See Personal
+            // Uploader
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0 AND uploader_id = ?';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1 AND uploader_id = ?';
-            catSql = 'SELECT COUNT(*) as count FROM Categories'; 
+            catSql = 'SELECT COUNT(*) as count FROM Categories';
             params = [req.user.id];
         }
 
@@ -567,8 +572,10 @@ app.get('/stats', authenticateToken, async (req, res) => {
 app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     try {
         const cloudinaryData = await getCloudinaryUsage();
+
         const [photosCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0');
         const [trashCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 1');
+
         const [latestStats] = await pool.query(`
             SELECT c.name as category_name, COUNT(p.photo_id) as photo_count, MAX(p.upload_date) as last_update
             FROM Categories c
@@ -588,6 +595,7 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
             },
             latest_categories: latestStats
         });
+
     } catch (error) {
         console.error('❌ Storage usage error:', error);
         res.status(500).json({ error: 'Failed to get storage usage' });
@@ -596,13 +604,30 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
 
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
-        const result = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 100 });
-        let totalBytes = 0, count = 0;
+        const result = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: 'army_gallery/',
+            max_results: 100 
+        });
+
+        let totalBytes = 0;
+        let count = 0;
+
         if (result.resources && result.resources.length > 0) {
-            result.resources.forEach(res => { totalBytes += res.bytes; count++; });
+            result.resources.forEach(res => {
+                totalBytes += res.bytes;
+                count++;
+            });
         }
+
         const avgSize = count > 0 ? totalBytes / count : 0;
-        res.json({ average_bytes: Math.round(avgSize), average_readable: formatBytes(avgSize), sample_size: count });
+
+        res.json({
+            average_bytes: Math.round(avgSize),
+            average_readable: formatBytes(avgSize),
+            sample_size: count
+        });
+
     } catch (error) {
         console.error('Average size error:', error);
         res.json({ average_readable: '0 B' });
@@ -611,6 +636,7 @@ app.get('/storage/average', authenticateToken, async (req, res) => {
 
 // --- General Data ---
 
+// 🔥 แก้ไข: ใส่ authenticateToken
 app.get('/categories', authenticateToken, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC');
@@ -643,12 +669,19 @@ app.get('/users', authenticateToken, adminOnly, async (req, res) => {
 });
 
 app.post('/users', authenticateToken, adminOnly, async (req, res) => {
-    const validation = validateInput(req.body, { username: { required: true, minLength: 8, maxLength: 50 }, password: { required: true, minLength: 8, maxLength: 100 } });
+    const validation = validateInput(req.body, {
+        username: { required: true, minLength: 8, maxLength: 50 },
+        password: { required: true, minLength: 8, maxLength: 100 }
+    });
+
     if (!validation.valid) return res.status(400).json({ message: validation.message });
 
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, hashedPassword, req.body.role]);
+        await pool.query(
+            'INSERT INTO Users (username, password, role) VALUES (?, ?, ?)',
+            [req.body.username, hashedPassword, req.body.role]
+        );
         res.json({ message: 'User added successfully' });
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Username already exists' });
@@ -691,7 +724,11 @@ app.get('/download-zip/:categoryName', async (req, res) => {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Category not found');
 
-        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
+        const [photos] = await pool.query(
+            'SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0',
+            [cats[0].category_id]
+        );
+
         if (photos.length === 0) return res.status(404).send('No photos in this category');
 
         const archive = archiver('zip', { zlib: { level: 9 } });
@@ -707,6 +744,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
                 }).on('error', resolve);
             });
         }
+
         archive.finalize();
     } catch (err) {
         console.error('ZIP error:', err);
@@ -715,8 +753,14 @@ app.get('/download-zip/:categoryName', async (req, res) => {
 });
 
 // 404 & Error Handler
-app.use((req, res) => { res.status(404).json({ message: 'Route not found' }); });
-app.use((err, req, res, next) => { console.error('Server error:', err); res.status(500).json({ error: 'Internal server error' }); });
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});
+
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));

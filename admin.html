@@ -1440,7 +1440,8 @@
         // --- Stats & Categories (🔥 FIX: Added Headers for Uploader) ---
         async function loadStats() {
             try {
-                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
+                // 🔥 แก้ไข 1: เพิ่ม Headers เพื่อส่ง Token ไปให้ Server ยืนยันตัวตน
+                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); 
                 if(!res.ok) return;
                 const data = await res.json();
                 document.getElementById('statTotal').innerText = data.total_photos;
@@ -1453,7 +1454,8 @@
 
         async function loadCategories() {
             try {
-                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
+                // 🔥 แก้ไข 2: เพิ่ม Headers
+                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); 
                 if(!res.ok) return;
                 const c = await res.json();
                 const dl = document.getElementById('categoryList');
@@ -1553,16 +1555,20 @@
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            // 🔥 FIX: Added Headers just in case
-            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
-            const photos = await res.json();
-            renderGrid('approvedList', photos, 'approved');
+            try {
+                 // 🔥 แก้ไข 3: เพิ่ม Headers และ Error Handling
+                const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
+                if (!res.ok) throw new Error();
+                const photos = await res.json();
+                renderGrid('approvedList', photos, 'approved');
 
-            // Pagination controls
-            document.getElementById('paginationControls').style.display = 'flex';
-            document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
-            document.getElementById('btnPrev').disabled = (currentPage <= 1);
-            document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
+                document.getElementById('paginationControls').style.display = 'flex';
+                document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
+                document.getElementById('btnPrev').disabled = (currentPage <= 1);
+                document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
+            } catch(e) {
+                document.getElementById('approvedList').innerHTML = '<p style="text-align:center; padding:20px; color:#999;">ไม่พบข้อมูล หรือโหลดไม่สำเร็จ</p>';
+            }
         }
 
         function changePage(step) {
@@ -1580,7 +1586,7 @@
                 toolbar.style.display = (user.role === 'admin' && photos.length > 0) ? 'flex' : 'none';
             }
 
-            if (photos.length === 0) {
+            if (!Array.isArray(photos) || photos.length === 0) {
                 el.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#999; padding:20px;">ไม่พบข้อมูล</p>';
                 return;
             }
