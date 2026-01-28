@@ -29,35 +29,16 @@ app.use(express.urlencoded({ extended: true }));
 // ให้บริการไฟล์ Static (หน้าเว็บ HTML)
 app.use(express.static(__dirname));
 
-// ตั้งค่า Helmet เพื่อความปลอดภัย (กำหนดแหล่งที่มาของไฟล์)
+// ตั้งค่า Helmet เพื่อความปลอดภัย
 app.use(
     helmet({
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: [
-                    "'self'",
-                    "'unsafe-inline'",
-                    "https://cdn.jsdelivr.net",
-                    "https://npmcdn.com",
-                    "https://cdnjs.cloudflare.com"
-                ],
-                styleSrc: [
-                    "'self'",
-                    "'unsafe-inline'",
-                    "https://fonts.googleapis.com",
-                    "https://cdnjs.cloudflare.com",
-                    "https://cdn.jsdelivr.net"
-                ],
-                imgSrc: [
-                    "'self'",
-                    "data:",
-                    "https://res.cloudinary.com"
-                ],
-                fontSrc: [
-                    "'self'",
-                    "https://fonts.gstatic.com"
-                ],
+                scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://npmcdn.com", "https://cdnjs.cloudflare.com"],
+                styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+                imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+                fontSrc: ["'self'", "https://fonts.gstatic.com"],
                 connectSrc: ["'self'"],
             },
         },
@@ -65,7 +46,7 @@ app.use(
     })
 );
 
-// ป้องกัน Cache (เพื่อให้ข้อมูลเป็นปัจจุบันเสมอ)
+// ป้องกัน Cache
 app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
@@ -75,14 +56,14 @@ app.use((req, res, next) => {
 
 // จำกัดการเรียก API (Rate Limiting)
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 นาที
-    max: 100, // จำกัด 100 ครั้ง
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: 'Too many requests from this IP'
 });
 
 const uploadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 20, // จำกัดอัปโหลด 20 ครั้ง/15 นาที
+    max: 20,
     message: 'Too many uploads'
 });
 
@@ -110,7 +91,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // จำกัดไฟล์ละ 10MB
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 const pool = mysql.createPool({
@@ -218,7 +199,7 @@ async function getCloudinaryUsage() {
         return {
             used_bytes: result.storage?.usage || 0,
             used_readable: formatBytes(result.storage?.usage || 0),
-            limit_bytes: result.storage?.limit || 26843545600, // Default ~25GB
+            limit_bytes: result.storage?.limit || 26843545600,
             limit_readable: formatBytes(result.storage?.limit || 26843545600),
             usage_percent: result.storage?.usage && result.storage?.limit
                 ? ((result.storage.usage / result.storage.limit) * 100).toFixed(4)
@@ -227,12 +208,7 @@ async function getCloudinaryUsage() {
         };
     } catch (error) {
         console.error('Cloudinary usage error:', error.message);
-        return {
-            used_readable: 'N/A',
-            limit_readable: 'N/A',
-            usage_percent: 0,
-            plan: 'Unknown'
-        };
+        return { used_readable: 'N/A', limit_readable: 'N/A', usage_percent: 0, plan: 'Unknown' };
     }
 }
 
@@ -433,6 +409,9 @@ app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => 
     }
 });
 
+// 🔥🔥🔥 DELETE/RESTORE (Fixed for Bulk & Single) 🔥🔥🔥
+
+// 1. Soft Delete (Single or Bulk)
 app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
@@ -442,7 +421,6 @@ app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, 
     }
 });
 
-// 🔥 Bulk Delete (Soft)
 app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
@@ -454,6 +432,7 @@ app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) =
     }
 });
 
+// 2. Get Trash
 app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Photos WHERE is_deleted = 1 ORDER BY upload_date DESC');
@@ -464,29 +443,36 @@ app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
+// 3. Restore (Bulk)
 app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
-    if (!photo_ids || !photo_ids.length) return res.status(400).json({ error: 'No photo IDs provided' });
+    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
+
     try {
         await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id IN (?)', [photo_ids]);
-        res.json({ message: 'Restored' });
+        res.json({ message: 'Restored successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Restore failed' });
     }
 });
 
+// 4. Permanent Delete (Bulk)
 app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
-    if (!photo_ids || !photo_ids.length) return res.status(400).json({ error: 'No photo IDs provided' });
+    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
 
     try {
-        const [results] = await pool.query('SELECT file_path FROM Photos WHERE photo_id IN (?)', [photo_ids]);
-        for (const photo of results) {
+        const [photos] = await pool.query('SELECT file_path, category_id FROM Photos WHERE photo_id IN (?)', [photo_ids]);
+        
+        for (const photo of photos) {
             const publicId = getPublicIdFromUrl(photo.file_path);
-            if (publicId) cloudinary.uploader.destroy(publicId).catch(err => console.error('Cloudinary delete error:', err));
+            if (publicId) {
+                cloudinary.uploader.destroy(publicId).catch(err => console.error('Cloudinary del error', err));
+            }
         }
+
         await pool.query('DELETE FROM Photos WHERE photo_id IN (?)', [photo_ids]);
-        res.json({ message: 'Deleted permanently' });
+        res.json({ message: 'Permanently deleted' });
     } catch (err) {
         console.error('Permanent delete error:', err);
         res.status(500).json({ error: 'Delete failed' });
@@ -530,7 +516,7 @@ app.put('/profile/username', authenticateToken, async (req, res) => {
 
 // --- Stats & Storage ---
 
-// 🔥 แก้ไข: แยกการนับตาม Role (Admin เห็นทั้งหมด / Uploader เห็นเฉพาะตัวเอง)
+// 🔥 แก้ไข: แยกการนับตาม Role (Admin เห็นทั้งหมด / Uploader เห็นเฉพาะตัวเอง) และเพิ่ม authenticateToken
 app.get('/stats', authenticateToken, async (req, res) => {
     try {
         // ล้างหมวดหมู่เปล่า (ทำเฉพาะ Admin)
@@ -542,14 +528,15 @@ app.get('/stats', authenticateToken, async (req, res) => {
         let params = [];
 
         if (req.user.role === 'admin') {
+            // Admin: นับทั้งหมด
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1';
             catSql = 'SELECT COUNT(*) as count FROM Categories';
         } else {
-            // Uploader
+            // Uploader: นับเฉพาะของตัวเอง
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0 AND uploader_id = ?';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1 AND uploader_id = ?';
-            catSql = 'SELECT COUNT(*) as count FROM Categories';
+            catSql = 'SELECT COUNT(*) as count FROM Categories'; 
             params = [req.user.id];
         }
 
@@ -636,7 +623,7 @@ app.get('/storage/average', authenticateToken, async (req, res) => {
 
 // --- General Data ---
 
-// 🔥 แก้ไข: ใส่ authenticateToken
+// 🔥 แก้ไข: ใส่ authenticateToken เพื่อรองรับ Header จาก Frontend
 app.get('/categories', authenticateToken, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC');
