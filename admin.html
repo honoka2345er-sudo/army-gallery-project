@@ -13,7 +13,9 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1042/1042339.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -507,21 +509,6 @@
             background: #f0f0f0;
         }
 
-        .btn-action { 
-            padding: 8px 10px; 
-            font-size: 13px; 
-            color: white; 
-            border-radius: 4px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            border: none; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 5px;
-            flex: 1;
-        }
-
         /* =========================================
            7. Gallery & Trash Grid (Updated Design)
            ========================================= */
@@ -665,7 +652,6 @@
             font-family: 'Sarabun', sans-serif;
             background: white;
             white-space: nowrap;
-            border: none;
         }
 
         .btn-trash-restore {
@@ -1029,7 +1015,7 @@
             .bulk-actions-right { width: 100%; justify-content: space-between; }
             .btn-bulk-restore, .btn-bulk-delete { flex: 1; justify-content: center; }
             .card { padding: 20px; overflow-x: auto; }
-            table { min-width: 600px; }
+            
             .modal-content { width: 95%; }
             .approval-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
@@ -1454,8 +1440,7 @@
         // --- Stats & Categories (🔥 FIX: Added Headers for Uploader) ---
         async function loadStats() {
             try {
-                // 🔥 แก้ไข 1: เพิ่ม Headers เพื่อส่ง Token ไปให้ Server ยืนยันตัวตน
-                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); 
+                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
                 if(!res.ok) return;
                 const data = await res.json();
                 document.getElementById('statTotal').innerText = data.total_photos;
@@ -1468,8 +1453,7 @@
 
         async function loadCategories() {
             try {
-                // 🔥 แก้ไข 2: เพิ่ม Headers
-                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); 
+                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
                 if(!res.ok) return;
                 const c = await res.json();
                 const dl = document.getElementById('categoryList');
@@ -1569,20 +1553,16 @@
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            try {
-                 // 🔥 แก้ไข 3: เพิ่ม Headers และ Error Handling
-                const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
-                if (!res.ok) throw new Error();
-                const photos = await res.json();
-                renderGrid('approvedList', photos, 'approved');
+            // 🔥 FIX: Added Headers just in case
+            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
+            const photos = await res.json();
+            renderGrid('approvedList', photos, 'approved');
 
-                document.getElementById('paginationControls').style.display = 'flex';
-                document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
-                document.getElementById('btnPrev').disabled = (currentPage <= 1);
-                document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
-            } catch(e) {
-                document.getElementById('approvedList').innerHTML = '<p style="text-align:center; padding:20px; color:#999;">ไม่พบข้อมูล หรือโหลดไม่สำเร็จ</p>';
-            }
+            // Pagination controls
+            document.getElementById('paginationControls').style.display = 'flex';
+            document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
+            document.getElementById('btnPrev').disabled = (currentPage <= 1);
+            document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
         }
 
         function changePage(step) {
@@ -1600,7 +1580,7 @@
                 toolbar.style.display = (user.role === 'admin' && photos.length > 0) ? 'flex' : 'none';
             }
 
-            if (!Array.isArray(photos) || photos.length === 0) {
+            if (photos.length === 0) {
                 el.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#999; padding:20px;">ไม่พบข้อมูล</p>';
                 return;
             }
@@ -2225,4 +2205,5 @@
         }
     </script>
 </body>
+
 </html>
