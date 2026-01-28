@@ -22,23 +22,42 @@ const app = express();
 // อนุญาต CORS (ให้หน้าเว็บเรียก API ได้)
 app.use(cors());
 
-// รองรับ JSON ขนาดใหญ่ (เผื่อส่งข้อมูลเยอะ)
+// รองรับ JSON ขนาดใหญ่
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ให้บริการไฟล์ Static (หน้าเว็บ HTML)
 app.use(express.static(__dirname));
 
-// ตั้งค่า Helmet เพื่อความปลอดภัย
+// ตั้งค่า Helmet
 app.use(
     helmet({
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://npmcdn.com", "https://cdnjs.cloudflare.com"],
-                styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
-                imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
-                fontSrc: ["'self'", "https://fonts.gstatic.com"],
+                scriptSrc: [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "https://cdn.jsdelivr.net",
+                    "https://npmcdn.com",
+                    "https://cdnjs.cloudflare.com"
+                ],
+                styleSrc: [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "https://fonts.googleapis.com",
+                    "https://cdnjs.cloudflare.com",
+                    "https://cdn.jsdelivr.net"
+                ],
+                imgSrc: [
+                    "'self'",
+                    "data:",
+                    "https://res.cloudinary.com"
+                ],
+                fontSrc: [
+                    "'self'",
+                    "https://fonts.gstatic.com"
+                ],
                 connectSrc: ["'self'"],
             },
         },
@@ -46,7 +65,6 @@ app.use(
     })
 );
 
-// ป้องกัน Cache
 app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
@@ -54,7 +72,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// จำกัดการเรียก API (Rate Limiting)
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -107,7 +124,6 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// ทดสอบการเชื่อมต่อ Database
 (async () => {
     try {
         const connection = await pool.getConnection();
@@ -319,8 +335,7 @@ app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30)
 
 // --- Photos Management (Read/Update) ---
 
-// 🔥 แก้ไข: ใส่ authenticateToken และกรองรูปตาม Role
-app.get('/photos', authenticateToken, async (req, res) => {
+app.get('/photos', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 50, 1000);
     const offset = (page - 1) * limit;
@@ -336,12 +351,6 @@ app.get('/photos', authenticateToken, async (req, res) => {
     `;
 
     const params = [];
-
-    // 🔥 ถ้าไม่ใช่ Admin ให้เห็นแค่ของตัวเอง
-    if (req.user.role !== 'admin') {
-        sql += ` AND Photos.uploader_id = ?`;
-        params.push(req.user.id);
-    }
 
     if (search) {
         sql += ` AND (Photos.file_name LIKE ? OR Users.username LIKE ?)`;
@@ -514,12 +523,11 @@ app.put('/profile/username', authenticateToken, async (req, res) => {
     }
 });
 
-// --- Stats & Storage ---
+// 🔥🔥🔥 FIXED STATS (Separated Logic for Admin/Uploader) 🔥🔥🔥
 
-// 🔥 แก้ไข: แยกการนับตาม Role (Admin เห็นทั้งหมด / Uploader เห็นเฉพาะตัวเอง) และเพิ่ม authenticateToken
 app.get('/stats', authenticateToken, async (req, res) => {
     try {
-        // ล้างหมวดหมู่เปล่า (ทำเฉพาะ Admin)
+        // Only Admin can clean up categories
         if (req.user.role === 'admin') {
             await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         }
@@ -528,12 +536,12 @@ app.get('/stats', authenticateToken, async (req, res) => {
         let params = [];
 
         if (req.user.role === 'admin') {
-            // Admin: นับทั้งหมด
+            // Admin: See Global
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1';
             catSql = 'SELECT COUNT(*) as count FROM Categories';
         } else {
-            // Uploader: นับเฉพาะของตัวเอง
+            // Uploader: See Personal
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0 AND uploader_id = ?';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1 AND uploader_id = ?';
             catSql = 'SELECT COUNT(*) as count FROM Categories'; 
@@ -559,10 +567,8 @@ app.get('/stats', authenticateToken, async (req, res) => {
 app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     try {
         const cloudinaryData = await getCloudinaryUsage();
-
         const [photosCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0');
         const [trashCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 1');
-
         const [latestStats] = await pool.query(`
             SELECT c.name as category_name, COUNT(p.photo_id) as photo_count, MAX(p.upload_date) as last_update
             FROM Categories c
@@ -582,7 +588,6 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
             },
             latest_categories: latestStats
         });
-
     } catch (error) {
         console.error('❌ Storage usage error:', error);
         res.status(500).json({ error: 'Failed to get storage usage' });
@@ -591,30 +596,13 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
 
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
-        const result = await cloudinary.api.resources({
-            type: 'upload',
-            prefix: 'army_gallery/',
-            max_results: 100 
-        });
-
-        let totalBytes = 0;
-        let count = 0;
-
+        const result = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 100 });
+        let totalBytes = 0, count = 0;
         if (result.resources && result.resources.length > 0) {
-            result.resources.forEach(res => {
-                totalBytes += res.bytes;
-                count++;
-            });
+            result.resources.forEach(res => { totalBytes += res.bytes; count++; });
         }
-
         const avgSize = count > 0 ? totalBytes / count : 0;
-
-        res.json({
-            average_bytes: Math.round(avgSize),
-            average_readable: formatBytes(avgSize),
-            sample_size: count
-        });
-
+        res.json({ average_bytes: Math.round(avgSize), average_readable: formatBytes(avgSize), sample_size: count });
     } catch (error) {
         console.error('Average size error:', error);
         res.json({ average_readable: '0 B' });
@@ -623,7 +611,6 @@ app.get('/storage/average', authenticateToken, async (req, res) => {
 
 // --- General Data ---
 
-// 🔥 แก้ไข: ใส่ authenticateToken เพื่อรองรับ Header จาก Frontend
 app.get('/categories', authenticateToken, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC');
@@ -656,19 +643,12 @@ app.get('/users', authenticateToken, adminOnly, async (req, res) => {
 });
 
 app.post('/users', authenticateToken, adminOnly, async (req, res) => {
-    const validation = validateInput(req.body, {
-        username: { required: true, minLength: 8, maxLength: 50 },
-        password: { required: true, minLength: 8, maxLength: 100 }
-    });
-
+    const validation = validateInput(req.body, { username: { required: true, minLength: 8, maxLength: 50 }, password: { required: true, minLength: 8, maxLength: 100 } });
     if (!validation.valid) return res.status(400).json({ message: validation.message });
 
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        await pool.query(
-            'INSERT INTO Users (username, password, role) VALUES (?, ?, ?)',
-            [req.body.username, hashedPassword, req.body.role]
-        );
+        await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, hashedPassword, req.body.role]);
         res.json({ message: 'User added successfully' });
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Username already exists' });
@@ -711,11 +691,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Category not found');
 
-        const [photos] = await pool.query(
-            'SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0',
-            [cats[0].category_id]
-        );
-
+        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
         if (photos.length === 0) return res.status(404).send('No photos in this category');
 
         const archive = archiver('zip', { zlib: { level: 9 } });
@@ -731,7 +707,6 @@ app.get('/download-zip/:categoryName', async (req, res) => {
                 }).on('error', resolve);
             });
         }
-
         archive.finalize();
     } catch (err) {
         console.error('ZIP error:', err);
@@ -740,14 +715,8 @@ app.get('/download-zip/:categoryName', async (req, res) => {
 });
 
 // 404 & Error Handler
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
-});
-
-app.use((err, req, res, next) => {
-    console.error('Server error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-});
+app.use((req, res) => { res.status(404).json({ message: 'Route not found' }); });
+app.use((err, req, res, next) => { console.error('Server error:', err); res.status(500).json({ error: 'Internal server error' }); });
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
