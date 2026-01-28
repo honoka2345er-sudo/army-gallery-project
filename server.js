@@ -19,14 +19,14 @@ const app = express();
 // 1. ตั้งค่าความปลอดภัยและ Middleware พื้นฐาน
 // ==========================================
 
-// อนุญาต CORS (ให้หน้าเว็บเรียก API ได้)
+// อนุญาต CORS
 app.use(cors());
 
 // รองรับ JSON ขนาดใหญ่
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ให้บริการไฟล์ Static (หน้าเว็บ HTML)
+// ให้บริการไฟล์ Static
 app.use(express.static(__dirname));
 
 // ตั้งค่า Helmet
@@ -334,8 +334,8 @@ app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30)
 });
 
 // --- Photos Management (Read/Update) ---
-
-app.get('/photos', async (req, res) => {
+// 🔥 FIX: รองรับการกรองตาม Role (Admin เห็นหมด / Uploader เห็นของตัวเอง)
+app.get('/photos', authenticateToken, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 50, 1000);
     const offset = (page - 1) * limit;
@@ -351,6 +351,12 @@ app.get('/photos', async (req, res) => {
     `;
 
     const params = [];
+
+    // 🔥 กรองเฉพาะเจ้าของรูป ถ้าไม่ใช่ Admin
+    if (req.user.role !== 'admin') {
+        sql += ` AND Photos.uploader_id = ?`;
+        params.push(req.user.id);
+    }
 
     if (search) {
         sql += ` AND (Photos.file_name LIKE ? OR Users.username LIKE ?)`;
@@ -418,9 +424,9 @@ app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => 
     }
 });
 
-// 🔥🔥🔥 DELETE/RESTORE (Fixed for Bulk & Single) 🔥🔥🔥
+// 🔥🔥🔥 ส่วนสำคัญ: แก้ไขระบบลบ/กู้คืน ให้รองรับทั้งแบบเดี่ยวและแบบกลุ่ม (Bulk) 🔥🔥🔥
 
-// 1. Soft Delete (Single or Bulk)
+// 1. ย้ายลงถังขยะ (Soft Delete - Bulk)
 app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
@@ -433,6 +439,7 @@ app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, 
 app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
+    
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id IN (?)', [photo_ids]);
         res.json({ message: 'Bulk deleted successfully' });
@@ -441,7 +448,7 @@ app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) =
     }
 });
 
-// 2. Get Trash
+// 2. ดึงข้อมูลในถังขยะ
 app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Photos WHERE is_deleted = 1 ORDER BY upload_date DESC');
@@ -452,7 +459,7 @@ app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
-// 3. Restore (Bulk)
+// 3. กู้คืน (Restore - Bulk & Single)
 app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
@@ -465,7 +472,7 @@ app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res)
     }
 });
 
-// 4. Permanent Delete (Bulk)
+// 4. ลบถาวร (Permanent Delete - Bulk & Single)
 app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
@@ -523,11 +530,10 @@ app.put('/profile/username', authenticateToken, async (req, res) => {
     }
 });
 
-// 🔥🔥🔥 FIXED STATS (Separated Logic for Admin/Uploader) 🔥🔥🔥
+// --- Stats & Storage (🔥 FIXED Logic) ---
 
 app.get('/stats', authenticateToken, async (req, res) => {
     try {
-        // Only Admin can clean up categories
         if (req.user.role === 'admin') {
             await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         }
@@ -536,12 +542,11 @@ app.get('/stats', authenticateToken, async (req, res) => {
         let params = [];
 
         if (req.user.role === 'admin') {
-            // Admin: See Global
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1';
             catSql = 'SELECT COUNT(*) as count FROM Categories';
         } else {
-            // Uploader: See Personal
+            // Uploader เห็นเฉพาะของตัวเอง
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0 AND uploader_id = ?';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1 AND uploader_id = ?';
             catSql = 'SELECT COUNT(*) as count FROM Categories'; 
@@ -554,7 +559,6 @@ app.get('/stats', authenticateToken, async (req, res) => {
 
         res.json({
             total_photos: totalRes[0].count,
-            pending_photos: 0,
             total_categories: catRes[0].count,
             trash_count: trashRes[0].count
         });
@@ -596,20 +600,29 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
 
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
-        const result = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 100 });
+        const result = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: 'army_gallery/',
+            max_results: 100 
+        });
+
         let totalBytes = 0, count = 0;
         if (result.resources && result.resources.length > 0) {
             result.resources.forEach(res => { totalBytes += res.bytes; count++; });
         }
         const avgSize = count > 0 ? totalBytes / count : 0;
-        res.json({ average_bytes: Math.round(avgSize), average_readable: formatBytes(avgSize), sample_size: count });
+
+        res.json({
+            average_bytes: Math.round(avgSize),
+            average_readable: formatBytes(avgSize),
+            sample_size: count
+        });
     } catch (error) {
-        console.error('Average size error:', error);
         res.json({ average_readable: '0 B' });
     }
 });
 
-// --- General Data ---
+// --- General Data (🔥 Allow Uploader) ---
 
 app.get('/categories', authenticateToken, async (req, res) => {
     try {
@@ -625,7 +638,6 @@ app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
         const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 100');
         res.json(results);
     } catch (err) {
-        console.error('Logs Error:', err);
         res.status(500).json({ error: 'Failed to fetch logs' });
     }
 });
@@ -637,18 +649,24 @@ app.get('/users', authenticateToken, adminOnly, async (req, res) => {
         const [results] = await pool.query('SELECT user_id, username, role, created_at FROM Users ORDER BY created_at DESC');
         res.json(results);
     } catch (err) {
-        console.error('Users Error:', err);
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
 
 app.post('/users', authenticateToken, adminOnly, async (req, res) => {
-    const validation = validateInput(req.body, { username: { required: true, minLength: 8, maxLength: 50 }, password: { required: true, minLength: 8, maxLength: 100 } });
+    const validation = validateInput(req.body, {
+        username: { required: true, minLength: 8, maxLength: 50 },
+        password: { required: true, minLength: 8, maxLength: 100 }
+    });
+
     if (!validation.valid) return res.status(400).json({ message: validation.message });
 
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, hashedPassword, req.body.role]);
+        await pool.query(
+            'INSERT INTO Users (username, password, role) VALUES (?, ?, ?)',
+            [req.body.username, hashedPassword, req.body.role]
+        );
         res.json({ message: 'User added successfully' });
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Username already exists' });
@@ -691,7 +709,11 @@ app.get('/download-zip/:categoryName', async (req, res) => {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Category not found');
 
-        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
+        const [photos] = await pool.query(
+            'SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0',
+            [cats[0].category_id]
+        );
+
         if (photos.length === 0) return res.status(404).send('No photos in this category');
 
         const archive = archiver('zip', { zlib: { level: 9 } });
@@ -707,6 +729,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
                 }).on('error', resolve);
             });
         }
+
         archive.finalize();
     } catch (err) {
         console.error('ZIP error:', err);
@@ -715,8 +738,14 @@ app.get('/download-zip/:categoryName', async (req, res) => {
 });
 
 // 404 & Error Handler
-app.use((req, res) => { res.status(404).json({ message: 'Route not found' }); });
-app.use((err, req, res, next) => { console.error('Server error:', err); res.status(500).json({ error: 'Internal server error' }); });
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});
+
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
