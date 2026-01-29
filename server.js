@@ -66,24 +66,14 @@ app.use((req, res, next) => {
     next();
 });
 
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: 'Too many requests from this IP'
-});
-
-const uploadLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
-    message: 'Too many uploads'
-});
-
+const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+const uploadLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 app.use('/api/', apiLimiter);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'army_secret_key_1234';
 
 // ==========================================
-// 2. ตั้งค่า Database และ Cloudinary
+// 2. Database & Cloudinary
 // ==========================================
 
 cloudinary.config({
@@ -129,7 +119,7 @@ const pool = mysql.createPool({
 })();
 
 // ==========================================
-// 3. Helper Functions & Middleware
+// 3. Helper Functions
 // ==========================================
 
 function authenticateToken(req, res, next) {
@@ -153,15 +143,9 @@ function adminOnly(req, res, next) {
 function validateInput(data, rules) {
     for (const [field, rule] of Object.entries(rules)) {
         const value = data[field];
-        if (rule.required && (!value || value.trim() === '')) {
-            return { valid: false, message: `${field} is required` };
-        }
-        if (rule.minLength && value.length < rule.minLength) {
-            return { valid: false, message: `${field} too short` };
-        }
-        if (rule.maxLength && value.length > rule.maxLength) {
-            return { valid: false, message: `${field} too long` };
-        }
+        if (rule.required && (!value || value.trim() === '')) return { valid: false, message: `${field} is required` };
+        if (rule.minLength && value.length < rule.minLength) return { valid: false, message: `${field} too short` };
+        if (rule.maxLength && value.length > rule.maxLength) return { valid: false, message: `${field} too long` };
     }
     return { valid: true };
 }
@@ -169,57 +153,30 @@ function validateInput(data, rules) {
 async function logAction(userId, username, action, details, req) {
     try {
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
-        await pool.query(
-            'INSERT INTO Logs (user_id, username, action, details, ip_address) VALUES (?, ?, ?, ?, ?)',
-            [userId, username, action, details, ip]
-        );
-    } catch (err) {
-        console.error('Log Error:', err.message);
-    }
+        await pool.query('INSERT INTO Logs (user_id, username, action, details, ip_address) VALUES (?, ?, ?, ?, ?)', [userId, username, action, details, ip]);
+    } catch (err) { console.error('Log Error:', err.message); }
 }
 
 function getPublicIdFromUrl(url) {
-    try {
-        const parts = url.split('/');
-        const filename = parts.pop();
-        const folder = parts.pop();
-        return folder + '/' + filename.split('.')[0];
-    } catch (e) {
-        return null;
-    }
-}
-
-function formatBytes(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    try { return url.split('/').slice(-2).join('/').split('.')[0]; } catch (e) { return null; }
 }
 
 async function getCloudinaryUsage() {
     try {
         const result = await new Promise((resolve, reject) => {
             cloudinary.api.usage((error, result) => {
-                if (error) reject(error);
-                else resolve(result);
+                if (error) reject(error); else resolve(result);
             });
         });
-
         return {
             used_bytes: result.storage?.usage || 0,
-            used_readable: formatBytes(result.storage?.usage || 0),
+            used_readable: (result.storage.usage / (1024*1024)).toFixed(2) + ' MB',
             limit_bytes: result.storage?.limit || 26843545600,
-            limit_readable: formatBytes(result.storage?.limit || 26843545600),
-            usage_percent: result.storage?.usage && result.storage?.limit
-                ? ((result.storage.usage / result.storage.limit) * 100).toFixed(4)
-                : 0,
+            limit_readable: (result.storage.limit / (1024*1024*1024)).toFixed(2) + ' GB',
+            usage_percent: result.storage?.usage ? ((result.storage.usage / result.storage.limit) * 100).toFixed(4) : 0,
             plan: result.plan || 'Free'
         };
-    } catch (error) {
-        console.error('Cloudinary usage error:', error.message);
-        return { used_readable: 'N/A', limit_readable: 'N/A', usage_percent: 0, plan: 'Unknown' };
-    }
+    } catch (error) { return { used_readable: 'N/A', limit_readable: 'N/A', usage_percent: 0, plan: 'Unknown' }; }
 }
 
 // ==========================================
@@ -230,9 +187,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 🔥🔥🔥 (NEW) PUBLIC ROUTES สำหรับหน้าแรก (คนทั่วไป) 🔥🔥🔥
+// 🔥🔥🔥 PUBLIC ROUTES (สำหรับ Index.html - สำคัญมาก!) 🔥🔥🔥
 
-// 1. ดึงรูปภาพทั้งหมด (ไม่ต้องล็อกอิน)
+// 1. ดึงรูปภาพสาธารณะ
 app.get('/public/photos', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
@@ -263,473 +220,206 @@ app.get('/public/photos', async (req, res) => {
     }
 });
 
-// 2. ดึงหมวดหมู่ทั้งหมด (ไม่ต้องล็อกอิน)
+// 2. ดึงหมวดหมู่สาธารณะ
 app.get('/public/categories', async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC');
         res.json(results);
     } catch (err) {
-        console.error('Public categories error:', err);
         res.status(500).json({ error: 'Failed to fetch categories' });
     }
 });
 
-
-// --- Authentication ---
+// --- PRIVATE ROUTES (สำหรับ Admin.html) ---
 
 app.post('/register', async (req, res) => {
     const { username, password, role } = req.body;
-    const validation = validateInput(req.body, {
-        username: { required: true, minLength: 8, maxLength: 50 },
-        password: { required: true, minLength: 8, maxLength: 100 }
-    });
-
-    if (!validation.valid) return res.status(400).json({ message: validation.message });
+    const v = validateInput(req.body, { username: { required: true, minLength: 8 }, password: { required: true, minLength: 8 } });
+    if (!v.valid) return res.status(400).json(v);
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.query(
-            'INSERT INTO Users (username, password, role) VALUES (?, ?, ?)',
-            [username, hashedPassword, role || 'uploader']
-        );
-        res.status(201).json({ message: 'สมัครสมาชิกสำเร็จ!' });
+        const hash = await bcrypt.hash(password, 10);
+        await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [username, hash, role || 'uploader']);
+        res.status(201).json({ message: 'Success' });
     } catch (err) {
-        if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Username already exists' });
-        res.status(500).json({ error: 'Registration failed' });
+        if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Username exists' });
+        res.status(500).json({ error: 'Register failed' });
     }
 });
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const validation = validateInput(req.body, {
-        username: { required: true },
-        password: { required: true }
-    });
-
-    if (!validation.valid) return res.status(400).json({ message: validation.message });
-
     try {
-        const [users] = await pool.query('SELECT * FROM Users WHERE username = ?', [username]);
-        if (users.length === 0) return res.status(404).json({ message: 'ไม่พบผู้ใช้' });
-
-        const user = users[0];
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ message: 'รหัสผิด' });
-
-        const token = jwt.sign({ id: user.user_id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
-        await logAction(user.user_id, user.username, 'Login', 'เข้าสู่ระบบสำเร็จ', req);
-
-        res.json({
-            message: 'สำเร็จ',
-            token,
-            user: { user_id: user.user_id, username: user.username, role: user.role }
-        });
-    } catch (err) {
-        console.error('Login error:', err);
-        res.status(500).json({ error: 'Login failed' });
-    }
+        const [u] = await pool.query('SELECT * FROM Users WHERE username = ?', [username]);
+        if (!u.length || !(await bcrypt.compare(password, u[0].password))) return res.status(401).json({ message: 'Invalid credentials' });
+        const token = jwt.sign({ id: u[0].user_id, role: u[0].role }, JWT_SECRET, { expiresIn: '1d' });
+        await logAction(u[0].user_id, u[0].username, 'Login', 'Success', req);
+        res.json({ message: 'Success', token, user: { user_id: u[0].user_id, username: u[0].username, role: u[0].role } });
+    } catch (e) { res.status(500).json({ error: 'Login failed' }); }
 });
-
-// --- Upload ---
 
 app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30), async (req, res) => {
-    if (!req.files || req.files.length === 0) return res.status(400).json({ message: 'เลือกรูปก่อน' });
-
-    const uploader_id = req.user.id;
-    const category_name = req.body.category_name?.trim();
-
-    if (!category_name) return res.status(400).json({ message: 'ใส่ชื่อกิจกรรม' });
-
+    if (!req.files || !req.files.length) return res.status(400).json({ message: 'No files' });
+    const { category_name } = req.body;
     try {
-        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [uploader_id]);
-        const uploaderName = users[0] ? users[0].username : 'Unknown';
-
+        const [u] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
         let catId;
-        const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [category_name]);
-        if (cats.length > 0) {
-            catId = cats[0].category_id;
-        } else {
-            const [result] = await pool.query('INSERT INTO Categories (name) VALUES (?)', [category_name]);
-            catId = result.insertId;
-        }
+        const [c] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [category_name]);
+        if (c.length) catId = c[0].category_id;
+        else { const [r] = await pool.query('INSERT INTO Categories (name) VALUES (?)', [category_name]); catId = r.insertId; }
 
-        const values = req.files.map(file => [
-            file.originalname,
-            file.path,
-            file.path,
-            uploader_id,
-            catId,
-            'approved'
-        ]);
-
-        await pool.query('INSERT INTO Photos (file_name, file_path, thumbnail_path, uploader_id, category_id, status) VALUES ?', [values]);
-        await logAction(uploader_id, uploaderName, 'Upload', `อัปโหลด ${req.files.length} รูป (Auto Approve)`, req);
-
-        res.status(201).json({ message: `อัปโหลดสำเร็จ ${req.files.length} รูป` });
-    } catch (err) {
-        console.error('Upload error:', err);
-        res.status(500).json({ error: 'Upload failed' });
-    }
+        const val = req.files.map(f => [f.originalname, f.path, f.path, req.user.id, catId, 'approved']);
+        await pool.query('INSERT INTO Photos (file_name, file_path, thumbnail_path, uploader_id, category_id, status) VALUES ?', [val]);
+        await logAction(req.user.id, u[0].username, 'Upload', `${req.files.length} photos`, req);
+        res.status(201).json({ message: 'Uploaded' });
+    } catch (e) { res.status(500).json({ error: 'Upload failed' }); }
 });
 
-// --- Photos Management (PRIVATE API - สำหรับ Admin/Uploader) ---
-
+// Admin/Uploader Photos (Authenticated)
 app.get('/photos', authenticateToken, async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = Math.min(parseInt(req.query.limit) || 50, 1000);
+    const { page = 1, limit = 50, search = '', category = '' } = req.query;
     const offset = (page - 1) * limit;
-    const search = req.query.search || '';
-    const category = req.query.category || '';
-
-    let sql = `
-        SELECT Photos.*, Users.username, Categories.name AS activity_name 
-        FROM Photos 
-        LEFT JOIN Users ON Photos.uploader_id = Users.user_id
-        LEFT JOIN Categories ON Photos.category_id = Categories.category_id
-        WHERE Photos.status = 'approved' AND Photos.is_deleted = 0 
-    `;
-
+    let sql = `SELECT Photos.*, Users.username, Categories.name AS activity_name FROM Photos LEFT JOIN Users ON Photos.uploader_id = Users.user_id LEFT JOIN Categories ON Photos.category_id = Categories.category_id WHERE Photos.status = 'approved' AND Photos.is_deleted = 0`;
     const params = [];
 
-    // ถ้าไม่ใช่ Admin ให้เห็นแค่ของตัวเอง
-    if (req.user.role !== 'admin') {
-        sql += ` AND Photos.uploader_id = ?`;
-        params.push(req.user.id);
-    }
-
-    if (search) {
-        sql += ` AND (Photos.file_name LIKE ? OR Users.username LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
-
-    if (category) {
-        sql += ` AND Categories.name = ?`;
-        params.push(category);
-    }
-
+    if (req.user.role !== 'admin') { sql += ` AND Photos.uploader_id = ?`; params.push(req.user.id); }
+    if (search) { sql += ` AND (Photos.file_name LIKE ? OR Users.username LIKE ?)`; params.push(`%${search}%`, `%${search}%`); }
+    if (category) { sql += ` AND Categories.name = ?`; params.push(category); }
+    
     sql += ` ORDER BY Photos.upload_date DESC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+    params.push(parseInt(limit), parseInt(offset));
 
     try {
-        const [results] = await pool.query(sql, params);
-        const photos = results.map(photo => ({
-            id: photo.photo_id,
-            url: photo.file_path,
-            original_url: photo.file_path,
-            filename: photo.file_name,
-            uploader: photo.username,
-            activity: photo.activity_name || 'กิจกรรมทั่วไป',
-            date: photo.upload_date
-        }));
-        res.json(photos);
-    } catch (err) {
-        console.error('Get photos error:', err);
-        res.status(500).json({ error: 'Failed to fetch photos' });
-    }
+        const [r] = await pool.query(sql, params);
+        res.json(r.map(p => ({ id: p.photo_id, url: p.file_path, filename: p.file_name, uploader: p.username, activity: p.activity_name, date: p.upload_date })));
+    } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 
-app.put('/photos/:id/details', authenticateToken, adminOnly, async (req, res) => {
-    const { category_name, custom_date } = req.body;
-    const photoId = req.params.id;
-
-    if (!category_name || !custom_date) return res.status(400).json({ message: 'ข้อมูลไม่ครบถ้วน' });
-
-    try {
-        let catId;
-        const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [category_name]);
-        if (cats.length > 0) {
-            catId = cats[0].category_id;
-        } else {
-            const [result] = await pool.query('INSERT INTO Categories (name) VALUES (?)', [category_name]);
-            catId = result.insertId;
-        }
-
-        await pool.query('UPDATE Photos SET category_id = ?, upload_date = ? WHERE photo_id = ?', [catId, custom_date, photoId]);
-        res.json({ message: 'แก้ไขข้อมูลเรียบร้อย' });
-    } catch (err) {
-        console.error('Edit details error:', err);
-        res.status(500).json({ error: 'แก้ไขข้อมูลล้มเหลว' });
-    }
-});
-
-app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => {
-    const newName = req.body.new_name?.trim();
-    if (!newName) return res.status(400).json({ message: 'New name required' });
-    try {
-        await pool.query('UPDATE Photos SET file_name = ? WHERE photo_id = ?', [newName, req.params.id]);
-        res.json({ message: 'Renamed successfully' });
-    } catch (err) {
-        res.status(500).json({ error: 'Rename failed' });
-    }
-});
-
-// DELETE/RESTORE
-
-app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
-        res.json({ message: 'Moved to trash' });
-    } catch (err) {
-        res.status(500).json({ error: 'Delete failed' });
-    }
-});
-
-app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
-    const { photo_ids } = req.body;
-    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
-    try {
-        await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id IN (?)', [photo_ids]);
-        res.json({ message: 'Bulk deleted successfully' });
-    } catch (err) {
-        res.status(500).json({ error: 'Bulk delete failed' });
-    }
-});
-
-app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        const [results] = await pool.query('SELECT * FROM Photos WHERE is_deleted = 1 ORDER BY upload_date DESC');
-        const photos = results.map(p => ({ id: p.photo_id, url: p.file_path, filename: p.file_name }));
-        res.json(photos);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch trash' });
-    }
-});
-
-app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
-    const { photo_ids } = req.body;
-    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
-    try {
-        await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id IN (?)', [photo_ids]);
-        res.json({ message: 'Restored successfully' });
-    } catch (err) {
-        res.status(500).json({ error: 'Restore failed' });
-    }
-});
-
-app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
-    const { photo_ids } = req.body;
-    if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
-    try {
-        const [photos] = await pool.query('SELECT file_path FROM Photos WHERE photo_id IN (?)', [photo_ids]);
-        for (const photo of photos) {
-            const publicId = getPublicIdFromUrl(photo.file_path);
-            if (publicId) cloudinary.uploader.destroy(publicId).catch(err => console.error('Cloudinary del error', err));
-        }
-        await pool.query('DELETE FROM Photos WHERE photo_id IN (?)', [photo_ids]);
-        res.json({ message: 'Permanently deleted' });
-    } catch (err) {
-        console.error('Permanent delete error:', err);
-        res.status(500).json({ error: 'Delete failed' });
-    }
-});
-
-// --- Profile Management ---
-
-app.put('/profile/password', authenticateToken, async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) return res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบ' });
-    try {
-        const [users] = await pool.query('SELECT * FROM Users WHERE user_id = ?', [req.user.id]);
-        if (users.length === 0) return res.status(404).json({ message: 'ไม่พบผู้ใช้' });
-        const user = users[0];
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'รหัสผ่านเดิมไม่ถูกต้อง' });
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await pool.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, req.user.id]);
-        res.json({ message: 'เปลี่ยนรหัสผ่านสำเร็จ' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.put('/profile/username', authenticateToken, async (req, res) => {
-    const { newUsername } = req.body;
-    if (!newUsername) return res.status(400).json({ message: 'กรุณากรอกชื่อใหม่' });
-    try {
-        await pool.query('UPDATE Users SET username = ? WHERE user_id = ?', [newUsername, req.user.id]);
-        res.json({ message: 'เปลี่ยนชื่อสำเร็จ' });
-    } catch (err) {
-        if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'ชื่อนี้มีคนใช้แล้ว' });
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// --- Stats & Storage ---
-
+// Admin/Uploader Stats (Authenticated)
 app.get('/stats', authenticateToken, async (req, res) => {
     try {
-        if (req.user.role === 'admin') {
-            await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
-        }
-        let totalSql, trashSql, catSql;
+        if (req.user.role === 'admin') await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
+        
+        let totalSql, trashSql, catSql = 'SELECT COUNT(*) as count FROM Categories';
         let params = [];
+
         if (req.user.role === 'admin') {
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1';
-            catSql = 'SELECT COUNT(*) as count FROM Categories';
         } else {
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0 AND uploader_id = ?';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1 AND uploader_id = ?';
-            catSql = 'SELECT COUNT(*) as count FROM Categories'; 
             params = [req.user.id];
         }
-        const [totalRes] = await pool.query(totalSql, params);
-        const [trashRes] = await pool.query(trashSql, params);
-        const [catRes] = await pool.query(catSql);
-        res.json({
-            total_photos: totalRes[0].count,
-            pending_photos: 0,
-            total_categories: catRes[0].count,
-            trash_count: trashRes[0].count
-        });
-    } catch (err) {
-        console.error('Stats error:', err);
-        res.status(500).json({ error: 'Failed to get stats' });
-    }
+
+        const [[{ count: total }]] = await pool.query(totalSql, params);
+        const [[{ count: trash }]] = await pool.query(trashSql, params);
+        const [[{ count: cats }]] = await pool.query(catSql);
+
+        res.json({ total_photos: total, total_categories: cats, trash_count: trash });
+    } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 
+// Categories for Admin (Authenticated)
+app.get('/categories', authenticateToken, async (req, res) => {
+    try { const [r] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC'); res.json(r); } catch (e) { res.status(500).json({ error: 'Error' }); }
+});
+
+// ... (Rest of Admin/User management routes - Same as before)
+app.put('/photos/:id/details', authenticateToken, adminOnly, async (req, res) => {
+    const { category_name, custom_date } = req.body;
+    try {
+        let catId;
+        const [c] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [category_name]);
+        if(c.length) catId=c[0].category_id; else { const [r]=await pool.query('INSERT INTO Categories (name) VALUES (?)',[category_name]); catId=r.insertId; }
+        await pool.query('UPDATE Photos SET category_id=?, upload_date=? WHERE photo_id=?', [catId, custom_date, req.params.id]);
+        res.json({ message: 'Updated' });
+    } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => {
+    try { await pool.query('UPDATE Photos SET file_name=? WHERE photo_id=?', [req.body.new_name, req.params.id]); res.json({ message: 'Renamed' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
+    try { await pool.query('UPDATE Photos SET is_deleted=1 WHERE photo_id=?', [req.params.id]); res.json({ message: 'Deleted' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
+    try { await pool.query('UPDATE Photos SET is_deleted=1 WHERE photo_id IN (?)', [req.body.photo_ids]); res.json({ message: 'Deleted' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
+    try { const [r] = await pool.query('SELECT * FROM Photos WHERE is_deleted=1 ORDER BY upload_date DESC'); res.json(r.map(p=>({id:p.photo_id, url:p.file_path, filename:p.file_name}))); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
+    try { await pool.query('UPDATE Photos SET is_deleted=0 WHERE photo_id IN (?)', [req.body.photo_ids]); res.json({ message: 'Restored' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
+    try {
+        const [p] = await pool.query('SELECT file_path FROM Photos WHERE photo_id IN (?)', [req.body.photo_ids]);
+        for(const x of p) { const pid = getPublicIdFromUrl(x.file_path); if(pid) cloudinary.uploader.destroy(pid).catch(()=>{}); }
+        await pool.query('DELETE FROM Photos WHERE photo_id IN (?)', [req.body.photo_ids]);
+        res.json({ message: 'Permanently deleted' });
+    } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.put('/profile/password', authenticateToken, async (req, res) => {
+    try {
+        const [u] = await pool.query('SELECT * FROM Users WHERE user_id=?', [req.user.id]);
+        if(!await bcrypt.compare(req.body.oldPassword, u[0].password)) return res.status(400).json({ message: 'Wrong password' });
+        const h = await bcrypt.hash(req.body.newPassword, 10);
+        await pool.query('UPDATE Users SET password=? WHERE user_id=?', [h, req.user.id]);
+        res.json({ message: 'Success' });
+    } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.put('/profile/username', authenticateToken, async (req, res) => {
+    try { await pool.query('UPDATE Users SET username=? WHERE user_id=?', [req.body.newUsername, req.user.id]); res.json({ message: 'Success' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
+    try { const [r] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 100'); res.json(r); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.get('/users', authenticateToken, adminOnly, async (req, res) => {
+    try { const [r] = await pool.query('SELECT user_id, username, role, created_at FROM Users'); res.json(r); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.post('/users', authenticateToken, adminOnly, async (req, res) => {
+    try { const h = await bcrypt.hash(req.body.password, 10); await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, h, req.body.role]); res.json({ message: 'Success' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.delete('/users/:id', authenticateToken, adminOnly, async (req, res) => {
+    try { await pool.query('DELETE FROM Users WHERE user_id=?', [req.params.id]); res.json({ message: 'Deleted' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.put('/users/:id/reset', authenticateToken, adminOnly, async (req, res) => {
+    try { const h = await bcrypt.hash(req.body.newPassword, 10); await pool.query('UPDATE Users SET password=? WHERE user_id=?', [h, req.params.id]); res.json({ message: 'Success' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
+app.put('/users/:id/username', authenticateToken, adminOnly, async (req, res) => {
+    try { await pool.query('UPDATE Users SET username=? WHERE user_id=?', [req.body.newUsername, req.params.id]); res.json({ message: 'Success' }); } catch(e) { res.status(500).json({ error: 'Error' }); }
+});
 app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     try {
-        const cloudinaryData = await getCloudinaryUsage();
-        const [photosCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0');
-        const [trashCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 1');
-        const [latestStats] = await pool.query(`
-            SELECT c.name as category_name, COUNT(p.photo_id) as photo_count, MAX(p.upload_date) as last_update
-            FROM Categories c
-            LEFT JOIN Photos p ON c.category_id = p.category_id AND p.is_deleted = 0
-            WHERE c.category_id IN (SELECT DISTINCT category_id FROM Photos WHERE is_deleted = 0)
-            GROUP BY c.category_id, c.name
-            ORDER BY last_update DESC
-            LIMIT 5
-        `);
-        res.json({
-            cloudinary: cloudinaryData,
-            database: {
-                active_photos: photosCount[0].total,
-                trash_photos: trashCount[0].total,
-                total_photos: photosCount[0].total + trashCount[0].total
-            },
-            latest_categories: latestStats
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to get storage usage' });
-    }
+        const c = await getCloudinaryUsage();
+        const [[{count:a}]] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted=0');
+        const [[{count:t}]] = await pool.query('SELECT COUNT(*) as count FROM Photos WHERE is_deleted=1');
+        const [l] = await pool.query(`SELECT c.name as category_name, COUNT(p.photo_id) as photo_count, MAX(p.upload_date) as last_update FROM Categories c LEFT JOIN Photos p ON c.category_id = p.category_id AND p.is_deleted = 0 WHERE c.category_id IN (SELECT DISTINCT category_id FROM Photos WHERE is_deleted = 0) GROUP BY c.category_id, c.name ORDER BY last_update DESC LIMIT 5`);
+        res.json({ cloudinary: c, database: { active_photos: a, trash_photos: t, total_photos: a+t }, latest_categories: l });
+    } catch(e) { res.status(500).json({ error: 'Error' }); }
 });
-
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
-        const result = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 100 });
-        let totalBytes = 0, count = 0;
-        if (result.resources && result.resources.length > 0) {
-            result.resources.forEach(res => { totalBytes += res.bytes; count++; });
-        }
-        const avgSize = count > 0 ? totalBytes / count : 0;
-        res.json({ average_bytes: Math.round(avgSize), average_readable: formatBytes(avgSize), sample_size: count });
-    } catch (error) {
-        res.json({ average_readable: '0 B' });
-    }
+        const r = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 100 });
+        let tb = 0; r.resources.forEach(x => tb += x.bytes);
+        const avg = r.resources.length ? tb / r.resources.length : 0;
+        res.json({ average_bytes: Math.round(avg), average_readable: formatBytes(avg), sample_size: r.resources.length });
+    } catch(e) { res.json({ average_readable: '0 B' }); }
 });
-
-// --- General Data ---
-
-app.get('/categories', authenticateToken, async (req, res) => {
-    try {
-        const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC');
-        res.json(results);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch categories' });
-    }
-});
-
-app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 100');
-        res.json(results);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch logs' });
-    }
-});
-
-// --- User Management ---
-
-app.get('/users', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        const [results] = await pool.query('SELECT user_id, username, role, created_at FROM Users ORDER BY created_at DESC');
-        res.json(results);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch users' });
-    }
-});
-
-app.post('/users', authenticateToken, adminOnly, async (req, res) => {
-    const validation = validateInput(req.body, { username: { required: true, minLength: 8, maxLength: 50 }, password: { required: true, minLength: 8, maxLength: 100 } });
-    if (!validation.valid) return res.status(400).json({ message: validation.message });
-    try {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, hashedPassword, req.body.role]);
-        res.json({ message: 'User added successfully' });
-    } catch (err) {
-        if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Username already exists' });
-        res.status(500).json({ error: 'Failed to add user' });
-    }
-});
-
-app.delete('/users/:id', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        await pool.query('DELETE FROM Users WHERE user_id = ?', [req.params.id]);
-        res.json({ message: 'User deleted' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to delete user' });
-    }
-});
-
-app.put('/users/:id/reset', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
-        await pool.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, req.params.id]);
-        res.json({ message: 'Password reset successfully' });
-    } catch (err) {
-        res.status(500).json({ error: 'Password reset failed' });
-    }
-});
-
-app.put('/users/:id/username', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        await pool.query('UPDATE Users SET username = ? WHERE user_id = ?', [req.body.newUsername, req.params.id]);
-        res.json({ message: 'Username changed' });
-    } catch (err) {
-        res.status(500).json({ error: 'Username change failed' });
-    }
-});
-
-// --- Utils ---
-
 app.get('/download-zip/:categoryName', async (req, res) => {
     try {
-        const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
-        if (cats.length === 0) return res.status(404).send('Category not found');
-        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
-        if (photos.length === 0) return res.status(404).send('No photos in this category');
+        const [c] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
+        if (!c.length) return res.status(404).send('Not found');
+        const [p] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status="approved" AND is_deleted = 0', [c[0].category_id]);
+        if (!p.length) return res.status(404).send('No photos');
         const archive = archiver('zip', { zlib: { level: 9 } });
         res.attachment(`${req.params.categoryName}.zip`);
         archive.pipe(res);
-        for (const photo of photos) {
-            await new Promise((resolve) => {
-                https.get(photo.file_path, (response) => {
-                    archive.append(response, { name: photo.file_name });
-                    response.on('end', resolve);
-                    response.on('error', resolve);
-                }).on('error', resolve);
-            });
-        }
+        for (const photo of p) { await new Promise((resolve) => { https.get(photo.file_path, (res) => { archive.append(res, { name: photo.file_name }); res.on('end', resolve); res.on('error', resolve); }).on('error', resolve); }); }
         archive.finalize();
-    } catch (err) {
-        console.error('ZIP error:', err);
-        res.status(500).send('Error creating ZIP');
-    }
+    } catch (e) { res.status(500).send('Error'); }
 });
 
-// 404 & Error Handler
 app.use((req, res) => { res.status(404).json({ message: 'Route not found' }); });
 app.use((err, req, res, next) => { console.error('Server error:', err); res.status(500).json({ error: 'Internal server error' }); });
 
