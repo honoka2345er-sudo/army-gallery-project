@@ -211,7 +211,7 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 🔥 ฟังก์ชันดึงข้อมูล Storage (Safe Version - แก้ปัญหาพื้นที่ไม่ขึ้น)
+// 🔥 ฟังก์ชันดึงข้อมูล Storage (Super Safe Version - แก้ปัญหา Limit 0/NaN)
 async function getCloudinaryUsage() {
     try {
         const r = await cloudinary.api.usage();
@@ -226,8 +226,9 @@ async function getCloudinaryUsage() {
         if (r.storage && r.storage.limit) limit = r.storage.limit;
         else if (r.credits && r.credits.limit) limit = r.credits.limit;
 
+        // 🚨 FIX สำคัญ: ถ้า Limit เป็น 0 หรือหาไม่เจอ ให้ตั้งเป็น 25GB (ค่ามาตรฐาน Free Plan)
         if (!limit || limit === 0) {
-            limit = 26843545600; // 25 GB (Fallback)
+            limit = 26843545600; // 25 GB = 26,843,545,600 bytes
         }
 
         // 3. คำนวณเปอร์เซ็นต์
@@ -243,7 +244,7 @@ async function getCloudinaryUsage() {
         };
     } catch (e) {
         console.error("⚠️ Cloudinary Usage Error:", e.message);
-        // คืนค่า Default เพื่อไม่ให้ Server Error
+        // คืนค่า Default เพื่อไม่ให้ Server Error และแสดงค่า 0 สวยๆ
         return { 
             used_bytes: 0,
             used_readable: '0 B', 
@@ -366,7 +367,7 @@ app.post('/login', async (req, res) => {
 // --- Upload ---
 
 app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30), async (req, res) => {
-    if (!req.files || req.files.length === 0) return res.status(400).json({ message: 'เลือกรูปก่อน' });
+    if (!req.files || !req.files.length) return res.status(400).json({ message: 'เลือกรูปก่อน' });
 
     const uploader_id = req.user.id;
     const category_name = req.body.category_name?.trim();
@@ -666,10 +667,10 @@ app.get('/storage/average', authenticateToken, async (req, res) => {
             });
         }
         
-        const avgSize = count > 0 ? totalBytes / count : 0;
+        const avg = count > 0 ? totalBytes / count : 0;
         res.json({
-            average_bytes: Math.round(avgSize),
-            average_readable: formatBytes(avgSize),
+            average_bytes: Math.round(avg),
+            average_readable: formatBytes(avg),
             sample_size: count
         });
     } catch (error) {
@@ -756,7 +757,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
     try {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Category not found');
-        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status="approved" AND is_deleted = 0', [cats[0].category_id]);
+        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status="approved" AND is_deleted = 0', [c[0].category_id]);
         if (!photos.length) return res.status(404).send('No photos in this category');
         const archive = archiver('zip', { zlib: { level: 9 } });
         res.attachment(`${req.params.categoryName}.zip`);
@@ -771,10 +772,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
             });
         }
         archive.finalize();
-    } catch (err) {
-        console.error('ZIP error:', err);
-        res.status(500).send('Error creating ZIP');
-    }
+    } catch (e) { res.status(500).send('Error'); }
 });
 
 // 404 & Error Handler
