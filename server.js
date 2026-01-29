@@ -16,27 +16,20 @@ const helmet = require('helmet');
 const app = express();
 
 // ==========================================
-// 1. ตรวจสอบ Config (แจ้งเตือนถ้าลืมใส่ .env)
+// 1. ตรวจสอบ Config
 // ==========================================
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-    console.error("⚠️  คำเตือน: คุณยังไม่ได้ใส่ค่า Cloudinary ในไฟล์ .env (ระบบอัปโหลดและ Stats จะใช้งานไม่ได้)");
+    console.error("⚠️  คำเตือน: คุณยังไม่ได้ใส่ค่า Cloudinary ในไฟล์ .env (Stats จะไม่ขึ้น)");
 }
 
 // ==========================================
-// 2. ตั้งค่าความปลอดภัยและ Middleware พื้นฐาน
+// 2. Middleware & Security
 // ==========================================
-
-// อนุญาต CORS
 app.use(cors());
-
-// รองรับ JSON ขนาดใหญ่
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-
-// ให้บริการไฟล์ Static
 app.use(express.static(__dirname));
 
-// ตั้งค่า Helmet เพื่อความปลอดภัย
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -79,24 +72,14 @@ app.use((req, res, next) => {
     next();
 });
 
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: 'Too many requests from this IP'
-});
-
-const uploadLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
-    message: 'Too many uploads'
-});
-
+const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+const uploadLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 app.use('/api/', apiLimiter);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'army_secret_key_1234';
 
 // ==========================================
-// 3. ตั้งค่า Database และ Cloudinary
+// 3. Database & Cloudinary
 // ==========================================
 
 cloudinary.config({
@@ -142,7 +125,7 @@ const pool = mysql.createPool({
 })();
 
 // ==========================================
-// 4. Helper Functions & Middleware
+// 4. Helper Functions
 // ==========================================
 
 function authenticateToken(req, res, next) {
@@ -202,7 +185,6 @@ function getPublicIdFromUrl(url) {
     }
 }
 
-// 🔥 ฟังก์ชันจัดรูปแบบขนาดไฟล์ (Safe Version)
 function formatBytes(bytes) {
     if (!bytes || bytes === 0 || isNaN(bytes)) return '0 Bytes';
     const k = 1024;
@@ -211,24 +193,30 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 🔥 ฟังก์ชันดึงข้อมูล Storage (Super Safe Version - แก้ปัญหา Limit 0/NaN)
+// 🔥🔥🔥 ฟังก์ชันดึงข้อมูล Storage (แก้บั๊กหน่วย 25 Bytes) 🔥🔥🔥
 async function getCloudinaryUsage() {
     try {
         const r = await cloudinary.api.usage();
         
-        // 1. หาค่า Usage (รองรับทั้ง Storage และ Credits)
+        // 1. หาค่า Usage (ปกติหน่วยเป็น Bytes)
         let usage = 0;
         if (r.storage && r.storage.usage) usage = r.storage.usage;
-        else if (r.credits && r.credits.usage) usage = r.credits.usage;
+        else if (r.credits && r.credits.usage) usage = r.credits.usage; // บางทีส่งเป็น bytes ในนี้
 
-        // 2. หาค่า Limit (ถ้าไม่มี หรือเป็น 0 ให้ใช้ Default 25GB เพื่อไม่ให้หารด้วย 0)
+        // 2. หาค่า Limit (ตัวปัญหา: บางทีส่งมาเป็น 25 เฉยๆ หมายถึง Credits/GB)
         let limit = 0;
         if (r.storage && r.storage.limit) limit = r.storage.limit;
         else if (r.credits && r.credits.limit) limit = r.credits.limit;
 
-        // 🚨 FIX สำคัญ: ถ้า Limit เป็น 0 หรือหาไม่เจอ ให้ตั้งเป็น 25GB (ค่ามาตรฐาน Free Plan)
+        // 🔥 FIX: ถ้า Limit น้อยผิดปกติ (เช่น 25) ให้คูณให้เป็น GB
+        // ถ้าค่า Limit น้อยกว่า 1 GB (1073741824 bytes) แสดงว่าส่งมาเป็นหน่วย GB หรือ Credit แน่นอน
+        if (limit > 0 && limit < 1073741824) {
+            limit = limit * 1024 * 1024 * 1024; // แปลง GB เป็น Bytes
+        }
+
+        // Fallback: ถ้าหาไม่เจอจริงๆ ให้ใช้ค่า Default 25GB
         if (!limit || limit === 0) {
-            limit = 26843545600; // 25 GB = 26,843,545,600 bytes
+            limit = 26843545600; 
         }
 
         // 3. คำนวณเปอร์เซ็นต์
@@ -244,7 +232,7 @@ async function getCloudinaryUsage() {
         };
     } catch (e) {
         console.error("⚠️ Cloudinary Usage Error:", e.message);
-        // คืนค่า Default เพื่อไม่ให้ Server Error และแสดงค่า 0 สวยๆ
+        // คืนค่า Default เพื่อไม่ให้ Server Error
         return { 
             used_bytes: 0,
             used_readable: '0 B', 
@@ -367,7 +355,7 @@ app.post('/login', async (req, res) => {
 // --- Upload ---
 
 app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30), async (req, res) => {
-    if (!req.files || !req.files.length) return res.status(400).json({ message: 'เลือกรูปก่อน' });
+    if (!req.files || req.files.length === 0) return res.status(400).json({ message: 'เลือกรูปก่อน' });
 
     const uploader_id = req.user.id;
     const category_name = req.body.category_name?.trim();
