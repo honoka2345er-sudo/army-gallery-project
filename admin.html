@@ -1553,22 +1553,48 @@
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            // 🔥 FIX: Added Headers just in case
-            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
-            const photos = await res.json();
-            renderGrid('approvedList', photos, 'approved');
+            const listElement = document.getElementById('approvedList');
 
-            // Pagination controls
-            document.getElementById('paginationControls').style.display = 'flex';
-            document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
-            document.getElementById('btnPrev').disabled = (currentPage <= 1);
-            document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
-        }
+            // แสดงข้อความ "กำลังโหลด..." ก่อนเริ่มดึงข้อมูล
+            listElement.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">กำลังโหลด...</p>';
 
-        function changePage(step) {
-            const nextPage = currentPage + step;
-            if (nextPage < 1) return;
-            loadApprovedPhotos(nextPage);
+            try {
+                // ดึงข้อมูลจาก Server
+                const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { 
+                    headers: getAuthHeaders() 
+                });
+
+                // 1. เช็กว่า Server ตอบกลับมาดีไหม (เช่น 200 OK)
+                if (!res.ok) {
+                    throw new Error(`Server Error: ${res.status} ${res.statusText}`);
+                }
+
+                const photos = await res.json();
+
+                // 2. เช็กว่าข้อมูลที่ได้เป็นรายการรูปภาพจริงๆ (Array) หรือไม่
+                if (!Array.isArray(photos)) {
+                    console.error("Data is not array:", photos);
+                    listElement.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: red;">เกิดข้อผิดพลาด: ข้อมูลไม่ถูกต้อง</p>';
+                    return;
+                }
+
+                // ถ้าทุกอย่างปกติ ให้แสดงผล
+                renderGrid('approvedList', photos, 'approved');
+
+                // จัดการปุ่มเปลี่ยนหน้า (Pagination)
+                document.getElementById('paginationControls').style.display = 'flex';
+                document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
+                document.getElementById('btnPrev').disabled = (currentPage <= 1);
+                document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
+
+            } catch (error) {
+                console.error("Load Photos Error:", error);
+                // 3. ถ้ามี Error ให้ฟ้องออกมาที่หน้าจอ แทนที่จะหมุนค้าง
+                listElement.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #e74c3c;">
+                    <i class="fas fa-exclamation-circle"></i> โหลดข้อมูลไม่ได้ (${error.message})<br>
+                    <small>กรุณาลองรีเฟรชหน้าจอ หรือล็อกอินใหม่</small>
+                </p>`;
+            }
         }
 
         function renderGrid(elemId, photos, type) {
