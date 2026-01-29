@@ -16,14 +16,27 @@ const helmet = require('helmet');
 const app = express();
 
 // ==========================================
-// 1. ตั้งค่าความปลอดภัยและ Middleware พื้นฐาน
+// 1. ตรวจสอบ Config (แจ้งเตือนถ้าลืมใส่ .env)
+// ==========================================
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.error("⚠️  คำเตือน: คุณยังไม่ได้ใส่ค่า Cloudinary ในไฟล์ .env (ระบบอัปโหลดและ Stats จะใช้งานไม่ได้)");
+}
+
+// ==========================================
+// 2. ตั้งค่าความปลอดภัยและ Middleware พื้นฐาน
 // ==========================================
 
+// อนุญาต CORS
 app.use(cors());
+
+// รองรับ JSON ขนาดใหญ่
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// ให้บริการไฟล์ Static
 app.use(express.static(__dirname));
 
+// ตั้งค่า Helmet เพื่อความปลอดภัย
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -83,7 +96,7 @@ app.use('/api/', apiLimiter);
 const JWT_SECRET = process.env.JWT_SECRET || 'army_secret_key_1234';
 
 // ==========================================
-// 2. ตั้งค่า Database และ Cloudinary
+// 3. ตั้งค่า Database และ Cloudinary
 // ==========================================
 
 cloudinary.config({
@@ -121,15 +134,15 @@ const pool = mysql.createPool({
 (async () => {
     try {
         const connection = await pool.getConnection();
-        console.log('✅ Connected to TiDB Cloud Successfully!');
+        console.log('✅ Connected to Database Successfully!');
         connection.release();
     } catch (err) {
-        console.error('❌ Database Connection Failed:', err);
+        console.error('❌ Database Connection Failed:', err.message);
     }
 })();
 
 // ==========================================
-// 3. Helper Functions & Middleware
+// 4. Helper Functions & Middleware
 // ==========================================
 
 function authenticateToken(req, res, next) {
@@ -189,7 +202,7 @@ function getPublicIdFromUrl(url) {
     }
 }
 
-// 🔥 แก้ไข: ป้องกัน Error กรณีค่าเป็น Null/Undefined
+// 🔥 ฟังก์ชันจัดรูปแบบขนาดไฟล์ (Safe Version)
 function formatBytes(bytes) {
     if (!bytes || bytes === 0 || isNaN(bytes)) return '0 Bytes';
     const k = 1024;
@@ -198,34 +211,44 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 🔥 แก้ไข: เพิ่ม Try-Catch และ Default Value เพื่อไม่ให้หน้า Admin พัง
+// 🔥 ฟังก์ชันดึงข้อมูล Storage (Safe Version - แก้ปัญหาพื้นที่ไม่ขึ้น)
 async function getCloudinaryUsage() {
     try {
-        const result = await new Promise((resolve, reject) => {
-            cloudinary.api.usage((error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            });
-        });
+        const r = await cloudinary.api.usage();
+        
+        // 1. หาค่า Usage (รองรับทั้ง Storage และ Credits)
+        let usage = 0;
+        if (r.storage && r.storage.usage) usage = r.storage.usage;
+        else if (r.credits && r.credits.usage) usage = r.credits.usage;
 
-        // ตรวจสอบว่ามี field storage หรือไม่
-        const usage = result.storage ? result.storage.usage : 0;
-        const limit = result.storage ? result.storage.limit : 0;
+        // 2. หาค่า Limit (ถ้าไม่มี หรือเป็น 0 ให้ใช้ Default 25GB เพื่อไม่ให้หารด้วย 0)
+        let limit = 0;
+        if (r.storage && r.storage.limit) limit = r.storage.limit;
+        else if (r.credits && r.credits.limit) limit = r.credits.limit;
+
+        if (!limit || limit === 0) {
+            limit = 26843545600; // 25 GB (Fallback)
+        }
+
+        // 3. คำนวณเปอร์เซ็นต์
+        const percent = ((usage / limit) * 100).toFixed(4);
 
         return {
             used_bytes: usage,
             used_readable: formatBytes(usage),
             limit_bytes: limit,
             limit_readable: formatBytes(limit),
-            usage_percent: (limit > 0) ? ((usage / limit) * 100).toFixed(4) : 0,
-            plan: result.plan || 'Free'
+            usage_percent: percent,
+            plan: r.plan || 'Free'
         };
-    } catch (error) {
-        console.error('Cloudinary usage error:', error.message);
-        // คืนค่า Default เพื่อไม่ให้ Server ล่ม
+    } catch (e) {
+        console.error("⚠️ Cloudinary Usage Error:", e.message);
+        // คืนค่า Default เพื่อไม่ให้ Server Error
         return { 
+            used_bytes: 0,
             used_readable: '0 B', 
-            limit_readable: 'N/A', 
+            limit_bytes: 26843545600,
+            limit_readable: '25 GB (Est.)', 
             usage_percent: 0, 
             plan: 'Unknown' 
         };
@@ -233,15 +256,16 @@ async function getCloudinaryUsage() {
 }
 
 // ==========================================
-// 4. API Routes
+// 5. API Routes
 // ==========================================
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 🔥🔥🔥 PUBLIC ROUTES (สำหรับ Index.html) 🔥🔥🔥
+// 🔥🔥🔥 (NEW) PUBLIC ROUTES สำหรับหน้าแรก (คนทั่วไป) 🔥🔥🔥
 
+// 1. ดึงรูปภาพทั้งหมด (ไม่ต้องล็อกอิน)
 app.get('/public/photos', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
@@ -272,6 +296,7 @@ app.get('/public/photos', async (req, res) => {
     }
 });
 
+// 2. ดึงหมวดหมู่ทั้งหมด (ไม่ต้องล็อกอิน)
 app.get('/public/categories', async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC');
@@ -283,7 +308,7 @@ app.get('/public/categories', async (req, res) => {
 });
 
 
-// --- Authentication ---
+// --- Authentication (Admin/Uploader) ---
 
 app.post('/register', async (req, res) => {
     const { username, password, role } = req.body;
@@ -380,7 +405,7 @@ app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30)
     }
 });
 
-// --- Photos Management (Private) ---
+// --- Photos Management (PRIVATE API - สำหรับ Admin/Uploader) ---
 
 app.get('/photos', authenticateToken, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -596,10 +621,10 @@ app.get('/stats', authenticateToken, async (req, res) => {
     }
 });
 
-// 🔥 Storage Usage (Updated with Error Handling)
+// 🔥 Storage Usage (ใช้ฟังก์ชัน getCloudinaryUsage ที่แก้แล้ว)
 app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     try {
-        const cloudinaryData = await getCloudinaryUsage();
+        const c = await getCloudinaryUsage();
         const [photosCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0');
         const [trashCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 1');
         const [latestStats] = await pool.query(`
@@ -612,7 +637,7 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
             LIMIT 5
         `);
         res.json({
-            cloudinary: cloudinaryData,
+            cloudinary: c,
             database: {
                 active_photos: photosCount[0].total,
                 trash_photos: trashCount[0].total,
@@ -626,19 +651,29 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
-// 🔥 Storage Average (Updated with Error Handling)
+// 🔥 Storage Average (Fix for 0B / More accurate)
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
+        // ดึงมา 500 รูป เพื่อหาค่าเฉลี่ยที่แม่นยำขึ้น
         const result = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 500 });
         let totalBytes = 0;
         let count = 0;
+        
         if (result.resources && result.resources.length > 0) {
-            result.resources.forEach(res => { totalBytes += res.bytes; count++; });
+            result.resources.forEach(res => {
+                totalBytes += res.bytes;
+                count++;
+            });
         }
+        
         const avgSize = count > 0 ? totalBytes / count : 0;
-        res.json({ average_bytes: Math.round(avgSize), average_readable: formatBytes(avgSize), sample_size: count });
+        res.json({
+            average_bytes: Math.round(avgSize),
+            average_readable: formatBytes(avgSize),
+            sample_size: count
+        });
     } catch (error) {
-        console.error('Storage average error:', error);
+        console.error('Average size error:', error);
         res.json({ average_readable: '0 B' });
     }
 });
@@ -721,8 +756,8 @@ app.get('/download-zip/:categoryName', async (req, res) => {
     try {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Category not found');
-        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status = "approved" AND is_deleted = 0', [cats[0].category_id]);
-        if (photos.length === 0) return res.status(404).send('No photos in this category');
+        const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status="approved" AND is_deleted = 0', [cats[0].category_id]);
+        if (!photos.length) return res.status(404).send('No photos in this category');
         const archive = archiver('zip', { zlib: { level: 9 } });
         res.attachment(`${req.params.categoryName}.zip`);
         archive.pipe(res);
