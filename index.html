@@ -363,12 +363,15 @@
         async function fetchPhotos() {
             try {
                 showSkeleton();
-                const response = await fetch('/photos?limit=100&t=' + Date.now());
+                // ✅ แก้ไข: เปลี่ยนไปใช้เส้นทางสาธารณะ (Public API)
+                const response = await fetch('/public/photos?limit=100&t=' + Date.now());
+                
                 if (!response.ok) throw new Error('Network Error');
                 allPhotos = await response.json();
                 filteredPhotos = allPhotos;
                 resetGallery();
             } catch (error) {
+                console.error("Fetch Error:", error);
                 document.getElementById('gallery').innerHTML = '<p style="text-align:center; color:#ef4444;">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</p>';
             }
         }
