@@ -1059,25 +1059,20 @@
         }
 
         /* =========================================
-           10. 🔥 MOBILE RESPONSIVE (แบบยืดหยุ่น: ไม่พอให้ปัดลง)
+           10. 🔥 MOBILE RESPONSIVE (ฉบับแก้จบ: เรียงแนวตั้ง)
            ========================================= */
         @media (max-width: 768px) {
             
-            /* 1. จัดการ Body และ Scroll */
+            /* 1. จัดการ Body */
             body {
                 flex-direction: column;
                 height: auto;
-                overflow-x: hidden; /* กันแนวนอนเกิน */
+                overflow-x: hidden; /* กันล้นแนวนอน */
                 overflow-y: auto;
             }
 
-            .main-content {
-                padding: 80px 15px 30px 15px; /* เว้นที่ให้เมนูบน */
-                width: 100%;
-            }
-
-            /* 2. Sidebar & Nav */
             .mobile-nav { display: flex; }
+            
             .sidebar {
                 position: fixed; left: -260px; top: 0; height: 100%;
                 box-shadow: 5px 0 15px rgba(0,0,0,0.3); transition: left 0.3s;
@@ -1085,88 +1080,74 @@
             .sidebar.active { left: 0; }
             .close-btn { display: block; }
 
-            /* 3. Stats Grid (เรียงเดี่ยว) */
+            .main-content {
+                padding: 80px 15px 30px 15px;
+                width: 100%;
+            }
+
+            /* 2. Stats Grid */
             .stats-grid { grid-template-columns: 1fr; gap: 15px; }
 
-            /* 4. 🔥 FIX: แถบเครื่องมือ (ให้ปัดลงบรรทัดใหม่ได้ถ้าที่เต็ม) */
-            .bulk-toolbar, 
-            .search-toolbar {
-                display: flex;
-                flex-wrap: wrap !important; /* หัวใจสำคัญ: ยอมให้ตกบรรทัด */
-                flex-direction: row; /* เรียงแนวนอนก่อน */
-                gap: 10px;
-                padding: 15px;
-                height: auto;
-            }
-
-            /* ปรับช่อง Input และ Select ให้ยืดหยุ่น */
-            .search-toolbar input, 
-            .search-toolbar select {
-                flex: 1 1 100%; /* ยึดเต็มบรรทัดในมือถือ */
-                width: 100%;
-                min-width: 200px;
-            }
-
-            /* ปรับปุ่มให้ยืดเต็มเมื่อจำเป็น */
-            .btn-search, 
-            .bulk-actions-right,
-            .bulk-actions-right button {
-                flex: 1 1 auto; /* ขยายตามความเหมาะสม */
-                width: 100%; /* ในมือถือให้เต็มจอไปเลยกดง่าย */
-                justify-content: center;
-            }
-            
-            .bulk-actions-right {
-                flex-direction: column; /* ปุ่มกลุ่มขวาเรียงลงมา */
-                gap: 10px;
-            }
-
-            /* 5. Upload Form (เรียงลงมา) */
+            /* 3. Forms & Toolbar (จุดแก้ปัญหา) */
             #uploadForm > div {
                 grid-template-columns: 1fr !important;
                 gap: 15px !important;
             }
 
-            /* 6. Gallery Grid (เรียงลงมา 1 แถว) */
+            /* 🔥 บังคับให้แถบเครื่องมือเรียง "แนวตั้ง" (Column) */
+            .bulk-toolbar, 
+            .search-toolbar {
+                display: flex;
+                flex-direction: column !important; /* เรียงลงมาทีละบรรทัด */
+                align-items: stretch !important;   /* ยืดให้เต็มขอบ */
+                gap: 15px;
+                padding: 20px !important;
+                height: auto;
+            }
+
+            /* 🔥 สั่งให้ Input, Select, Button กว้างเต็ม 100% */
+            .search-toolbar input, 
+            .search-toolbar select,
+            .btn-search,
+            .bulk-actions-right,
+            .bulk-actions-right button {
+                width: 100% !important;
+                max-width: 100%;
+                margin: 0 !important;
+                box-sizing: border-box; /* รวม padding ในความกว้าง */
+            }
+            
+            /* จัดการปุ่มกลุ่มขวา */
+            .bulk-actions-right {
+                flex-direction: column;
+                display: flex;
+                gap: 10px;
+            }
+
+            /* 4. Gallery Grid */
             .approval-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* เรียงรูปทีละแถว */
                 gap: 20px;
             }
             
             .approval-item img {
                 width: 100%;
-                aspect-ratio: 4/3; /* ล็อคสัดส่วน */
+                aspect-ratio: 4/3; 
                 object-fit: cover;
             }
 
-            /* 7. Table Card View (ตารางแบบการ์ด เลื่อนแนวนอนได้) */
+            /* 5. Table (เลื่อนได้) */
             .card {
                 padding: 15px;
-                overflow: visible; 
+                overflow-x: auto;
             }
             
-            /* ตัวตาราง */
-            .user-table, .log-table {
-                display: block; /* เปลี่ยนเป็น Block เพื่อให้เลื่อนได้ */
-                overflow-x: auto; /* เลื่อนซ้ายขวาเฉพาะตาราง */
-                white-space: nowrap; /* ไม่ให้คำตัดบรรทัดมั่วในตาราง */
-            }
+            table { min-width: 600px; }
             
-            /* ปรับแต่งแถว */
-            tr {
-                display: table-row; /* กลับมาเป็นแถวปกติ */
-                background: white;
-            }
-            
-            td, th {
-                display: table-cell; /* กลับมาเป็นเซลล์ปกติ */
-                white-space: normal; /* ให้ข้อความยาวๆ ขึ้นบรรทัดใหม่ในช่องได้ */
-                min-width: 100px; /* ความกว้างขั้นต่ำของแต่ละช่อง */
-            }
-            
-            .action-btn-group {
-                display: flex;
-                gap: 5px;
+            /* ปรับแต่งการ์ด */
+            .card h3 { 
+                flex-wrap: wrap; 
+                line-height: 1.5; 
             }
         }
     </style>
