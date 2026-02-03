@@ -20,68 +20,486 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* ================= Reset & Global ================= */
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Sarabun', sans-serif; margin: 0; background-color: #f8f9fa; display: flex; height: 100vh; overflow: hidden; color: #333; }
-        
-        /* ================= Sidebar ================= */
-        .sidebar { width: 260px; background-color: #2c3e50; color: white; padding: 20px; display: flex; flex-direction: column; height: 100%; overflow-y: auto; flex-shrink: 0; }
-        .sidebar-header { margin-bottom: 30px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-header h2 { margin: 0; font-size: 20px; font-weight: 700; }
-        .menu-items { display: flex; flex-direction: column; gap: 10px; }
-        .menu-link { color: white; text-decoration: none; padding: 10px; border-radius: 6px; display: flex; align-items: center; gap: 10px; }
-        .menu-link:hover { background: rgba(255,255,255,0.1); }
-        .btn-profile, .btn-logout { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; color: white; margin-top: auto; font-family: 'Sarabun'; }
-        .btn-profile { background: #3498db; margin-bottom: 10px; }
-        .btn-logout { background: #c0392b; }
-
-        /* ================= Content ================= */
-        .main-content { flex: 1; padding: 20px; overflow-y: auto; width: 100%; }
-        
-        /* ================= Cards & Stats ================= */
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .stat-card { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .stat-number { font-size: 30px; font-weight: bold; margin: 10px 0; }
-
-        /* ================= Tables ================= */
-        .table-responsive { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; /* บังคับความกว้างขั้นต่ำ */ }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #f1f1f1; white-space: nowrap; }
-
-        /* ================= Gallery Grid ================= */
-        .approval-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-        .approval-item { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white; }
-        .approval-item img { width: 100%; height: 120px; object-fit: cover; }
-        .gallery-actions { padding: 5px; display: flex; gap: 5px; }
-        .btn-icon-action { flex: 1; padding: 5px; border: none; color: white; border-radius: 4px; cursor: pointer; }
-
-        /* ================= Mobile Responsive (แบบปลอดภัย) ================= */
-        @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; overflow: auto; }
-            .sidebar { width: 100%; height: auto; padding: 15px; }
-            .main-content { padding: 15px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            
-            /* ทำให้ตารางเลื่อนซ้ายขวาได้ ไม่ล้นจอ */
-            .card { overflow-x: auto; } 
-            
-            /* ปรับฟอร์มให้เรียงแนวตั้ง */
-            #uploadForm > div, .search-toolbar, .bulk-toolbar { flex-direction: column; gap: 10px; }
-            input, select, button { width: 100%; }
+        /* =========================================
+           1. Global Variables & Reset
+           ========================================= */
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #c0392b;
+            --danger-dark: #a93226;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-muted: #7f8c8d;
+            --border-color: #e0e0e0;
+            --card-radius: 12px;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --sidebar-width: 260px;
         }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            background-color: var(--light-bg);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-dark);
+        }
+
+        /* =========================================
+           2. Sidebar Navigation
+           ========================================= */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100%;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn { display: none; } /* ซ่อนปุ่มปิดใน PC */
+
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .user-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-info p { margin: 0; color: #bdc3c7; font-size: 13px; }
+        .user-info span { color: #f1c40f; font-weight: bold; font-size: 16px; display: block; margin-top: 5px; color: white; }
+
+        .menu-link {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 16px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .menu-link:hover { background-color: rgba(255, 255, 255, 0.1); }
+
+        .btn-profile, .btn-logout {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+            color: var(--white);
+        }
+
+        .btn-profile { background: var(--primary-color); margin-bottom: 10px; }
+        .btn-profile:hover { background: var(--primary-dark); }
+        .btn-logout { background: var(--danger-color); }
+        .btn-logout:hover { background-color: var(--danger-dark); }
+
+        /* =========================================
+           3. Main Content
+           ========================================= */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            overflow-x: hidden; /* ป้องกันแนวนอนล้นใน PC */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-nav { display: none; } /* ซ่อนแถบมือถือใน PC */
+        .overlay { display: none; }
+
+        /* =========================================
+           4. Cards & Stats
+           ========================================= */
+        .card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            /* สำคัญมาก! ทำให้ตารางเลื่อนได้ถ้าล้นการ์ด */
+            overflow-x: auto; 
+        }
+
+        .card h3 {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 5px;
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap; /* ให้หัวข้อขึ้นบรรทัดใหม่ได้ */
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: var(--card-radius);
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border-left: 5px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-icon { position: absolute; top: 20px; right: 20px; font-size: 48px; opacity: 0.1; }
+        .stat-number { font-size: 42px; font-weight: 800; margin: 15px 0; color: var(--text-dark); }
+        .stat-label { color: var(--text-muted); font-size: 16px; font-weight: 500; }
+
+        /* =========================================
+           5. Forms & Inputs
+           ========================================= */
+        label { font-weight: 600; display: block; margin-bottom: 8px; color: var(--secondary-color); }
+
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box; /* สำคัญ: รวม padding ใน width */
+            margin-bottom: 15px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 160px;
+            border: 2px dashed var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f8ff;
+            color: var(--primary-color);
+            cursor: pointer;
+            flex-direction: column;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        .file-upload-wrapper input[type=file] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .upload-icon { font-size: 56px; margin-bottom: 15px; }
+        .upload-text { font-weight: 600; font-size: 18px; text-align: center; }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .preview-img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid var(--white); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+
+        /* =========================================
+           6. Toolbars & Buttons
+           ========================================= */
+        .bulk-toolbar, .search-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-primary, .btn-search, .btn-bulk-restore, .btn-bulk-delete {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white;
+            white-space: nowrap; /* ข้อความไม่ตกบรรทัดในปุ่ม */
+        }
+        .btn-search { background: var(--primary-color); border-radius: 30px; }
+        .btn-primary { background: var(--success-color); }
+        .btn-bulk-restore { background: #3498db; }
+        .btn-bulk-delete { background: #c0392b; }
+
+        .bulk-actions-right { display: flex; gap: 10px; }
+
+        /* =========================================
+           7. Gallery Grid
+           ========================================= */
+        .approval-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .approval-item {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 12px;
+            background: var(--white);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .approval-item img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .approval-item.selected { border: 2px solid var(--success-color); background-color: #e8f8f5; }
+        .approval-item.selected::after {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; top: 10px; right: 10px;
+            background: var(--success-color); color: white;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Trash Styles */
+        .approval-item.trash-item img { filter: grayscale(100%); opacity: 0.85; }
+        .deleted-badge {
+            position: absolute; top: 15px; left: 15px;
+            background: rgba(231, 76, 60, 0.9); color: white;
+            font-size: 10px; padding: 4px 8px; border-radius: 4px; font-weight: 800;
+        }
+
+        .gallery-actions, .trash-actions { display: flex; gap: 5px; margin-top: auto; padding-top: 5px; }
+        .btn-icon-action, .btn-trash-action {
+            flex: 1; padding: 8px 4px; border-radius: 6px; border: none;
+            cursor: pointer; color: white; font-size: 13px; display: flex; justify-content: center; align-items: center;
+        }
+        .btn-icon-action { width: 32px; height: 32px; padding: 0; flex: initial; } /* Reset flex for icons */
         
-        /* Utility */
-        .status-badge { padding: 3px 8px; border-radius: 10px; font-size: 12px; }
-        .bg-success { background: #d1fae5; color: #065f46; }
-        .bg-fail { background: #fee2e2; color: #991b1b; }
-        .file-upload-wrapper { border: 2px dashed #3498db; padding: 20px; text-align: center; border-radius: 8px; }
-        
-        /* Popup Fix */
-        .small-modal-popup { width: 90% !important; max-width: 400px !important; }
-        .small-modal-actions { flex-direction: row !important; gap: 10px !important; }
-        .swal-btn-confirm, .swal-btn-cancel { flex: 1 !important; margin: 0 !important; }
+        .btn-trash-restore { border: 1px solid #3498db; color: #3498db; background: white; }
+        .btn-trash-restore:hover { background: #3498db; color: white; }
+        .btn-trash-delete { border: 1px solid #e74c3c; color: #e74c3c; background: white; }
+        .btn-trash-delete:hover { background: #e74c3c; color: white; }
+
+        /* =========================================
+           8. Tables
+           ========================================= */
+        /* Table Styles */
+        .user-table, .log-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            /* สำคัญ: ให้ตารางมีความกว้างขั้นต่ำ เพื่อให้เลื่อนได้ */
+            min-width: 600px; 
+        }
+
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
+        th { background: #f8f9fa; font-weight: 600; color: #444; text-transform: uppercase; white-space: nowrap; }
+
+        /* Badges & Avatars */
+        .status-badge, .role-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .bg-login { background: #e8f5e9; color: #166534; }
+        .bg-upload { background: #eff6ff; color: #1e40af; }
+        .bg-delete { background: #fef2f2; color: #991b1b; }
+        .bg-edit { background: #fff7ed; color: #9a3412; }
+        .bg-other { background: #f3f4f6; color: #374151; }
+        .badge-admin { background: #f3e5f5; color: #8e44ad; border: 1px solid #e1bee7; }
+        .badge-uploader { background: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb; }
+
+        .user-cell { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .user-detail { display: flex; flex-direction: column; }
+        .user-username { font-weight: 600; font-size: 14px; }
+        .user-id { font-size: 11px; color: #7f8c8d; }
+
+        .action-btn-group { display: flex; gap: 5px; }
+        .btn-icon { width: 30px; height: 30px; border-radius: 6px; border: 1px solid #ddd; background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; }
+        .btn-icon:hover { background: #f0f0f0; }
+        .btn-icon.delete:hover { background: #fee2e2; color: #c0392b; border-color: #fecaca; }
+
+        .pagination-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
+        .btn-page { padding: 6px 12px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; }
+
+        /* =========================================
+           9. Popups (SweetAlert)
+           ========================================= */
+        .small-modal-popup { width: 450px !important; max-width: 90% !important; padding: 25px !important; border-radius: 16px !important; }
+        .small-modal-title { font-size: 20px !important; }
+        .small-modal-input { margin: 10px 0 !important; width: 100% !important; height: 45px !important; border: 1px solid #ddd !important; border-radius: 8px !important; padding: 0 10px !important; box-sizing: border-box !important; }
+        .small-modal-actions { width: 100% !important; display: flex !important; gap: 10px !important; justify-content: center !important; margin-top: 20px !important; }
+        .swal-btn-confirm, .swal-btn-cancel { flex: 1 !important; padding: 10px !important; border-radius: 8px !important; border: none !important; color: white !important; font-size: 16px !important; }
+        .swal-btn-confirm { background: #27ae60 !important; }
+        .swal-btn-cancel { background: #c0392b !important; }
+
+        /* =========================================
+           10. 🔥 MOBILE RESPONSIVE (Safe Version)
+           ========================================= */
+        @media (max-width: 768px) {
+            /* 1. จัดการ Body ให้เลื่อนลงมา */
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow-y: auto;
+                background-color: var(--light-bg);
+            }
+
+            /* 2. เมนู Sidebar: ไม่ซ่อน! แต่ยืดเต็มด้านบน */
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative; /* กลับมาสู่โลกความจริง (ไม่ลอย) */
+                left: 0;
+                padding: 15px;
+                flex-shrink: 0;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+
+            .sidebar-header { margin-bottom: 15px; }
+            .menu-items { flex-direction: row; flex-wrap: wrap; gap: 5px; }
+            /* ปรับลิงก์เมนูให้เล็กลงหน่อยในมือถือ */
+            .menu-link { padding: 8px 10px; font-size: 14px; background: rgba(255,255,255,0.1); flex: 1; justify-content: center; white-space: nowrap; }
+            .user-info { display: none; } /* ซ่อน User Info ในมือถือเพื่อประหยัดที่ */
+            .sidebar-footer { flex-direction: row; gap: 5px; margin-top: 10px; }
+            .btn-profile, .btn-logout { margin-bottom: 0; font-size: 14px; padding: 8px; }
+
+            /* 3. Main Content */
+            .main-content {
+                padding: 15px;
+                width: 100%;
+                overflow-x: hidden; /* กันเนื้อหาล้นแนวนอน */
+            }
+
+            /* 4. Stats Grid */
+            .stats-grid {
+                grid-template-columns: 1fr; /* เรียงเดี่ยว */
+                gap: 15px;
+            }
+            .stat-card {
+                padding: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                text-align: left;
+            }
+            .stat-icon { position: static; font-size: 32px; opacity: 0.6; }
+            .stat-number { font-size: 28px; margin: 0; }
+
+            /* 5. Forms & Toolbar */
+            #uploadForm > div { grid-template-columns: 1fr !important; gap: 15px !important; }
+            
+            .bulk-toolbar, .search-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .bulk-actions-right { width: 100%; }
+            .bulk-actions-right button, .btn-search { width: 100%; justify-content: center; }
+            
+            input, select { margin-bottom: 10px; }
+
+            /* 6. Gallery Grid */
+            .approval-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 คอลัมน์กำลังดีในมือถือ */
+                gap: 10px;
+            }
+            .approval-item img { height: 120px; }
+
+            /* 7. Tables: ไม่ซ่อนหัวข้อ! แต่ให้เลื่อนได้ (Scrollable) */
+            /* ตัวการ์ดจะเป็นกรอบ */
+            .card {
+                padding: 15px;
+                /* 🔥 หัวใจสำคัญ: ทำให้ตารางข้างในเลื่อนได้ถ้าล้น */
+                overflow-x: auto; 
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                /* บังคับความกว้างเพื่อให้เกิด Scrollbar */
+                min-width: 600px; 
+            }
+            
+            /* ปรับปุ่มในตารางให้กดง่ายขึ้น */
+            .btn-icon { width: 36px; height: 36px; }
+        }
     </style>
 </head>
 
