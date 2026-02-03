@@ -1059,18 +1059,24 @@
         }
 
         /* =========================================
-           10. 🔥 MOBILE RESPONSIVE (ฉบับแก้จบ: เรียงแนวตั้ง)
+           10. 🔥 MOBILE RESPONSIVE (ฉบับจัดระเบียบแนวตั้ง)
            ========================================= */
         @media (max-width: 768px) {
             
-            /* 1. จัดการ Body */
+            /* 1. จัดการ Body และ Scroll */
             body {
                 flex-direction: column;
                 height: auto;
-                overflow-x: hidden; /* กันล้นแนวนอน */
+                overflow-x: hidden; /* ป้องกันหน้าจอล้นแนวนอน */
                 overflow-y: auto;
             }
 
+            .main-content {
+                padding: 80px 15px 30px 15px; /* เว้นที่ด้านบนให้เมนู */
+                width: 100%;
+            }
+
+            /* 2. Sidebar & Nav */
             .mobile-nav { display: flex; }
             
             .sidebar {
@@ -1080,74 +1086,83 @@
             .sidebar.active { left: 0; }
             .close-btn { display: block; }
 
-            .main-content {
-                padding: 80px 15px 30px 15px;
-                width: 100%;
-            }
-
-            /* 2. Stats Grid */
+            /* 3. Stats Grid (การ์ดสถิติเรียงเดี่ยว) */
             .stats-grid { grid-template-columns: 1fr; gap: 15px; }
 
-            /* 3. Forms & Toolbar (จุดแก้ปัญหา) */
+            /* 4. Upload Form (ฟอร์มอัปโหลดเรียงแนวตั้ง) */
             #uploadForm > div {
-                grid-template-columns: 1fr !important;
+                display: flex;
+                flex-direction: column !important; /* บังคับเรียงลงมา */
                 gap: 15px !important;
             }
 
-            /* 🔥 บังคับให้แถบเครื่องมือเรียง "แนวตั้ง" (Column) */
+            /* 5. 🔥 FIX: แถบเครื่องมือ (เรียงบรรทัดละ 1 ช่อง) */
             .bulk-toolbar, 
             .search-toolbar {
                 display: flex;
-                flex-direction: column !important; /* เรียงลงมาทีละบรรทัด */
-                align-items: stretch !important;   /* ยืดให้เต็มขอบ */
-                gap: 15px;
+                flex-direction: column !important; /* แนวตั้ง */
+                align-items: stretch !important;   /* ยืดเต็มจอ */
+                gap: 15px; /* ระยะห่างระหว่างบรรทัด */
                 padding: 20px !important;
                 height: auto;
             }
 
-            /* 🔥 สั่งให้ Input, Select, Button กว้างเต็ม 100% */
+            /* ปรับช่อง Input/Select/Button ให้กว้างเต็ม 100% */
             .search-toolbar input, 
             .search-toolbar select,
             .btn-search,
             .bulk-actions-right,
-            .bulk-actions-right button {
+            .bulk-actions-right button,
+            .btn-bulk-restore,
+            .btn-bulk-delete {
                 width: 100% !important;
                 max-width: 100%;
                 margin: 0 !important;
-                box-sizing: border-box; /* รวม padding ในความกว้าง */
+                box-sizing: border-box; /* รวมขอบในความกว้าง */
+                height: 45px; /* กำหนดความสูงให้กดง่าย */
             }
             
-            /* จัดการปุ่มกลุ่มขวา */
+            /* กลุ่มปุ่มด้านขวา (ใน Bulk) */
             .bulk-actions-right {
                 flex-direction: column;
                 display: flex;
                 gap: 10px;
             }
 
-            /* 4. Gallery Grid */
+            /* 6. Gallery Grid (รูปภาพเรียงแถวละ 1 รูป) */
             .approval-grid {
-                grid-template-columns: 1fr; /* เรียงรูปทีละแถว */
+                grid-template-columns: 1fr; 
                 gap: 20px;
             }
             
             .approval-item img {
                 width: 100%;
-                aspect-ratio: 4/3; 
+                aspect-ratio: 4/3; /* ล็อคสัดส่วนภาพมาตรฐาน */
                 object-fit: cover;
             }
 
-            /* 5. Table (เลื่อนได้) */
+            /* 7. Table (ทำให้เลื่อนแนวนอนได้ ไม่ล้นจอ) */
             .card {
                 padding: 15px;
-                overflow-x: auto;
+                overflow: visible; 
             }
             
+            /* ให้ตารางเลื่อนเฉพาะตัวมันเอง */
+            .table-responsive, .user-table, .log-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto; /* เลื่อนซ้ายขวา */
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* บังคับความกว้างตารางให้เกิด Scrollbar ถ้าจอเล็ก */
             table { min-width: 600px; }
             
-            /* ปรับแต่งการ์ด */
+            /* ปรับแต่งหัวข้อการ์ด */
             .card h3 { 
                 flex-wrap: wrap; 
                 line-height: 1.5; 
+                font-size: 18px;
             }
         }
     </style>
