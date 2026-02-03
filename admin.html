@@ -552,12 +552,11 @@
         .approval-item img {
             width: 100%;
             /* height: 160px;  <-- ❌ ลบบรรทัดนี้ออก หรือ comment ไว้ */
-
+            
             /* ✅ ใช้อันนี้แทน: กำหนดอัตราส่วนภาพ (เช่น 4:3 หรือ 16:9) */
-            aspect-ratio: 4/3;
-            object-fit: cover;
-            /* ตัดส่วนเกินออกให้รูปเต็มกรอบสวยงาม */
-
+            aspect-ratio: 4/3; 
+            object-fit: cover; /* ตัดส่วนเกินออกให้รูปเต็มกรอบสวยงาม */
+            
             border-radius: 8px;
             pointer-events: none;
             transition: 0.3s;
@@ -1059,142 +1058,114 @@
             box-shadow: none !important;
         }
 
-/* =========================================
-           10. 🔥 MOBILE RESPONSIVE (ฉบับแก้ไขสมบูรณ์)
+        /* =========================================
+           10. 🔥 MOBILE RESPONSIVE (แบบยืดหยุ่น: ไม่พอให้ปัดลง)
            ========================================= */
         @media (max-width: 768px) {
-            /* 1. จัดการ Body และ Sidebar */
+            
+            /* 1. จัดการ Body และ Scroll */
             body {
                 flex-direction: column;
                 height: auto;
-                overflow-x: hidden; /* กันล้นแนวนอน */
+                overflow-x: hidden; /* กันแนวนอนเกิน */
                 overflow-y: auto;
             }
 
-            .mobile-nav { display: flex; }
-            
-            .sidebar {
-                position: fixed;
-                left: -260px;
-                top: 0;
-                height: 100%;
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
-                transition: left 0.3s ease; /* เพิ่ม transition */
-            }
-
-            .sidebar.active { left: 0; }
-            .close-btn { display: block; }
-
             .main-content {
-                padding: 80px 15px 30px 15px; /* เว้นที่ด้านบนให้ Navbar */
+                padding: 80px 15px 30px 15px; /* เว้นที่ให้เมนูบน */
                 width: 100%;
             }
 
-            /* 2. Stats Grid */
-            .stats-grid {
-                grid-template-columns: 1fr; /* เรียงเดี่ยว */
+            /* 2. Sidebar & Nav */
+            .mobile-nav { display: flex; }
+            .sidebar {
+                position: fixed; left: -260px; top: 0; height: 100%;
+                box-shadow: 5px 0 15px rgba(0,0,0,0.3); transition: left 0.3s;
+            }
+            .sidebar.active { left: 0; }
+            .close-btn { display: block; }
+
+            /* 3. Stats Grid (เรียงเดี่ยว) */
+            .stats-grid { grid-template-columns: 1fr; gap: 15px; }
+
+            /* 4. 🔥 FIX: แถบเครื่องมือ (ให้ปัดลงบรรทัดใหม่ได้ถ้าที่เต็ม) */
+            .bulk-toolbar, 
+            .search-toolbar {
+                display: flex;
+                flex-wrap: wrap !important; /* หัวใจสำคัญ: ยอมให้ตกบรรทัด */
+                flex-direction: row; /* เรียงแนวนอนก่อน */
+                gap: 10px;
+                padding: 15px;
+                height: auto;
             }
 
-            /* 3. Forms & Toolbar (แก้ปัญหาหลัก: แถบค้นหาเกิน) */
+            /* ปรับช่อง Input และ Select ให้ยืดหยุ่น */
+            .search-toolbar input, 
+            .search-toolbar select {
+                flex: 1 1 100%; /* ยึดเต็มบรรทัดในมือถือ */
+                width: 100%;
+                min-width: 200px;
+            }
+
+            /* ปรับปุ่มให้ยืดเต็มเมื่อจำเป็น */
+            .btn-search, 
+            .bulk-actions-right,
+            .bulk-actions-right button {
+                flex: 1 1 auto; /* ขยายตามความเหมาะสม */
+                width: 100%; /* ในมือถือให้เต็มจอไปเลยกดง่าย */
+                justify-content: center;
+            }
+            
+            .bulk-actions-right {
+                flex-direction: column; /* ปุ่มกลุ่มขวาเรียงลงมา */
+                gap: 10px;
+            }
+
+            /* 5. Upload Form (เรียงลงมา) */
             #uploadForm > div {
                 grid-template-columns: 1fr !important;
                 gap: 15px !important;
             }
 
-            /* 🔥 บังคับให้ Toolbar เรียงแนวตั้ง */
-            .bulk-toolbar,
-            .search-toolbar {
-                display: flex;
-                flex-direction: column !important;
-                align-items: stretch !important;
-                gap: 10px;
-                height: auto;
-                padding: 15px !important;
-            }
-
-            /* 🔥 บังคับ Input/Button ให้กว้างเต็มจอ */
-            .search-toolbar input,
-            .search-toolbar select,
-            .search-toolbar button,
-            .btn-search,
-            .bulk-actions-right,
-            .bulk-actions-right button {
-                width: 100% !important;
-                margin: 0 0 5px 0 !important; /* เว้นระยะห่างนิดหน่อย */
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-            
-            .bulk-actions-right {
-                flex-direction: column;
-                display: flex;
-            }
-
-            /* 4. Gallery Grid (เรียงรูปแนวตั้ง 1 รูป) */
+            /* 6. Gallery Grid (เรียงลงมา 1 แถว) */
             .approval-grid {
-                grid-template-columns: 1fr; /* 1 คอลัมน์ เต็มจอ */
+                grid-template-columns: 1fr;
                 gap: 20px;
             }
-
+            
             .approval-item img {
                 width: 100%;
-                aspect-ratio: 4/3; /* 🔥 ล็อคสัดส่วนภาพให้สวยงาม (4:3) */
+                aspect-ratio: 4/3; /* ล็อคสัดส่วน */
                 object-fit: cover;
-                height: auto;
             }
 
-            /* 5. Table to Card View (แก้ตาราง) */
+            /* 7. Table Card View (ตารางแบบการ์ด เลื่อนแนวนอนได้) */
             .card {
                 padding: 15px;
-                overflow: visible; /* ให้เนื้อหาขยายลงล่างได้ */
-            }
-
-            table, thead, tbody, th, td, tr { display: block; width: 100%; }
-            thead tr { position: absolute; top: -9999px; left: -9999px; }
-
-            tr {
-                margin-bottom: 15px;
-                border: 1px solid #ddd;
-                border-radius: 10px;
-                background: #fff;
-                padding: 15px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            }
-
-            td {
-                border: none;
-                position: relative;
-                padding-left: 0;
-                padding: 8px 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid #f0f0f0;
-                text-align: right;
-                word-break: break-word; /* 🔥 ตัดคำยาวๆ ไม่ให้ดันจอ */
-            }
-
-            td:last-child { border-bottom: none; }
-
-            td::before {
-                content: attr(data-label);
-                font-weight: 700;
-                color: #555;
-                font-size: 13px;
-                margin-right: 15px;
-                text-align: left;
-                flex-shrink: 0; /* ไม่ให้หัวข้อหด */
-            }
-
-            .action-btn-group {
-                justify-content: flex-end;
-                width: 100%;
+                overflow: visible; 
             }
             
-            /* User Info ในตาราง */
-            .user-cell {
-                flex-direction: column;
-                align-items: flex-end;
+            /* ตัวตาราง */
+            .user-table, .log-table {
+                display: block; /* เปลี่ยนเป็น Block เพื่อให้เลื่อนได้ */
+                overflow-x: auto; /* เลื่อนซ้ายขวาเฉพาะตาราง */
+                white-space: nowrap; /* ไม่ให้คำตัดบรรทัดมั่วในตาราง */
+            }
+            
+            /* ปรับแต่งแถว */
+            tr {
+                display: table-row; /* กลับมาเป็นแถวปกติ */
+                background: white;
+            }
+            
+            td, th {
+                display: table-cell; /* กลับมาเป็นเซลล์ปกติ */
+                white-space: normal; /* ให้ข้อความยาวๆ ขึ้นบรรทัดใหม่ในช่องได้ */
+                min-width: 100px; /* ความกว้างขั้นต่ำของแต่ละช่อง */
+            }
+            
+            .action-btn-group {
+                display: flex;
                 gap: 5px;
             }
         }
