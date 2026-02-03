@@ -1059,95 +1059,98 @@
             box-shadow: none !important;
         }
 
-        /* =========================================
-           10. Mobile Responsive
+/* =========================================
+           10. 🔥 MOBILE RESPONSIVE (ฉบับแก้ไขสมบูรณ์)
            ========================================= */
         @media (max-width: 768px) {
+            /* 1. จัดการ Body และ Sidebar */
             body {
                 flex-direction: column;
                 height: auto;
-                overflow: auto;
+                overflow-x: hidden; /* กันล้นแนวนอน */
+                overflow-y: auto;
             }
 
-            .mobile-nav {
-                display: flex;
-            }
-
+            .mobile-nav { display: flex; }
+            
             .sidebar {
                 position: fixed;
                 left: -260px;
                 top: 0;
                 height: 100%;
                 box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+                transition: left 0.3s ease; /* เพิ่ม transition */
             }
 
-            .sidebar.active {
-                left: 0;
-            }
-
-            .close-btn {
-                display: block;
-            }
+            .sidebar.active { left: 0; }
+            .close-btn { display: block; }
 
             .main-content {
-                padding: 80px 15px 30px 15px;
+                padding: 80px 15px 30px 15px; /* เว้นที่ด้านบนให้ Navbar */
+                width: 100%;
             }
 
+            /* 2. Stats Grid */
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* เรียงเดี่ยว */
             }
 
-            #uploadForm>div {
+            /* 3. Forms & Toolbar (แก้ปัญหาหลัก: แถบค้นหาเกิน) */
+            #uploadForm > div {
                 grid-template-columns: 1fr !important;
-                gap: 20px !important;
+                gap: 15px !important;
             }
 
+            /* 🔥 บังคับให้ Toolbar เรียงแนวตั้ง */
             .bulk-toolbar,
             .search-toolbar {
-                flex-direction: column;
-                align-items: stretch;
+                display: flex;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px;
+                height: auto;
+                padding: 15px !important;
             }
 
+            /* 🔥 บังคับ Input/Button ให้กว้างเต็มจอ */
+            .search-toolbar input,
+            .search-toolbar select,
+            .search-toolbar button,
+            .btn-search,
+            .bulk-actions-right,
+            .bulk-actions-right button {
+                width: 100% !important;
+                margin: 0 0 5px 0 !important; /* เว้นระยะห่างนิดหน่อย */
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
             .bulk-actions-right {
-                width: 100%;
-                justify-content: space-between;
+                flex-direction: column;
+                display: flex;
             }
 
-            .btn-bulk-restore,
-            .btn-bulk-delete {
-                flex: 1;
-                justify-content: center;
-            }
-
-            .card {
-                padding: 20px;
-                overflow-x: auto;
-            }
-
-            .modal-content {
-                width: 95%;
-            }
-
+            /* 4. Gallery Grid (เรียงรูปแนวตั้ง 1 รูป) */
             .approval-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
+                grid-template-columns: 1fr; /* 1 คอลัมน์ เต็มจอ */
+                gap: 20px;
             }
 
-            /* 🔥 Table to Card View Transformation */
-            table,
-            thead,
-            tbody,
-            th,
-            td,
-            tr {
-                display: block;
+            .approval-item img {
+                width: 100%;
+                aspect-ratio: 4/3; /* 🔥 ล็อคสัดส่วนภาพให้สวยงาม (4:3) */
+                object-fit: cover;
+                height: auto;
             }
 
-            thead tr {
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
+            /* 5. Table to Card View (แก้ตาราง) */
+            .card {
+                padding: 15px;
+                overflow: visible; /* ให้เนื้อหาขยายลงล่างได้ */
             }
+
+            table, thead, tbody, th, td, tr { display: block; width: 100%; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
 
             tr {
                 margin-bottom: 15px;
@@ -1167,22 +1170,32 @@
                 justify-content: space-between;
                 align-items: center;
                 border-bottom: 1px solid #f0f0f0;
+                text-align: right;
+                word-break: break-word; /* 🔥 ตัดคำยาวๆ ไม่ให้ดันจอ */
             }
 
-            td:last-child {
-                border-bottom: none;
-            }
+            td:last-child { border-bottom: none; }
 
             td::before {
                 content: attr(data-label);
                 font-weight: 700;
                 color: #555;
                 font-size: 13px;
-                margin-right: 10px;
+                margin-right: 15px;
+                text-align: left;
+                flex-shrink: 0; /* ไม่ให้หัวข้อหด */
             }
 
             .action-btn-group {
                 justify-content: flex-end;
+                width: 100%;
+            }
+            
+            /* User Info ในตาราง */
+            .user-cell {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 5px;
             }
         }
     </style>
