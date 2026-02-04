@@ -560,7 +560,7 @@
             background-color: #e8f8f5;
         }
 
-        /* Checkmark */
+        /* Checkmark - Updated for strict single display */
         .approval-item.selected::after {
             content: '\f00c';
             font-family: 'Font Awesome 6 Free';
@@ -578,11 +578,14 @@
             justify-content: center;
             font-weight: bold;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 10;
+            z-index: 100; /* Ensure on top */
         }
 
-        .check-overlay {
-            display: none;
+        /* 🔥 FIX: Strictly hide any old checkmarks or icons */
+        .check-overlay,
+        .approval-item .fa-check,
+        .approval-item .fa-check-circle {
+            display: none !important;
         }
 
         /* --- TRASH ITEM DESIGN --- */
@@ -722,7 +725,7 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            margin-top: 0px;
+            margin-top: 10px !important; /* 🔥 FIX Spacing */
             background: white;
         }
 
@@ -1196,7 +1199,7 @@
             .btn-icon { width: 36px; height: 36px; }
         }
 
-        /* --- 🔥 NEW UI UPDATES (ADDED) --- */
+        /* --- 🔥 UI UPDATES (ADDED) --- */
 
         /* 1. Dashboard List - Remove Scrollbar */
         #topCategoriesList {
@@ -1205,27 +1208,13 @@
             overflow-y: visible !important;
         }
 
-        /* 2. Gallery - Fix Double Checkmarks */
-        .approval-item .check-overlay,
-        .approval-item .fa-check,
-        .approval-item .fa-check-circle {
-            display: none !important;
-        }
-        .approval-item.selected::after {
-            z-index: 100 !important;
-            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.4);
-        }
-
-        /* 3. User Management Spacing */
+        /* 2. User Management Spacing */
         #userSearch {
-            margin-top: 10px !important;
+            margin-top: 15px !important;
             margin-bottom: 20px !important;
         }
-        .user-table {
-            margin-top: 10px !important;
-        }
 
-        /* 4. Modern Upload Form */
+        /* 3. Modern Upload Form */
         #categoryName {
             border-radius: 30px !important;
             padding-left: 20px !important;
