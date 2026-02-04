@@ -57,7 +57,7 @@ app.use(
                     "'self'",
                     "data:",
                     "https://res.cloudinary.com",
-                    "blob:" // เพิ่ม blob เพื่อรองรับการพรีวิวบางประเภท
+                    "blob:" // รองรับ blob สำหรับ preview รูป
                 ],
                 fontSrc: [
                     "'self'",
@@ -491,8 +491,9 @@ app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => 
     }
 });
 
-// --- DELETE / RESTORE Operations ---
+// --- DELETE / RESTORE Operations (สำหรับ Trash) ---
 
+// 1. ย้ายลงถังขยะ (Soft Delete)
 app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
@@ -502,6 +503,7 @@ app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, 
     }
 });
 
+// 2. ย้ายหลายรายการลงถังขยะ (Bulk Soft Delete)
 app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
@@ -513,6 +515,7 @@ app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) =
     }
 });
 
+// 3. ดึงรายการในถังขยะ (Get Trash)
 app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Photos WHERE is_deleted = 1 ORDER BY upload_date DESC');
@@ -523,6 +526,7 @@ app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
+// 4. กู้คืนจากถังขยะ (Restore)
 app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
@@ -534,6 +538,7 @@ app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res)
     }
 });
 
+// 5. ลบถาวรจากถังขยะ (Empty Trash / Delete Permanent)
 app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
