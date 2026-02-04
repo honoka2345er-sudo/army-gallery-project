@@ -1155,7 +1155,7 @@
             .search-toolbar {
                 display: flex !important;
                 flex-direction: column !important; /* แนวตั้ง */
-                align-items: stretch !important;   /* ยืดเต็มขอบ */
+                align-items: stretch !important;    /* ยืดเต็มขอบ */
                 gap: 15px !important;              /* ระยะห่าง */
                 padding: 20px !important;
                 height: auto !important;
@@ -1192,7 +1192,7 @@
             }
 
             /* ปรับปุ่มเลือกทั้งหมดในถังขยะให้สูงเท่ากัน */
-            #btnSelectAllTrash {
+            #btnSelectAllTrash, #btnSelectAllApproved {
                 width: 100% !important;
                 height: 45px !important;
                 justify-content: center !important;
@@ -1695,6 +1695,10 @@
         let allUsersData = [];
         const itemsPerPage = 50;
 
+        // 🔥 เพิ่ม 2 ตัวนี้สำหรับหน้าจัดการรูปภาพ (ให้เหมือนถังขยะ)
+        let currentApprovedPhotos = [];      // เก็บรูปหน้าปัจจุบัน
+        let selectedApprovedIds = new Set(); // เก็บ ID ที่เลือก
+
         function getAuthHeaders() {
             return {
                 'Content-Type': 'application/json',
@@ -1852,19 +1856,31 @@
             });
         }
 
+        // ==========================================
+        // 🖼️ PHOTO MANAGEMENT LOGIC (ปรับปรุงใหม่)
+        // ==========================================
+
         async function loadApprovedPhotos(page = 1) {
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
-            const photos = await res.json();
-            renderGrid('approvedList', photos, 'approved');
+            
+            try {
+                const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
+                const photos = await res.json();
+                
+                // 🔥 เก็บข้อมูลลงตัวแปร Global และเคลียร์การเลือก
+                currentApprovedPhotos = photos;
+                selectedApprovedIds.clear(); 
 
-            // Pagination controls
-            document.getElementById('paginationControls').style.display = 'flex';
-            document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
-            document.getElementById('btnPrev').disabled = (currentPage <= 1);
-            document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
+                renderGrid('approvedList', photos, 'approved');
+
+                // Pagination controls
+                document.getElementById('paginationControls').style.display = 'flex';
+                document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
+                document.getElementById('btnPrev').disabled = (currentPage <= 1);
+                document.getElementById('btnNext').disabled = (photos.length < itemsPerPage);
+            } catch(e) { console.error(e); }
         }
 
         function changePage(step) {
@@ -1873,17 +1889,23 @@
             loadApprovedPhotos(nextPage);
         }
 
+        // 🔥 ฟังก์ชัน Render Grid (ใช้ได้ทั้ง Approved และ Trash)
         function renderGrid(elemId, photos, type) {
             const el = document.getElementById(elemId);
             el.innerHTML = '';
 
+            // เลือก Toolbar และ Set ที่จะใช้ตรวจสอบ
             const toolbar = document.getElementById(type === 'approved' ? 'approvedToolbar' : 'trashToolbar');
-            if (toolbar) {
+            const selectionSet = (type === 'trash') ? selectedTrashIds : selectedApprovedIds;
+
+            // แสดง/ซ่อน Toolbar
+            if (toolbar && type === 'approved') {
                 toolbar.style.display = (user.role === 'admin' && photos.length > 0) ? 'flex' : 'none';
             }
 
             if (photos.length === 0) {
                 el.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#999; padding:20px;">ไม่พบข้อมูล</p>';
+                if(type === 'approved') updateApprovedToolbar();
                 return;
             }
 
@@ -1894,9 +1916,11 @@
                 const dateVal = p.date || '';
                 const actVal = p.activity || '';
 
-                let btns = '';
+                // ตรวจสอบว่ารูปนี้ถูกเลือกอยู่หรือไม่
+                const isSelected = selectionSet.has(id);
 
-                // Only for Active Gallery
+                let btns = '';
+                // สร้างปุ่มเครื่องมือ (เหมือนเดิม)
                 if (type === 'approved' && user.role === 'admin') {
                     btns = `<div class="gallery-actions">
                                 <button onclick="event.stopPropagation(); copyLink('${url}')" class="btn-icon-action" style="background:#3498db;" title="คัดลอกลิงก์"><i class="fas fa-link"></i></button>
@@ -1906,34 +1930,73 @@
                             </div>`;
                 }
 
-                const chk = (user.role === 'admin' && type === 'approved') ? `<input type="checkbox" class="check-overlay approved-check" value="${id}" onclick="event.stopPropagation()">` : '';
-
+                // สร้างการ์ดรูปภาพ
                 el.innerHTML += `
-                <div class="approval-item" onclick="toggleSel(this)" data-id="${id}">
-                    ${chk} 
+                <div class="approval-item ${isSelected ? 'selected' : ''}" onclick="toggleSelection(${id}, '${type}')" style="${isSelected ? 'border: 2px solid #27ae60; background: #e8f8f5;' : ''}">
                     <div style="position: relative;">
                         <img src="${url}" onclick="event.stopPropagation(); openImage('${url}')" class="clickable">
+                        ${isSelected ? `
+                            <div style="position:absolute; top:10px; right:10px; background:#27ae60; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index:10;">
+                                <i class="fas fa-check" style="font-weight:900;"></i>
+                            </div>` 
+                        : ''}
                     </div>
                     ${btns}
                 </div>`;
             });
 
-            // Bulk Select Logic for Approved
-            const allBtn = document.getElementById('btnSelectAllApproved');
-            if (allBtn && user.role === 'admin') {
-                allBtn.onclick = () => {
-                    const chks = document.querySelectorAll(`.approved-check`);
-                    const unchk = Array.from(chks).some(c => !c.checked);
-                    chks.forEach(c => {
-                        c.checked = unchk;
-                        c.parentElement.classList.toggle('selected', unchk);
-                    });
-                };
+            // อัปเดตหน้าตาปุ่ม Toolbar หลังจาก Render เสร็จ
+            if (type === 'approved') updateApprovedToolbar();
+        }
+
+        // 🔥 ฟังก์ชันเลือกทีละรูป (ใช้ร่วมกันทั้ง Approved และ Trash โดยส่ง type มา)
+        function toggleSelection(id, type) {
+            // เช็คว่าคลิกที่ปุ่ม action หรือเปล่า ถ้าใช่ไม่ให้เลือก
+            if (event.target.closest('button')) return;
+
+            if (type === 'approved') {
+                if (selectedApprovedIds.has(id)) selectedApprovedIds.delete(id);
+                else selectedApprovedIds.add(id);
+                renderGrid('approvedList', currentApprovedPhotos, 'approved');
+            } 
+        }
+
+        // 🔥 ปุ่มเลือกทั้งหมดสำหรับ "จัดการรูปภาพ" (Logic เดียวกับถังขยะ)
+        function toggleSelectAllApproved() {
+            if (currentApprovedPhotos.length > 0 && selectedApprovedIds.size === currentApprovedPhotos.length) {
+                selectedApprovedIds.clear(); // ยกเลิกทั้งหมด
+            } else {
+                selectedApprovedIds.clear();
+                currentApprovedPhotos.forEach(p => selectedApprovedIds.add(p.id || p.photo_id)); // เลือกทั้งหมด
+            }
+            renderGrid('approvedList', currentApprovedPhotos, 'approved');
+        }
+
+        // 🔥 อัปเดตหน้าตาปุ่ม Toolbar (สีเขียวสำหรับการจัดการรูปภาพ)
+        function updateApprovedToolbar() {
+            const btn = document.getElementById('btnSelectAllApproved');
+            if (!btn) return;
+            
+            const total = currentApprovedPhotos.length;
+            const selected = selectedApprovedIds.size;
+
+            if (total > 0 && selected === total) {
+                // เลือกครบแล้ว -> เปลี่ยนเป็นสีเขียวอ่อน/เข้ม
+                btn.innerHTML = `<i class="fas fa-check-square" style="color: #27ae60;"></i> ยกเลิกเลือก (${selected})`;
+                btn.style.borderColor = '#27ae60';
+                btn.style.color = '#1e8449';
+                btn.style.background = '#e8f8f5';
+            } else {
+                // ปกติ -> สีขาว
+                btn.innerHTML = `<i class="far fa-square" style="color: #aaa;"></i> เลือกทั้งหมด ${selected > 0 ? `(${selected})` : ''}`;
+                btn.style.borderColor = '#ddd';
+                btn.style.color = '#555';
+                btn.style.background = '#fff';
             }
         }
 
         // ==========================================
-        // 🗑️ 🔥 NEW TRASH LOGIC (Select All Button Fix)
+        // 🗑️ 🔥 TRASH LOGIC
         // ==========================================
         let allTrashFiles = [];
         let selectedTrashIds = new Set();
@@ -2045,6 +2108,7 @@
                 });
                 Swal.fire('สำเร็จ', 'กู้คืนเรียบร้อย', 'success');
                 loadTrash();
+                loadApprovedPhotos(currentPage); // รีโหลดหน้ารูปภาพด้วยเผื่อมันกลับไป
             }
         }
 
@@ -2068,13 +2132,6 @@
 
         function closeImage() {
             document.getElementById('imageModal').style.display = "none";
-        }
-
-        function toggleSel(el) {
-            if (event.target.tagName === 'BUTTON' || event.target.closest('button')) return;
-            el.classList.toggle('selected');
-            const c = el.querySelector('input');
-            if (c) c.checked = !c.checked;
         }
 
         async function cf(msg) {
@@ -2120,12 +2177,27 @@
             }
         }
 
+        // 🔥 ลบหลายรูป (ใช้ข้อมูลจาก Set แทน querySelector)
         async function bulkDelete() {
-            const ids = Array.from(document.querySelectorAll('.approved-check:checked')).map(c => c.value);
-            if (ids.length && await cf('ลบที่เลือก?')) {
-                await fetch('/photos/bulk-delete', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ photo_ids: ids }) });
-                loadApprovedPhotos(currentPage);
-                loadTrash();
+            // แปลง Set เป็น Array
+            const ids = Array.from(selectedApprovedIds);
+            
+            if (ids.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปที่จะลบ', 'warning');
+
+            if (await cf(`คุณต้องการลบ ${ids.length} รูปย้ายไปถังขยะ?`)) {
+                try {
+                    await fetch('/photos/bulk-delete', { 
+                        method: 'POST', 
+                        headers: getAuthHeaders(), 
+                        body: JSON.stringify({ photo_ids: ids }) 
+                    });
+                    
+                    Swal.fire('สำเร็จ', 'ย้ายไปถังขยะแล้ว', 'success');
+                    loadApprovedPhotos(currentPage); // โหลดใหม่
+                    loadTrash(); // อัปเดตถังขยะด้วย
+                } catch (e) {
+                    Swal.fire('Error', 'ลบไม่สำเร็จ', 'error');
+                }
             }
         }
 
