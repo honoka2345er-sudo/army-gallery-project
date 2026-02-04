@@ -1313,8 +1313,9 @@
 
             <div>
                 <h4 style="color:#666; margin-bottom:5px; font-size:14px; font-weight:600;"><i class="fas fa-clock"></i>
-                    กิจกรรมที่อัปเดตล่าสุด</h4>
-                <div id="topCategoriesList" style="max-height:200px; overflow-y:auto; padding-right:5px;">
+                    กิจกรรมที่อัปเดตล่าสุด (5 อันดับแรก)</h4>
+                
+                <div id="topCategoriesList" style="margin-top: 15px;">
                     <p style="text-align:center; color:#999; padding:15px; font-size: 13px;">กำลังโหลด...</p>
                 </div>
             </div>
@@ -2280,9 +2281,28 @@
                 }
 
                 list.innerHTML = '';
-                data.latest_categories.forEach(c => {
+                // 🔥 แก้ไข: ใส่เลขลำดับ 1-5 และปลดล็อกความสูง
+                data.latest_categories.forEach((c, index) => {
                     const dateStr = new Date(c.last_update).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
-                    list.innerHTML += `<div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left: 3px solid #3498db; box-shadow:0 1px 3px rgba(0,0,0,0.05);"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:14px; color:#333; font-weight:bold;">${c.category_name}</span><span style="font-size:12px; color:#999;">${dateStr}</span></div><div style="font-size:12px; color:#666; margin-top:3px;">📸 มีรูปทั้งหมด ${c.photo_count} รูป</div></div>`;
+                    const rank = index + 1;
+                    let rankColor = '#999';
+                    if(rank === 1) rankColor = '#f1c40f'; // ทอง
+                    if(rank === 2) rankColor = '#bdc3c7'; // เงิน
+                    if(rank === 3) rankColor = '#e67e22'; // ทองแดง
+
+                    list.innerHTML += `
+                    <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left: 3px solid #3498db; box-shadow:0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 10px; align-items: flex-start;">
+                        <div style="background:${rankColor}; color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; flex-shrink:0; margin-top:2px;">${rank}</div>
+                        <div style="flex-grow:1;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:14px; color:#333; font-weight:bold;">${c.category_name}</span>
+                                <span style="font-size:12px; color:#999;">${dateStr}</span>
+                            </div>
+                            <div style="font-size:12px; color:#666; margin-top:3px;">
+                                📸 มีรูปทั้งหมด ${c.photo_count} รูป
+                            </div>
+                        </div>
+                    </div>`;
                 });
 
                 const resAvg = await fetch('/storage/average?t=' + Date.now(), { headers: h });
