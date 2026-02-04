@@ -264,7 +264,6 @@
             color: var(--secondary-color);
             margin-top: 0;
             margin-bottom: 10px !important;
-            /* 🔥 Fix margin 10px */
             font-size: 20px;
             font-weight: 700;
             display: flex;
@@ -422,14 +421,12 @@
             margin-bottom: 20px;
             background: #f8f9fa;
             padding: 10px 15px !important;
-            /* 🔥 Reduced padding */
             border-radius: 12px;
             border: 1px solid var(--border-color);
         }
 
         .btn-search {
             padding: 8px 20px;
-            /* 🔥 Reduced size */
             background: var(--primary-color);
             color: white;
             border: none;
@@ -446,7 +443,6 @@
             background: var(--success-color);
             color: white;
             padding: 10px 20px;
-            /* 🔥 Reduced size */
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -471,7 +467,6 @@
             background-color: #3498db;
             color: white;
             padding: 8px 15px;
-            /* 🔥 Reduced size */
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -486,7 +481,6 @@
             background-color: #c0392b;
             color: white;
             padding: 8px 15px;
-            /* 🔥 Reduced size */
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -499,7 +493,6 @@
 
         .btn-nav {
             padding: 6px 12px;
-            /* 🔥 Reduced size */
             border: 1px solid #ddd;
             background: white;
             border-radius: 6px;
@@ -525,7 +518,6 @@
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
             margin-top: 10px !important;
-            /* 🔥 Reduced margin */
         }
 
         /* Standard Item */
@@ -551,12 +543,8 @@
 
         .approval-item img {
             width: 100%;
-            /* height: 160px;  <-- ❌ ลบบรรทัดนี้ออก หรือ comment ไว้ */
-            
-            /* ✅ ใช้อันนี้แทน: กำหนดอัตราส่วนภาพ (เช่น 4:3 หรือ 16:9) */
-            aspect-ratio: 4/3; 
-            object-fit: cover; /* ตัดส่วนเกินออกให้รูปเต็มกรอบสวยงาม */
-            
+            aspect-ratio: 4/3;
+            object-fit: cover;
             border-radius: 8px;
             pointer-events: none;
             transition: 0.3s;
@@ -599,7 +587,7 @@
 
         /* --- 🔥 TRASH ITEM DESIGN (Red Theme) --- */
         .approval-item.trash-item {
-            border: 2px solid #e74c3c; /* ขอบแดงสำหรับถังขยะ */
+            border: 2px solid #e74c3c;
             background-color: #fffbfb;
             position: relative;
             display: flex;
@@ -607,12 +595,12 @@
         }
 
         .approval-item.trash-item.selected {
-            border: 3px solid #c0392b; /* ขอบแดงเข้มเมื่อเลือก */
+            border: 3px solid #c0392b;
             background-color: #fdedec;
         }
-        
+
         .approval-item.trash-item.selected::after {
-            background: #c0392b; /* เครื่องหมายถูกสีแดง */
+            background: #c0392b;
         }
 
         .approval-item.trash-item img {
@@ -653,7 +641,6 @@
             padding-top: 10px;
             border-top: 1px solid #f0e0e0;
             width: 100%;
-            /* 🔥 FIX: เพิ่ม Z-Index ให้ปุ่มกดติด */
             position: relative;
             z-index: 20;
         }
@@ -661,7 +648,6 @@
         /* Button Style in Card */
         .btn-trash-action {
             flex: 1;
-            /* 50% split */
             padding: 8px 4px;
             border-radius: 6px;
             font-size: 13px;
@@ -705,7 +691,6 @@
             justify-content: center;
             gap: 4px;
             margin-top: auto;
-            /* 🔥 FIX: เพิ่ม Z-Index ให้ปุ่มกดติด */
             position: relative;
             z-index: 20;
         }
@@ -739,14 +724,12 @@
             border-collapse: separate;
             border-spacing: 0;
             margin-top: 0px;
-            /* 🔥 Table margin 0 */
             background: white;
         }
 
         .user-table th,
         .log-table th {
             padding: 12px;
-            /* Reduced padding */
             border-bottom: 2px solid var(--border-color);
             text-align: left;
             font-size: 14px;
@@ -759,7 +742,6 @@
         .user-table td,
         .log-table td {
             padding: 12px;
-            /* Reduced padding */
             border-bottom: 1px solid var(--border-color);
             font-size: 14px;
             vertical-align: middle;
@@ -806,25 +788,6 @@
         .bg-other {
             background-color: #f3f4f6;
             color: #374151;
-        }
-
-        /* 🔥 New Status Colors */
-        .bg-success {
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .bg-fail {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .bg-warning {
-            background-color: #ffedd5;
-            color: #9a3412;
-            border: 1px solid #fed7aa;
         }
 
         /* User Table Elements */
@@ -967,38 +930,33 @@
            9. Custom Popups (Image Viewer & Alerts)
            ========================================= */
         .modal {
-            display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น (JS จะสั่งเปิดเอง) */
+            display: none;
             position: fixed;
             z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* ห้ามเลื่อนพื้นหลัง */
-            background-color: rgba(0, 0, 0, 0.9); /* พื้นหลังสีดำจางๆ */
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.9);
         }
 
-        /* 🔥 ตัวรูปภาพ: จัดให้อยู่กลางจอเป๊ะๆ */
         .modal-content {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* เทคนิคจัดกึ่งกลาง */
-            
+            transform: translate(-50%, -50%);
             display: block;
             width: auto;
             height: auto;
-            
-            max-width: 90%;  /* กว้างไม่เกิน 90% ของจอ */
-            max-height: 90vh; /* สูงไม่เกิน 90% ของความสูงจอ */
-            
-            object-fit: contain; /* รักษาสัดส่วนรูปไม่ให้เบี้ยว */
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
             border-radius: 4px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.5);
-            animation: zoomIn 0.3s; /* เอฟเฟกต์ซูมตอนเปิด */
+            animation: zoomIn 0.3s;
         }
 
-        /* ปุ่มปิด (X) มุมขวาบน */
         .close-modal {
             position: absolute;
             top: 20px;
@@ -1018,19 +976,12 @@
             cursor: pointer;
         }
 
-        /* เอฟเฟกต์ Animation ตอนเปิดรูป */
         @keyframes zoomIn {
-            from {
-                transform: translate(-50%, -50%) scale(0.5); 
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, -50%) scale(1); 
-                opacity: 1;
-            }
+            from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
 
-        /* --- ส่วน Popup แจ้งเตือนเล็กๆ (SweetAlert Custom) --- */
+        /* --- Custom SweetAlert --- */
         .small-modal-popup { 
             width: 450px !important; 
             max-width: 90% !important; 
@@ -1097,11 +1048,9 @@
         }
 
         /* =========================================
-           10. 🔥 MOBILE RESPONSIVE (ฉบับสมบูรณ์: แก้แถบบน + แถบล่างเท่ากัน)
+           10. 🔥 MOBILE RESPONSIVE
            ========================================= */
         @media (max-width: 768px) {
-            
-            /* 1. จัดการ Body: ให้เลื่อนลงมาและกันล้นแนวนอน */
             body {
                 flex-direction: column;
                 height: auto;
@@ -1109,10 +1058,7 @@
                 overflow-y: auto;
             }
 
-            /* 2. Sidebar & Navigation: ตั้งค่าเมนูมือถือ */
-            .mobile-nav { 
-                display: flex; 
-            }
+            .mobile-nav { display: flex; }
             
             .sidebar {
                 position: fixed; 
@@ -1123,53 +1069,39 @@
                 transition: left 0.3s ease;
             }
             
-            .sidebar.active { 
-                left: 0; 
-            }
+            .sidebar.active { left: 0; }
             
-            .close-btn { 
-                display: block; 
-            }
+            .close-btn { display: block; }
 
             .main-content {
-                padding: 80px 15px 30px 15px; /* เว้นที่ด้านบนให้ Navbar */
+                padding: 80px 15px 30px 15px;
                 width: 100%;
             }
 
-            /* 3. Stats Grid: การ์ดสถิติเรียงเดี่ยวลงมา */
-            .stats-grid { 
-                grid-template-columns: 1fr; 
-                gap: 15px; 
-            }
+            .stats-grid { grid-template-columns: 1fr; gap: 15px; }
 
-            /* 4. Upload Form: ฟอร์มอัปโหลดเรียงแนวตั้ง */
             #uploadForm > div {
                 display: flex;
                 flex-direction: column !important;
                 gap: 15px !important;
             }
 
-            /* ------------------------------------------------------- */
-            /* 5. 🔥 FIX แถบบน (Search): เรียงแนวตั้ง 3 ชั้น เต็มจอ */
-            /* ------------------------------------------------------- */
             .search-toolbar {
                 display: flex !important;
-                flex-direction: column !important; /* แนวตั้ง */
-                align-items: stretch !important;    /* ยืดเต็มขอบ */
-                gap: 15px !important;              /* ระยะห่าง */
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
                 padding: 20px !important;
                 height: auto !important;
             }
 
-            /* ปรับช่อง Input, Select, Button ให้กว้างและสูงเท่ากัน */
             .search-toolbar input, 
             .search-toolbar select,
             .btn-search {
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 0 !important;
-                box-sizing: border-box;
-                height: 45px !important; /* ความสูงมาตรฐาน */
+                height: 45px !important;
                 display: block !important;
             }
             
@@ -1179,9 +1111,6 @@
                 align-items: center;
             }
 
-            /* ------------------------------------------------------- */
-            /* 6. 🔥 FIX แถบล่าง (Bulk): ปรับกล่องเลือกให้เท่าปุ่มลบเป๊ะๆ */
-            /* ------------------------------------------------------- */
             .bulk-toolbar {
                 display: flex !important;
                 flex-direction: column !important;
@@ -1191,7 +1120,6 @@
                 height: auto !important;
             }
 
-            /* ปรับปุ่มเลือกทั้งหมดในถังขยะให้สูงเท่ากัน */
             #btnSelectAllTrash, #btnSelectAllApproved {
                 width: 100% !important;
                 height: 45px !important;
@@ -1199,41 +1127,37 @@
                 margin: 0 !important;
             }
 
-            /* ปรับปุ่ม "ลบที่เลือก" และปุ่มอื่นๆ */
             .bulk-actions-right,
             .bulk-actions-right button,
             .btn-bulk-restore,
             .btn-bulk-delete {
                 width: 100% !important;
                 margin: 0 !important;
-                height: 45px !important; /* สูงเท่ากัน */
+                height: 45px !important;
                 border-radius: 8px !important;
             }
             
-            /* ซ่อน div ครอบที่อาจทำให้เสียทรง */
             .bulk-actions-right {
                 flex-direction: column;
                 display: flex;
                 gap: 10px;
             }
 
-            /* 7. Gallery Grid: รูปภาพเรียงแถวละ 1 รูป */
             .approval-grid {
-                grid-template-columns: 1fr; /* 1 คอลัมน์เต็มจอ */
+                grid-template-columns: 1fr;
                 gap: 20px;
             }
             
             .approval-item img {
                 width: 100%;
-                aspect-ratio: 4/3; /* ล็อคสัดส่วนภาพ */
+                aspect-ratio: 4/3;
                 object-fit: cover;
                 height: auto;
             }
 
-            /* 8. Table: ทำให้เลื่อนแนวนอนได้ (Scroll) */
             .card {
                 padding: 15px;
-                overflow: visible; /* ให้เนื้อหาขยายลงล่างได้ */
+                overflow: visible;
             }
             
             .table-responsive, 
@@ -1241,14 +1165,13 @@
             .log-table {
                 display: block;
                 width: 100%;
-                overflow-x: auto; /* เลื่อนซ้ายขวา */
+                overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
             }
             
             table { min-width: 600px; }
             
-            /* รีเซ็ตค่า Table Row */
             tr {
                 margin-bottom: 0;
                 box-shadow: none;
@@ -1265,7 +1188,6 @@
                 border-bottom: 1px solid #eee;
             }
             
-            /* ปรับแต่งหัวข้อการ์ด */
             .card h3 { 
                 flex-wrap: wrap; 
                 line-height: 1.5; 
@@ -1696,7 +1618,7 @@
         const itemsPerPage = 50;
 
         // 🔥 เพิ่ม 2 ตัวนี้สำหรับหน้าจัดการรูปภาพ (ให้เหมือนถังขยะ)
-        let currentApprovedPhotos = [];      // เก็บรูปหน้าปัจจุบัน
+        let currentApprovedPhotos = [];     // เก็บรูปหน้าปัจจุบัน
         let selectedApprovedIds = new Set(); // เก็บ ID ที่เลือก
 
         function getAuthHeaders() {
@@ -1857,7 +1779,7 @@
         }
 
         // ==========================================
-        // 🖼️ PHOTO MANAGEMENT LOGIC (ปรับปรุงใหม่)
+        // 🖼️ PHOTO MANAGEMENT LOGIC (ปรับปรุงใหม่ 🔥)
         // ==========================================
 
         async function loadApprovedPhotos(page = 1) {
@@ -1889,7 +1811,7 @@
             loadApprovedPhotos(nextPage);
         }
 
-        // 🔥 ฟังก์ชัน Render Grid (ใช้ได้ทั้ง Approved และ Trash)
+        // 🔥 ฟังก์ชัน Render Grid (แก้ไข Logic Checkbox ออก)
         function renderGrid(elemId, photos, type) {
             const el = document.getElementById(elemId);
             el.innerHTML = '';
@@ -1930,7 +1852,7 @@
                             </div>`;
                 }
 
-                // สร้างการ์ดรูปภาพ
+                // สร้างการ์ดรูปภาพ (ไม่มี Checkbox แล้ว)
                 el.innerHTML += `
                 <div class="approval-item ${isSelected ? 'selected' : ''}" onclick="toggleSelection(${id}, '${type}')" style="${isSelected ? 'border: 2px solid #27ae60; background: #e8f8f5;' : ''}">
                     <div style="position: relative;">
@@ -1949,7 +1871,7 @@
             if (type === 'approved') updateApprovedToolbar();
         }
 
-        // 🔥 ฟังก์ชันเลือกทีละรูป (ใช้ร่วมกันทั้ง Approved และ Trash โดยส่ง type มา)
+        // 🔥 ฟังก์ชันเลือกทีละรูป (ใช้ร่วมกัน แก้ไขไม่ให้หา Checkbox)
         function toggleSelection(id, type) {
             // เช็คว่าคลิกที่ปุ่ม action หรือเปล่า ถ้าใช่ไม่ให้เลือก
             if (event.target.closest('button')) return;
@@ -2177,9 +2099,9 @@
             }
         }
 
-        // 🔥 ลบหลายรูป (ใช้ข้อมูลจาก Set แทน querySelector)
+        // 🔥 ลบหลายรูป (แก้ให้ดึงจาก Set แทน querySelector)
         async function bulkDelete() {
-            // แปลง Set เป็น Array
+            // ดึง ID จาก Set โดยตรง (ไม่ต้องหา Checkbox ในหน้าเว็บ)
             const ids = Array.from(selectedApprovedIds);
             
             if (ids.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปที่จะลบ', 'warning');
