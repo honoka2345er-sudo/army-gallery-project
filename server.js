@@ -33,7 +33,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-// Security Headers
+// Security Headers (ปรับปรุงให้รองรับการโหลดรูปและ Blob)
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -57,7 +57,7 @@ app.use(
                     "'self'",
                     "data:",
                     "https://res.cloudinary.com",
-                    "blob:" // รองรับ blob สำหรับ preview รูป
+                    "blob:" // 🔥 เพิ่ม blob: เพื่อให้ Preview รูปใน Admin ทำงานได้
                 ],
                 fontSrc: [
                     "'self'",
@@ -201,7 +201,7 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 🔥🔥🔥 ฟังก์ชันดึงข้อมูล Storage (แก้บั๊กหน่วย 25 Bytes) 🔥🔥🔥
+// 🔥 FIX: ปรับปรุงฟังก์ชัน Cloudinary Usage ให้รองรับหน่วย GB/Credits
 async function getCloudinaryUsage() {
     try {
         const r = await cloudinary.api.usage();
@@ -216,7 +216,7 @@ async function getCloudinaryUsage() {
         if (r.storage && r.storage.limit) limit = r.storage.limit;
         else if (r.credits && r.credits.limit) limit = r.credits.limit;
 
-        // 🔥 FIX: ถ้า Limit น้อยกว่า 1GB ให้สันนิษฐานว่าเป็นหน่วย GB หรือ Credits ให้แปลงเป็น Bytes
+        // ถ้า Limit น้อยกว่า 1GB ให้สันนิษฐานว่าเป็นหน่วย GB หรือ Credits ให้แปลงเป็น Bytes
         if (limit > 0 && limit < 1073741824) {
             limit = limit * 1024 * 1024 * 1024; 
         }
@@ -238,6 +238,7 @@ async function getCloudinaryUsage() {
         };
     } catch (e) {
         console.error("⚠️ Cloudinary Usage Error:", e.message);
+        // คืนค่า Default เพื่อไม่ให้ Server Crash
         return { 
             used_bytes: 0,
             used_readable: '0 B', 
@@ -765,7 +766,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Category not found');
 
-        // 🔥 FIX: ใช้ cats[0] แทน c[0]
+        // 🔥 FIX: แก้บั๊ก c[0] เป็น cats[0] เรียบร้อย
         const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status="approved" AND is_deleted = 0', [cats[0].category_id]);
         
         if (!photos.length) return res.status(404).send('No photos in this category');
