@@ -731,7 +731,7 @@
 
         .user-table th,
         .log-table th {
-            padding: 12px;
+            padding: 8px 10px; /* 🔥 Reduced vertical padding from 12px */
             border-bottom: 2px solid var(--border-color);
             text-align: left;
             font-size: 14px;
@@ -743,7 +743,7 @@
 
         .user-table td,
         .log-table td {
-            padding: 12px;
+            padding: 8px 10px; /* 🔥 Reduced vertical padding from 12px */
             border-bottom: 1px solid var(--border-color);
             font-size: 14px;
             vertical-align: middle;
@@ -796,19 +796,19 @@
         .user-cell {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px; /* 🔥 Reduced from 15px */
         }
 
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 36px; /* 🔥 Reduced from 40px */
+            height: 36px; /* 🔥 Reduced from 40px */
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px; /* Adjusted size */
             text-transform: uppercase;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
