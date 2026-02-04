@@ -597,13 +597,22 @@
             display: none;
         }
 
-        /* --- 🔥 TRASH ITEM DESIGN (50/50 Buttons) --- */
+        /* --- 🔥 TRASH ITEM DESIGN (Red Theme) --- */
         .approval-item.trash-item {
-            border: 2px dashed #ffb7b2;
+            border: 2px solid #e74c3c; /* ขอบแดงสำหรับถังขยะ */
             background-color: #fffbfb;
             position: relative;
             display: flex;
             flex-direction: column;
+        }
+
+        .approval-item.trash-item.selected {
+            border: 3px solid #c0392b; /* ขอบแดงเข้มเมื่อเลือก */
+            background-color: #fdedec;
+        }
+        
+        .approval-item.trash-item.selected::after {
+            background: #c0392b; /* เครื่องหมายถูกสีแดง */
         }
 
         .approval-item.trash-item img {
@@ -1182,26 +1191,12 @@
                 height: auto !important;
             }
 
-            /* ตกแต่งกล่อง "เลือกทั้งหมด" ให้เหมือนปุ่ม */
-            /* เลือก div หรือ label ตัวแรกที่เป็นกล่อง Checkbox */
-            .bulk-toolbar > div,
-            .bulk-toolbar label {
+            /* ปรับปุ่มเลือกทั้งหมดในถังขยะให้สูงเท่ากัน */
+            #btnSelectAllTrash {
                 width: 100% !important;
-                height: 45px !important; /* สูงเท่าปุ่ม */
-                display: flex !important;
-                align-items: center !important; /* จัดกึ่งกลางแนวตั้ง */
-                padding: 0 15px !important;
-                background: #fff;
-                border: 1px solid #ddd;
-                border-radius: 8px; /* มุมมนเท่าปุ่ม */
-                box-sizing: border-box !important;
-            }
-            
-            /* ปรับขนาด Checkbox ข้างในนิดหน่อย */
-            .bulk-toolbar input[type="checkbox"] {
-                width: 20px;
-                height: 20px;
-                margin-right: 10px;
+                height: 45px !important;
+                justify-content: center !important;
+                margin: 0 !important;
             }
 
             /* ปรับปุ่ม "ลบที่เลือก" และปุ่มอื่นๆ */
@@ -1599,6 +1594,7 @@
             </div>
 
         </div>
+
         <div class="card admin-only">
             <h3 style="margin-bottom: 10px;"><i class="fas fa-history"></i> ประวัติการใช้งาน (Logs)</h3>
             <div style="overflow-x: auto;">
@@ -1742,7 +1738,7 @@
             }
         }
 
-        // --- Stats & Categories (🔥 FIX: Added Headers for Uploader) ---
+        // --- Stats & Categories ---
         async function loadStats() {
             try {
                 const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
@@ -1840,7 +1836,7 @@
             }
         });
 
-        // --- Photo Management ---
+        // --- Photo Management (Main Gallery) ---
         function copyLink(url) {
             navigator.clipboard.writeText(url).then(() => {
                 const Toast = Swal.mixin({
@@ -1858,7 +1854,6 @@
             currentPage = page;
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('filterCategory').value;
-            // 🔥 FIX: Added Headers just in case
             const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
             const photos = await res.json();
             renderGrid('approvedList', photos, 'approved');
@@ -1899,47 +1894,33 @@
 
                 let btns = '';
 
-                // 🔥 RENDER TRASH ITEM (Fix Click)
-                if (type === 'trash') {
-                    btns = `
-                    <div class="trash-actions">
-                        <button onclick="event.stopPropagation(); restorePhoto(${id})" class="btn-trash-action btn-trash-restore">
-                            <i class="fas fa-trash-restore"></i> กู้คืน
-                        </button>
-                        <button onclick="event.stopPropagation(); permanentDelete(${id})" class="btn-trash-action btn-trash-delete">
-                            <i class="fas fa-times-circle"></i> ลบถาวร
-                        </button>
-                    </div>`;
-                } else {
-                    // GALLERY DESIGN
-                    if (user.role === 'admin') {
-                        btns = `<div class="gallery-actions">
+                // Only for Active Gallery
+                if (type === 'approved' && user.role === 'admin') {
+                    btns = `<div class="gallery-actions">
                                 <button onclick="event.stopPropagation(); copyLink('${url}')" class="btn-icon-action" style="background:#3498db;" title="คัดลอกลิงก์"><i class="fas fa-link"></i></button>
                                 <button onclick="event.stopPropagation(); editDetails(${id},'${actVal}','${dateVal}')" class="btn-icon-action" style="background:#f39c12;" title="แก้ไข"><i class="fas fa-pen"></i></button>
                                 <button onclick="event.stopPropagation(); renamePhoto(${id},'${safeFilename}')" class="btn-icon-action" style="background:#9b59b6;" title="เปลี่ยนชื่อ"><i class="fas fa-font"></i></button>
                                 <button onclick="event.stopPropagation(); softDelete(${id})" class="btn-icon-action" style="background:#e74c3c;" title="ลบ"><i class="fas fa-trash"></i></button>
                             </div>`;
-                    }
                 }
 
-                const chk = user.role === 'admin' ? `<input type="checkbox" class="check-overlay ${type}-check" value="${id}" onclick="event.stopPropagation()">` : '';
+                const chk = (user.role === 'admin' && type === 'approved') ? `<input type="checkbox" class="check-overlay approved-check" value="${id}" onclick="event.stopPropagation()">` : '';
 
                 el.innerHTML += `
-                <div class="approval-item ${type === 'trash' ? 'trash-item' : ''}" onclick="toggleSel(this)" data-id="${id}">
+                <div class="approval-item" onclick="toggleSel(this)" data-id="${id}">
                     ${chk} 
                     <div style="position: relative;">
-                         ${type === 'trash' ? '<span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>' : ''}
                         <img src="${url}" onclick="event.stopPropagation(); openImage('${url}')" class="clickable">
                     </div>
                     ${btns}
                 </div>`;
             });
 
-            // Bulk Select Logic
-            const allBtn = document.getElementById(type == 'approved' ? 'btnSelectAllApproved' : 'btnSelectAllTrash');
+            // Bulk Select Logic for Approved
+            const allBtn = document.getElementById('btnSelectAllApproved');
             if (allBtn && user.role === 'admin') {
                 allBtn.onclick = () => {
-                    const chks = document.querySelectorAll(`.${type}-check`);
+                    const chks = document.querySelectorAll(`.approved-check`);
                     const unchk = Array.from(chks).some(c => !c.checked);
                     chks.forEach(c => {
                         c.checked = unchk;
@@ -1949,12 +1930,132 @@
             }
         }
 
-        // --- Trash Logic ---
+        // ==========================================
+        // 🗑️ 🔥 NEW TRASH LOGIC (Select All Button Fix)
+        // ==========================================
+        let allTrashFiles = [];
+        let selectedTrashIds = new Set();
+
         async function loadTrash() {
-            const h = getAuthHeaders();
-            if (!h) return;
-            const res = await fetch('/photos/trash?t=' + Date.now(), { headers: h });
-            renderGrid('trashList', await res.json(), 'trash');
+            try {
+                const res = await fetch('/photos/trash?t=' + Date.now(), { headers: getAuthHeaders() });
+                if (!res.ok) throw new Error('Load Trash Failed');
+                
+                allTrashFiles = await res.json();
+                selectedTrashIds.clear(); // Reset selection
+                renderTrashGrid();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderTrashGrid() {
+            const container = document.getElementById('trashList');
+            container.innerHTML = '';
+
+            if (allTrashFiles.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">ไม่มีไฟล์ในถังขยะ</p>';
+                updateTrashToolbar();
+                return;
+            }
+
+            allTrashFiles.forEach(photo => {
+                const isSelected = selectedTrashIds.has(photo.id);
+                const div = document.createElement('div');
+                div.className = `approval-item trash-item ${isSelected ? 'selected' : ''}`;
+                
+                // Single Item HTML
+                div.innerHTML = `
+                    <div style="position: relative; width: 100%; cursor: pointer;" onclick="toggleTrashSelection(${photo.id})">
+                        <span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>
+                        <img src="${photo.url}" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px 4px 0 0;">
+                        ${isSelected ? `
+                            <div style="position:absolute; top:8px; right:8px; background:#e74c3c; color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                <i class="fas fa-check" style="font-size:12px;"></i>
+                            </div>` 
+                        : ''}
+                    </div>
+                    <div class="trash-actions">
+                        <button onclick="event.stopPropagation(); restorePhoto(${photo.id})" class="btn-trash-action btn-trash-restore">
+                            <i class="fas fa-trash-restore"></i> กู้คืน
+                        </button>
+                        <button onclick="event.stopPropagation(); permanentDelete(${photo.id})" class="btn-trash-action btn-trash-delete">
+                            <i class="fas fa-times-circle"></i> ลบถาวร
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            updateTrashToolbar();
+        }
+
+        function toggleTrashSelection(id) {
+            if (selectedTrashIds.has(id)) {
+                selectedTrashIds.delete(id);
+            } else {
+                selectedTrashIds.add(id);
+            }
+            renderTrashGrid();
+        }
+
+        // 🔥 ปุ่ม Select All แบบ Button Logic
+        function toggleSelectAllTrash() {
+            if (allTrashFiles.length > 0 && selectedTrashIds.size === allTrashFiles.length) {
+                // ถ้าเลือกครบแล้ว -> ยกเลิกทั้งหมด
+                selectedTrashIds.clear();
+            } else {
+                // ถ้ายังไม่ครบ -> เลือกทั้งหมด
+                selectedTrashIds.clear();
+                allTrashFiles.forEach(f => selectedTrashIds.add(f.id));
+            }
+            renderTrashGrid();
+        }
+
+        // 🔥 อัปเดตหน้าตาปุ่มตามสถานะ
+        function updateTrashToolbar() {
+            const btn = document.getElementById('btnSelectAllTrash');
+            if (!btn) return;
+            
+            const total = allTrashFiles.length;
+            const selected = selectedTrashIds.size;
+
+            if (total > 0 && selected === total) {
+                // สถานะ: เลือกครบแล้ว (เปลี่ยนปุ่มเป็นสีส้ม/แดง)
+                btn.innerHTML = `<i class="fas fa-check-square" style="color: #e74c3c;"></i> ยกเลิกเลือก (${selected})`;
+                btn.style.borderColor = '#e74c3c';
+                btn.style.color = '#c0392b';
+                btn.style.background = '#fdedec';
+            } else {
+                // สถานะ: ปกติ
+                btn.innerHTML = `<i class="far fa-square" style="color: #aaa;"></i> เลือกทั้งหมด ${selected > 0 ? `(${selected})` : ''}`;
+                btn.style.borderColor = '#ddd';
+                btn.style.color = '#555';
+                btn.style.background = '#fff';
+            }
+        }
+
+        async function restoreSelected() {
+            if (selectedTrashIds.size === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปที่จะกู้คืน', 'warning');
+            if (await cf(`กู้คืน ${selectedTrashIds.size} รูป?`)) {
+                await fetch('/photos/trash/restore', {
+                    method: 'POST', headers: getAuthHeaders(),
+                    body: JSON.stringify({ photo_ids: Array.from(selectedTrashIds) })
+                });
+                Swal.fire('สำเร็จ', 'กู้คืนเรียบร้อย', 'success');
+                loadTrash();
+            }
+        }
+
+        async function deletePermanentSelected() {
+            if (selectedTrashIds.size === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปที่จะลบ', 'warning');
+            if (await cf(`ลบ ${selectedTrashIds.size} รูปถาวร? (กู้คืนไม่ได้)`)) {
+                await fetch('/photos/trash/empty', {
+                    method: 'DELETE', headers: getAuthHeaders(),
+                    body: JSON.stringify({ photo_ids: Array.from(selectedTrashIds) })
+                });
+                Swal.fire('สำเร็จ', 'ลบถาวรเรียบร้อย', 'success');
+                loadTrash();
+            }
         }
 
         // --- Helpers ---
@@ -1968,17 +2069,10 @@
         }
 
         function toggleSel(el) {
-            // 🔥 Check if click target is button to prevent conflict
             if (event.target.tagName === 'BUTTON' || event.target.closest('button')) return;
-
             el.classList.toggle('selected');
             const c = el.querySelector('input');
             if (c) c.checked = !c.checked;
-        }
-
-        function evt(e, fn, ...args) {
-            e.stopPropagation();
-            fn(...args);
         }
 
         async function cf(msg) {
@@ -2006,6 +2100,7 @@
             if (await cf('ลบรูปนี้?')) {
                 await fetch(`/photos/${id}/soft-delete`, { method: 'DELETE', headers: getAuthHeaders() });
                 loadApprovedPhotos(currentPage);
+                loadTrash(); // Refresh trash too
             }
         }
 
@@ -2028,25 +2123,9 @@
             if (ids.length && await cf('ลบที่เลือก?')) {
                 await fetch('/photos/bulk-delete', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ photo_ids: ids }) });
                 loadApprovedPhotos(currentPage);
-            }
-        }
-
-        async function bulkRestoreTrash() {
-            const ids = Array.from(document.querySelectorAll('.trash-check:checked')).map(c => c.value);
-            if (ids.length) {
-                await fetch('/photos/trash/restore', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ photo_ids: ids }) });
-                loadTrash(); loadApprovedPhotos(currentPage);
-            }
-        }
-
-        async function bulkDeleteTrash() {
-            const ids = Array.from(document.querySelectorAll('.trash-check:checked')).map(c => c.value);
-            if (ids.length && await cf('ลบถาวรหมดเลยนะ?')) {
-                await fetch('/photos/trash/empty', { method: 'DELETE', headers: getAuthHeaders(), body: JSON.stringify({ photo_ids: ids }) });
                 loadTrash();
             }
         }
-
 
         // --- Logs (With Pagination) ---
         async function loadLogs() {
@@ -2061,7 +2140,6 @@
             }
         }
 
-        // 🔥 Log Colors Logic
         function renderLogs() {
             const tb = document.getElementById('logTableBody');
             tb.innerHTML = '';
@@ -2247,7 +2325,6 @@
 
             if (isConfirmed) {
                 const { value: f } = await Swal.fire({
-                    // 🔥 Repeated Config for Verbose Style
                     customClass: {
                         popup: 'small-modal-popup',
                         title: 'small-modal-title',
@@ -2260,7 +2337,6 @@
                     showCancelButton: true,
                     confirmButtonText: 'บันทึก',
                     cancelButtonText: 'ยกเลิก',
-                    // End Config
                     title: 'เปลี่ยนรหัสผ่าน',
                     html: '<input id="swal-old-pass" class="swal2-input small-modal-input" type="password" placeholder="รหัสผ่านเดิม"><input id="swal-new-pass" class="swal2-input small-modal-input" type="password" placeholder="รหัสผ่านใหม่ (ขั้นต่ำ 8 ตัว)">',
                     focusConfirm: false,
@@ -2284,7 +2360,6 @@
                 }
             } else if (isDenied) {
                 const { value: n } = await Swal.fire({
-                    // 🔥 Repeated Config for Verbose Style
                     customClass: {
                         popup: 'small-modal-popup',
                         title: 'small-modal-title',
@@ -2297,7 +2372,6 @@
                     showCancelButton: true,
                     confirmButtonText: 'บันทึก',
                     cancelButtonText: 'ยกเลิก',
-                    // End Config
                     title: 'เปลี่ยนชื่อผู้ใช้',
                     input: 'text',
                     inputValue: user.username,
@@ -2319,15 +2393,12 @@
             }
         }
 
-        // --- Action Functions ---
-        // 🔥 Popup: Add User (Styles applied via Custom Class)
         async function openAddUserModal() {
             if (user.role !== 'admin') {
                 return Swal.fire('Error', 'Admin Only', 'error');
             }
 
             const { value: formValues } = await Swal.fire({
-                // 🔥 Repeated Config for Verbose Style
                 customClass: {
                     popup: 'small-modal-popup',
                     title: 'small-modal-title',
@@ -2340,7 +2411,6 @@
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                // End Config
                 title: 'เพิ่มเจ้าหน้าที่ใหม่',
                 html: '<input id="swal-user" class="swal2-input small-modal-input" placeholder="Username"><input id="swal-pass" type="password" class="swal2-input small-modal-input" placeholder="Password"><select id="swal-role" class="swal2-input small-modal-input"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>',
                 focusConfirm: false,
@@ -2376,7 +2446,6 @@
         async function editDetails(id, oldCat, oldDate) {
             let dateStr = oldDate ? new Date(oldDate).toISOString().slice(0, 16) : '';
             const { value: f } = await Swal.fire({
-                // 🔥 Repeated Config for Verbose Style
                 customClass: {
                     popup: 'small-modal-popup',
                     title: 'small-modal-title',
@@ -2389,7 +2458,6 @@
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                // End Config
                 title: 'แก้ไขรายละเอียด',
                 html: `<input id="swal-cat" class="swal2-input small-modal-input" value="${oldCat}"><input id="swal-date" type="datetime-local" class="swal2-input small-modal-input" value="${dateStr}">`,
                 preConfirm: () => [document.getElementById('swal-cat').value, document.getElementById('swal-date').value]
@@ -2417,7 +2485,6 @@
             const h = getAuthHeaders();
             if (!h) return;
             const { value: n } = await Swal.fire({
-                // 🔥 Repeated Config for Verbose Style
                 customClass: {
                     popup: 'small-modal-popup',
                     title: 'small-modal-title',
@@ -2430,7 +2497,6 @@
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                // End Config
                 title: 'เปลี่ยนชื่อ Username',
                 input: 'text',
                 inputValue: o
@@ -2446,7 +2512,6 @@
             const h = getAuthHeaders();
             if (!h) return;
             const { value: p } = await Swal.fire({
-                // 🔥 Repeated Config for Verbose Style
                 customClass: {
                     popup: 'small-modal-popup',
                     title: 'small-modal-title',
@@ -2459,7 +2524,6 @@
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                // End Config
                 title: 'ตั้งรหัสผ่านใหม่',
                 input: 'text',
                 inputPlaceholder: 'พิมพ์รหัสใหม่...'
@@ -2472,7 +2536,6 @@
 
         async function renamePhoto(id, o) {
             const { value: n } = await Swal.fire({
-                // 🔥 Repeated Config for Verbose Style
                 customClass: {
                     popup: 'small-modal-popup',
                     title: 'small-modal-title',
@@ -2485,7 +2548,6 @@
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                // End Config
                 title: 'เปลี่ยนชื่อไฟล์',
                 input: 'text',
                 inputValue: o

@@ -33,7 +33,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-// Security Headers (ปรับปรุงให้รองรับการโหลดรูปและ Blob)
+// Security Headers (ปรับปรุงให้รองรับการโหลดรูปและ Blob สำหรับ Admin Preview)
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -57,7 +57,7 @@ app.use(
                     "'self'",
                     "data:",
                     "https://res.cloudinary.com",
-                    "blob:" // 🔥 เพิ่ม blob: เพื่อให้ Preview รูปใน Admin ทำงานได้
+                    "blob:" // 🔥 สำคัญ: รองรับ blob: สำหรับ Preview รูปก่อนอัปโหลด
                 ],
                 fontSrc: [
                     "'self'",
@@ -201,7 +201,7 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 🔥 FIX: ปรับปรุงฟังก์ชัน Cloudinary Usage ให้รองรับหน่วย GB/Credits
+// 🔥🔥🔥 ฟังก์ชันดึงข้อมูล Storage (แก้บั๊กหน่วย 25 Bytes / GB) 🔥🔥🔥
 async function getCloudinaryUsage() {
     try {
         const r = await cloudinary.api.usage();
@@ -216,7 +216,7 @@ async function getCloudinaryUsage() {
         if (r.storage && r.storage.limit) limit = r.storage.limit;
         else if (r.credits && r.credits.limit) limit = r.credits.limit;
 
-        // ถ้า Limit น้อยกว่า 1GB ให้สันนิษฐานว่าเป็นหน่วย GB หรือ Credits ให้แปลงเป็น Bytes
+        // 🔥 FIX: ถ้า Limit น้อยกว่า 1GB ให้สันนิษฐานว่าเป็นหน่วย GB หรือ Credits ให้แปลงเป็น Bytes
         if (limit > 0 && limit < 1073741824) {
             limit = limit * 1024 * 1024 * 1024; 
         }
@@ -238,7 +238,6 @@ async function getCloudinaryUsage() {
         };
     } catch (e) {
         console.error("⚠️ Cloudinary Usage Error:", e.message);
-        // คืนค่า Default เพื่อไม่ให้ Server Crash
         return { 
             used_bytes: 0,
             used_readable: '0 B', 
