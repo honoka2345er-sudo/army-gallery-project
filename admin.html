@@ -552,12 +552,11 @@
         .approval-item img {
             width: 100%;
             /* height: 160px;  <-- ❌ ลบบรรทัดนี้ออก หรือ comment ไว้ */
-
+            
             /* ✅ ใช้อันนี้แทน: กำหนดอัตราส่วนภาพ (เช่น 4:3 หรือ 16:9) */
-            aspect-ratio: 4/3;
-            object-fit: cover;
-            /* ตัดส่วนเกินออกให้รูปเต็มกรอบสวยงาม */
-
+            aspect-ratio: 4/3; 
+            object-fit: cover; /* ตัดส่วนเกินออกให้รูปเต็มกรอบสวยงาม */
+            
             border-radius: 8px;
             pointer-events: none;
             transition: 0.3s;
@@ -959,18 +958,15 @@
            9. Custom Popups (Image Viewer & Alerts)
            ========================================= */
         .modal {
-            display: none;
-            /* ซ่อนไว้เป็นค่าเริ่มต้น (JS จะสั่งเปิดเอง) */
+            display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น (JS จะสั่งเปิดเอง) */
             position: fixed;
             z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            /* ห้ามเลื่อนพื้นหลัง */
-            background-color: rgba(0, 0, 0, 0.9);
-            /* พื้นหลังสีดำจางๆ */
+            overflow: hidden; /* ห้ามเลื่อนพื้นหลัง */
+            background-color: rgba(0, 0, 0, 0.9); /* พื้นหลังสีดำจางๆ */
         }
 
         /* 🔥 ตัวรูปภาพ: จัดให้อยู่กลางจอเป๊ะๆ */
@@ -978,24 +974,19 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            /* เทคนิคจัดกึ่งกลาง */
-
+            transform: translate(-50%, -50%); /* เทคนิคจัดกึ่งกลาง */
+            
             display: block;
             width: auto;
             height: auto;
-
-            max-width: 90%;
-            /* กว้างไม่เกิน 90% ของจอ */
-            max-height: 90vh;
-            /* สูงไม่เกิน 90% ของความสูงจอ */
-
-            object-fit: contain;
-            /* รักษาสัดส่วนรูปไม่ให้เบี้ยว */
+            
+            max-width: 90%;  /* กว้างไม่เกิน 90% ของจอ */
+            max-height: 90vh; /* สูงไม่เกิน 90% ของความสูงจอ */
+            
+            object-fit: contain; /* รักษาสัดส่วนรูปไม่ให้เบี้ยว */
             border-radius: 4px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-            animation: zoomIn 0.3s;
-            /* เอฟเฟกต์ซูมตอนเปิด */
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            animation: zoomIn 0.3s; /* เอฟเฟกต์ซูมตอนเปิด */
         }
 
         /* ปุ่มปิด (X) มุมขวาบน */
@@ -1021,87 +1012,86 @@
         /* เอฟเฟกต์ Animation ตอนเปิดรูป */
         @keyframes zoomIn {
             from {
-                transform: translate(-50%, -50%) scale(0.5);
+                transform: translate(-50%, -50%) scale(0.5); 
                 opacity: 0;
             }
-
             to {
-                transform: translate(-50%, -50%) scale(1);
+                transform: translate(-50%, -50%) scale(1); 
                 opacity: 1;
             }
         }
 
         /* --- ส่วน Popup แจ้งเตือนเล็กๆ (SweetAlert Custom) --- */
-        .small-modal-popup {
-            width: 450px !important;
-            max-width: 90% !important;
-            padding: 30px !important;
-            border-radius: 16px !important;
+        .small-modal-popup { 
+            width: 450px !important; 
+            max-width: 90% !important; 
+            padding: 30px !important; 
+            border-radius: 16px !important; 
             background: #fff;
             box-sizing: border-box !important;
         }
-
-        .small-modal-title {
-            font-size: 22px !important;
-            color: #333 !important;
-            font-weight: 700 !important;
-            margin-bottom: 20px !important;
+        
+        .small-modal-title { 
+            font-size: 22px !important; 
+            color: #333 !important; 
+            font-weight: 700 !important; 
+            margin-bottom: 20px !important; 
         }
-
-        .small-modal-input {
-            margin: 10px auto !important;
-            width: 100% !important;
-            height: 48px !important;
-            border-radius: 8px !important;
-            border: 2px solid #e0e0e0 !important;
-            padding: 0 15px !important;
-            box-sizing: border-box !important;
-            font-size: 16px !important;
-            box-shadow: none !important;
+        
+        .small-modal-input { 
+            margin: 10px auto !important; 
+            width: 100% !important; 
+            height: 48px !important; 
+            border-radius: 8px !important; 
+            border: 2px solid #e0e0e0 !important; 
+            padding: 0 15px !important; 
+            box-sizing: border-box !important; 
+            font-size: 16px !important; 
+            box-shadow: none !important; 
         }
-
-        .small-modal-input:focus {
-            border-color: var(--primary-color) !important;
-            outline: none !important;
+        
+        .small-modal-input:focus { 
+            border-color: var(--primary-color) !important; 
+            outline: none !important; 
         }
-
-        .small-modal-actions {
-            width: 100% !important;
-            display: flex !important;
-            justify-content: center !important;
-            gap: 15px !important;
-            margin-top: 25px !important;
+        
+        .small-modal-actions { 
+            width: 100% !important; 
+            display: flex !important; 
+            justify-content: center !important; 
+            gap: 15px !important; 
+            margin-top: 25px !important; 
         }
-
-        .swal-btn-confirm {
-            flex: 1 !important;
-            background-color: #27ae60 !important;
-            color: white !important;
-            padding: 12px !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            border: none !important;
-            cursor: pointer !important;
+        
+        .swal-btn-confirm { 
+            flex: 1 !important; 
+            background-color: #27ae60 !important; 
+            color: white !important; 
+            padding: 12px !important; 
+            font-size: 16px !important; 
+            font-weight: 600 !important; 
+            border-radius: 8px !important; 
+            border: none !important; 
+            cursor: pointer !important; 
         }
-
-        .swal-btn-cancel {
-            flex: 1 !important;
-            background-color: #c0392b !important;
-            color: white !important;
-            padding: 12px !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            border: none !important;
-            cursor: pointer !important;
+        
+        .swal-btn-cancel { 
+            flex: 1 !important; 
+            background-color: #c0392b !important; 
+            color: white !important; 
+            padding: 12px !important; 
+            font-size: 16px !important; 
+            font-weight: 600 !important; 
+            border-radius: 8px !important; 
+            border: none !important; 
+            cursor: pointer !important; 
         }
 
         /* =========================================
            10. 🔥 MOBILE RESPONSIVE (ฉบับสมบูรณ์: แก้แถบบน + แถบล่างเท่ากัน)
            ========================================= */
         @media (max-width: 768px) {
-
+            
             /* 1. จัดการ Body: ให้เลื่อนลงมาและกันล้นแนวนอน */
             body {
                 flex-direction: column;
@@ -1111,41 +1101,40 @@
             }
 
             /* 2. Sidebar & Navigation: ตั้งค่าเมนูมือถือ */
-            .mobile-nav {
-                display: flex;
+            .mobile-nav { 
+                display: flex; 
             }
-
+            
             .sidebar {
-                position: fixed;
-                left: -260px;
-                top: 0;
+                position: fixed; 
+                left: -260px; 
+                top: 0; 
                 height: 100%;
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+                box-shadow: 5px 0 15px rgba(0,0,0,0.3); 
                 transition: left 0.3s ease;
             }
-
-            .sidebar.active {
-                left: 0;
+            
+            .sidebar.active { 
+                left: 0; 
             }
-
-            .close-btn {
-                display: block;
+            
+            .close-btn { 
+                display: block; 
             }
 
             .main-content {
-                padding: 80px 15px 30px 15px;
-                /* เว้นที่ด้านบนให้ Navbar */
+                padding: 80px 15px 30px 15px; /* เว้นที่ด้านบนให้ Navbar */
                 width: 100%;
             }
 
             /* 3. Stats Grid: การ์ดสถิติเรียงเดี่ยวลงมา */
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
+            .stats-grid { 
+                grid-template-columns: 1fr; 
+                gap: 15px; 
             }
 
             /* 4. Upload Form: ฟอร์มอัปโหลดเรียงแนวตั้ง */
-            #uploadForm>div {
+            #uploadForm > div {
                 display: flex;
                 flex-direction: column !important;
                 gap: 15px !important;
@@ -1156,29 +1145,25 @@
             /* ------------------------------------------------------- */
             .search-toolbar {
                 display: flex !important;
-                flex-direction: column !important;
-                /* แนวตั้ง */
-                align-items: stretch !important;
-                /* ยืดเต็มขอบ */
-                gap: 15px !important;
-                /* ระยะห่าง */
+                flex-direction: column !important; /* แนวตั้ง */
+                align-items: stretch !important;   /* ยืดเต็มขอบ */
+                gap: 15px !important;              /* ระยะห่าง */
                 padding: 20px !important;
                 height: auto !important;
             }
 
             /* ปรับช่อง Input, Select, Button ให้กว้างและสูงเท่ากัน */
-            .search-toolbar input,
+            .search-toolbar input, 
             .search-toolbar select,
             .btn-search {
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 0 !important;
                 box-sizing: border-box;
-                height: 45px !important;
-                /* ความสูงมาตรฐาน */
+                height: 45px !important; /* ความสูงมาตรฐาน */
                 display: block !important;
             }
-
+            
             .btn-search {
                 display: flex;
                 justify-content: center;
@@ -1199,22 +1184,19 @@
 
             /* ตกแต่งกล่อง "เลือกทั้งหมด" ให้เหมือนปุ่ม */
             /* เลือก div หรือ label ตัวแรกที่เป็นกล่อง Checkbox */
-            .bulk-toolbar>div,
+            .bulk-toolbar > div,
             .bulk-toolbar label {
                 width: 100% !important;
-                height: 45px !important;
-                /* สูงเท่าปุ่ม */
+                height: 45px !important; /* สูงเท่าปุ่ม */
                 display: flex !important;
-                align-items: center !important;
-                /* จัดกึ่งกลางแนวตั้ง */
+                align-items: center !important; /* จัดกึ่งกลางแนวตั้ง */
                 padding: 0 15px !important;
                 background: #fff;
                 border: 1px solid #ddd;
-                border-radius: 8px;
-                /* มุมมนเท่าปุ่ม */
+                border-radius: 8px; /* มุมมนเท่าปุ่ม */
                 box-sizing: border-box !important;
             }
-
+            
             /* ปรับขนาด Checkbox ข้างในนิดหน่อย */
             .bulk-toolbar input[type="checkbox"] {
                 width: 20px;
@@ -1229,11 +1211,10 @@
             .btn-bulk-delete {
                 width: 100% !important;
                 margin: 0 !important;
-                height: 45px !important;
-                /* สูงเท่ากัน */
+                height: 45px !important; /* สูงเท่ากัน */
                 border-radius: 8px !important;
             }
-
+            
             /* ซ่อน div ครอบที่อาจทำให้เสียทรง */
             .bulk-actions-right {
                 flex-direction: column;
@@ -1243,15 +1224,13 @@
 
             /* 7. Gallery Grid: รูปภาพเรียงแถวละ 1 รูป */
             .approval-grid {
-                grid-template-columns: 1fr;
-                /* 1 คอลัมน์เต็มจอ */
+                grid-template-columns: 1fr; /* 1 คอลัมน์เต็มจอ */
                 gap: 20px;
             }
-
+            
             .approval-item img {
                 width: 100%;
-                aspect-ratio: 4/3;
-                /* ล็อคสัดส่วนภาพ */
+                aspect-ratio: 4/3; /* ล็อคสัดส่วนภาพ */
                 object-fit: cover;
                 height: auto;
             }
@@ -1259,25 +1238,21 @@
             /* 8. Table: ทำให้เลื่อนแนวนอนได้ (Scroll) */
             .card {
                 padding: 15px;
-                overflow: visible;
-                /* ให้เนื้อหาขยายลงล่างได้ */
+                overflow: visible; /* ให้เนื้อหาขยายลงล่างได้ */
             }
-
-            .table-responsive,
-            .user-table,
+            
+            .table-responsive, 
+            .user-table, 
             .log-table {
                 display: block;
                 width: 100%;
-                overflow-x: auto;
-                /* เลื่อนซ้ายขวา */
+                overflow-x: auto; /* เลื่อนซ้ายขวา */
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
             }
-
-            table {
-                min-width: 600px;
-            }
-
+            
+            table { min-width: 600px; }
+            
             /* รีเซ็ตค่า Table Row */
             tr {
                 margin-bottom: 0;
@@ -1288,25 +1263,21 @@
                 background: white;
             }
 
-            td,
-            th {
+            td, th {
                 display: table-cell;
                 white-space: normal;
                 min-width: 120px;
                 border-bottom: 1px solid #eee;
             }
-
+            
             /* ปรับแต่งหัวข้อการ์ด */
-            .card h3 {
-                flex-wrap: wrap;
-                line-height: 1.5;
-                font-size: 18px;
+            .card h3 { 
+                flex-wrap: wrap; 
+                line-height: 1.5; 
+                font-size: 18px; 
             }
-
-            .btn-icon {
-                width: 36px;
-                height: 36px;
-            }
+            
+            .btn-icon { width: 36px; height: 36px; }
         }
     </style>
 </head>
@@ -1592,44 +1563,41 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3><i class="fas fa-trash-alt"></i> ถังขยะ (กู้คืนได้)</h3>
-                <button onclick="loadTrash()" class="btn-page"><i class="fas fa-sync"></i> รีเฟรช</button>
-            </div>
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:40px;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h3 style="margin:0; display:flex; align-items:center; gap:10px; color:#2c3e50;">
                     <i class="fas fa-trash-alt"></i> ถังขยะ (กู้คืนได้)
                 </h3>
-                <button onclick="renderTrashGrid()" class="btn-nav"
-                    style="border:1px solid #ddd; padding:5px 15px; border-radius:30px;">
-                    <i class="fas fa-sync-alt"></i> รีเฟรช
+                <button onclick="loadTrash()" class="btn-page" style="font-size: 12px; padding: 5px 12px; border-radius: 6px;">
+                    <i class="fas fa-sync"></i> รีเฟรช
                 </button>
             </div>
 
-            <div class="bulk-toolbar" style="border: 2px dashed #bdc3c7; background: transparent; box-shadow: none;">
+            <div class="bulk-toolbar" 
+                 style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
+                
+                <button type="button" id="btnSelectAllTrash" onclick="toggleSelectAllTrash()" class="btn-nav"
+                    style="font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer;">
+                    <i class="fas fa-check-square"></i> เลือกทั้งหมด
+                </button>
 
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" id="selectAllTrash" onchange="toggleSelectAllTrash()"
-                        style="width:20px; height:20px; cursor:pointer;">
-                    <label for="selectAllTrash"
-                        style="cursor:pointer; font-weight:bold; color:#555; margin:0;">เลือกทั้งหมด</label>
-                    <span id="selectedTrashCount" style="color:#7f8c8d; font-size:14px; font-weight:normal;">(0)</span>
-                </div>
-
-                <div class="bulk-actions-right">
-                    <button class="btn-bulk-restore" onclick="restoreSelected()">
+                <div class="bulk-actions-right" style="display:flex; gap:5px;">
+                    <button onclick="restoreSelected()" 
+                        style="font-size: 12px; padding: 6px 15px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">
                         <i class="fas fa-trash-restore"></i> กู้คืน
                     </button>
-                    <button class="btn-bulk-delete" onclick="deletePermanentSelected()">
-                        <i class="fas fa-times-circle"></i> ลบถาวร
+                    <button onclick="deletePermanentSelected()" 
+                        style="font-size: 12px; padding: 6px 15px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        <i class="fas fa-trash"></i> ลบถาวร
                     </button>
                 </div>
 
             </div>
+
             <div id="trashList" class="approval-grid">
                 <p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">ไม่มีไฟล์ในถังขยะ</p>
             </div>
+
         </div>
 
         <div class="card admin-only">
