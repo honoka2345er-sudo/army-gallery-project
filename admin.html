@@ -1531,10 +1531,12 @@
 
             <div class="bulk-toolbar admin-only" id="approvedToolbar"
                 style="display:none; justify-content:space-between; padding: 8px 12px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
-                <button type="button" id="btnSelectAllApproved" class="btn-nav"
-                    style="font-size: 12px; padding: 6px 12px; border-radius: 6px;">
-                    <i class="fas fa-check-square"></i> เลือกทั้งหมด
+                
+                <button type="button" id="btnSelectAllApproved" onclick="toggleSelectAllApproved()"
+                    style="font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #333; transition:0.2s;">
+                    <i class="far fa-square"></i> เลือกทั้งหมด
                 </button>
+
                 <div class="bulk-actions-right">
                     <button onclick="bulkDelete()" class="btn-bulk-delete"
                         style="font-size: 12px; padding: 6px 15px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer;">
