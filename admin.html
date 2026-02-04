@@ -955,107 +955,136 @@
         }
 
         /* =========================================
-           9. Custom Popups (SweetAlert2 Fixed)
+           9. Custom Popups (Image Viewer & Alerts)
            ========================================= */
         .modal {
-            display: none;
+            display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น (JS จะสั่งเปิดเอง) */
             position: fixed;
             z-index: 2000;
-            padding-top: 50px;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.9);
+            overflow: hidden; /* ห้ามเลื่อนพื้นหลัง */
+            background-color: rgba(0, 0, 0, 0.9); /* พื้นหลังสีดำจางๆ */
         }
 
+        /* 🔥 ตัวรูปภาพ: จัดให้อยู่กลางจอเป๊ะๆ */
         .modal-content {
-            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* เทคนิคจัดกึ่งกลาง */
+            
             display: block;
-            width: 80%;
-            max-width: 900px;
-            max-height: 90vh;
-            object-fit: contain;
+            width: auto;
+            height: auto;
+            
+            max-width: 90%;  /* กว้างไม่เกิน 90% ของจอ */
+            max-height: 90vh; /* สูงไม่เกิน 90% ของความสูงจอ */
+            
+            object-fit: contain; /* รักษาสัดส่วนรูปไม่ให้เบี้ยว */
+            border-radius: 4px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            animation: zoomIn 0.3s; /* เอฟเฟกต์ซูมตอนเปิด */
         }
 
+        /* ปุ่มปิด (X) มุมขวาบน */
         .close-modal {
             position: absolute;
             top: 20px;
-            right: 35px;
+            right: 30px;
             color: #f1f1f1;
             font-size: 40px;
             font-weight: bold;
             transition: 0.3s;
             cursor: pointer;
+            z-index: 2001;
         }
 
-        /* 🔥 Updated: Popup Styling to prevent overflow */
-        .small-modal-popup {
-            width: 450px !important;
-            max-width: 90% !important;
-            padding: 30px !important;
-            border-radius: 16px !important;
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* เอฟเฟกต์ Animation ตอนเปิดรูป */
+        @keyframes zoomIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.5); 
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 1;
+            }
+        }
+
+        /* --- ส่วน Popup แจ้งเตือนเล็กๆ (SweetAlert Custom) --- */
+        .small-modal-popup { 
+            width: 450px !important; 
+            max-width: 90% !important; 
+            padding: 30px !important; 
+            border-radius: 16px !important; 
             background: #fff;
-            box-sizing: content-box !important;
-        }
-
-        .small-modal-title {
-            font-size: 22px !important;
-            color: #333 !important;
-            font-weight: 700 !important;
-            margin-bottom: 20px !important;
-        }
-
-        .small-modal-input {
-            margin: 10px auto !important;
-            width: 100% !important;
-            height: 48px !important;
-            border-radius: 8px !important;
-            border: 2px solid #e0e0e0 !important;
-            padding: 0 15px !important;
             box-sizing: border-box !important;
-            font-size: 16px !important;
-            box-shadow: none !important;
         }
-
-        .small-modal-input:focus {
-            border-color: var(--primary-color) !important;
-            outline: none !important;
+        
+        .small-modal-title { 
+            font-size: 22px !important; 
+            color: #333 !important; 
+            font-weight: 700 !important; 
+            margin-bottom: 20px !important; 
         }
-
-        .small-modal-actions {
-            width: 100% !important;
-            display: flex !important;
-            justify-content: center !important;
-            gap: 15px !important;
-            margin-top: 25px !important;
+        
+        .small-modal-input { 
+            margin: 10px auto !important; 
+            width: 100% !important; 
+            height: 48px !important; 
+            border-radius: 8px !important; 
+            border: 2px solid #e0e0e0 !important; 
+            padding: 0 15px !important; 
+            box-sizing: border-box !important; 
+            font-size: 16px !important; 
+            box-shadow: none !important; 
         }
-
-        .swal-btn-confirm {
-            flex: 1 !important;
-            background-color: #27ae60 !important;
-            color: white !important;
-            padding: 12px !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            border: none !important;
-            cursor: pointer !important;
-            box-shadow: none !important;
+        
+        .small-modal-input:focus { 
+            border-color: var(--primary-color) !important; 
+            outline: none !important; 
         }
-
-        .swal-btn-cancel {
-            flex: 1 !important;
-            background-color: #c0392b !important;
-            color: white !important;
-            padding: 12px !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            border: none !important;
-            cursor: pointer !important;
-            box-shadow: none !important;
+        
+        .small-modal-actions { 
+            width: 100% !important; 
+            display: flex !important; 
+            justify-content: center !important; 
+            gap: 15px !important; 
+            margin-top: 25px !important; 
+        }
+        
+        .swal-btn-confirm { 
+            flex: 1 !important; 
+            background-color: #27ae60 !important; 
+            color: white !important; 
+            padding: 12px !important; 
+            font-size: 16px !important; 
+            font-weight: 600 !important; 
+            border-radius: 8px !important; 
+            border: none !important; 
+            cursor: pointer !important; 
+        }
+        
+        .swal-btn-cancel { 
+            flex: 1 !important; 
+            background-color: #c0392b !important; 
+            color: white !important; 
+            padding: 12px !important; 
+            font-size: 16px !important; 
+            font-weight: 600 !important; 
+            border-radius: 8px !important; 
+            border: none !important; 
+            cursor: pointer !important; 
         }
 
         /* =========================================
