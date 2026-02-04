@@ -1195,6 +1195,74 @@
             
             .btn-icon { width: 36px; height: 36px; }
         }
+
+        /* --- 🔥 NEW UI UPDATES (ADDED) --- */
+
+        /* 1. Dashboard List - Remove Scrollbar */
+        #topCategoriesList {
+            height: auto !important;
+            max-height: none !important;
+            overflow-y: visible !important;
+        }
+
+        /* 2. Gallery - Fix Double Checkmarks */
+        .approval-item .check-overlay,
+        .approval-item .fa-check,
+        .approval-item .fa-check-circle {
+            display: none !important;
+        }
+        .approval-item.selected::after {
+            z-index: 100 !important;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.4);
+        }
+
+        /* 3. User Management Spacing */
+        #userSearch {
+            margin-top: 10px !important;
+            margin-bottom: 20px !important;
+        }
+        .user-table {
+            margin-top: 10px !important;
+        }
+
+        /* 4. Modern Upload Form */
+        #categoryName {
+            border-radius: 30px !important;
+            padding-left: 20px !important;
+            border: 1px solid #ddd !important;
+            background-color: #fcfcfc !important;
+            transition: all 0.3s ease;
+        }
+        #categoryName:focus {
+            background-color: #fff !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        /* Modern File Upload Box */
+        .file-upload-wrapper {
+            border-radius: 20px !important;
+            border: 2px dashed #cbd5e0 !important;
+            background: #f8fafc !important;
+        }
+        .file-upload-wrapper:hover {
+            border-color: var(--primary-color) !important;
+            background: #ebf8ff !important;
+        }
+
+        /* Modern Upload Button */
+        #uploadForm .btn-primary {
+            border-radius: 30px !important;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+            padding: 12px !important;
+            font-size: 16px !important;
+            letter-spacing: 0.5px;
+        }
+        #uploadForm .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+        }
     </style>
 </head>
 
