@@ -561,6 +561,7 @@
             background-color: #e8f8f5;
         }
 
+        /* 🔥 ส่วนนี้แหละที่สร้างเครื่องหมายถูก (เหลือแค่อันนี้อันเดียวแล้ว) */
         .approval-item.selected::after {
             content: '\f00c';
             font-family: 'Font Awesome 6 Free';
@@ -1857,11 +1858,6 @@
                 <div class="approval-item ${isSelected ? 'selected' : ''}" onclick="toggleSelection(${id}, '${type}')" style="${isSelected ? 'border: 2px solid #27ae60; background: #e8f8f5;' : ''}">
                     <div style="position: relative;">
                         <img src="${url}" onclick="event.stopPropagation(); openImage('${url}')" class="clickable">
-                        ${isSelected ? `
-                            <div style="position:absolute; top:10px; right:10px; background:#27ae60; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index:10;">
-                                <i class="fas fa-check" style="font-weight:900;"></i>
-                            </div>` 
-                        : ''}
                     </div>
                     ${btns}
                 </div>`;
@@ -1956,11 +1952,6 @@
                     <div style="position: relative; width: 100%; cursor: pointer;" onclick="toggleTrashSelection(${photo.id})">
                         <span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>
                         <img src="${photo.url}" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px 4px 0 0;">
-                        ${isSelected ? `
-                            <div style="position:absolute; top:8px; right:8px; background:#e74c3c; color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                <i class="fas fa-check" style="font-size:12px;"></i>
-                            </div>` 
-                        : ''}
                     </div>
                     <div class="trash-actions">
                         <button onclick="event.stopPropagation(); restorePhoto(${photo.id})" class="btn-trash-action btn-trash-restore">
