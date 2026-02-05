@@ -1599,7 +1599,7 @@
                 <h3 style="margin:0; display:flex; align-items:center; gap:10px; font: 20px; color:#e74c3c;">
                     <i class="fas fa-trash-alt"></i> ถังขยะ (กู้คืนได้)
                 </h3>
-                
+
                 <button onclick="loadTrash()" class="btn-nav" style="padding: 4px 10px; font-size: 13px;">
                     <i class="fas fa-sync"></i> รีเฟรช
                 </button>
@@ -1633,7 +1633,7 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #f39c12;">
-            
+
             <div style="margin-bottom: 15px;">
                 <h3 style="
                     display: inline-block !important; 
@@ -1739,8 +1739,8 @@
             });
             document.getElementById('photoSectionTitle').innerText = '🖼️ ภาพที่อัปโหลดโดยคุณ';
             document.title = 'Uploader Dashboard';
-            
-            document.getElementById('sidebarTitle').innerText = 'Uploader Panel'; 
+
+            document.getElementById('sidebarTitle').innerText = 'Uploader Panel';
         } else {
             document.title = 'Admin Panel';
         }
@@ -1753,8 +1753,8 @@
         let allUsersData = [];
         const itemsPerPage = 50;
 
-        let currentApprovedPhotos = [];     
-        let selectedApprovedIds = new Set(); 
+        let currentApprovedPhotos = [];
+        let selectedApprovedIds = new Set();
 
         function getAuthHeaders() {
             return {
@@ -1769,7 +1769,7 @@
                 await loadStats();
                 await loadCategories();
                 await loadApprovedPhotos(1);
-                await loadStorageStats(); 
+                await loadStorageStats();
 
                 if (user.role === 'admin') {
                     await loadLogs();
@@ -1805,7 +1805,7 @@
         // --- Stats & Categories ---
         async function loadStats() {
             try {
-                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); 
+                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) return;
                 const data = await res.json();
                 document.getElementById('statTotal').innerText = data.total_photos;
@@ -1818,7 +1818,7 @@
 
         async function loadCategories() {
             try {
-                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); 
+                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) return;
                 const c = await res.json();
                 const dl = document.getElementById('categoryList');
@@ -1877,7 +1877,7 @@
                 title: 'กำลังอัปโหลด...',
                 html: 'กรุณารอสักครู่ ห้ามปิดหน้านี้',
                 allowOutsideClick: false,
-                heightAuto: false, 
+                heightAuto: false,
                 didOpen: () => Swal.showLoading()
             });
 
@@ -2006,10 +2006,10 @@
 
         function toggleSelectAllApproved() {
             if (currentApprovedPhotos.length > 0 && selectedApprovedIds.size === currentApprovedPhotos.length) {
-                selectedApprovedIds.clear(); 
+                selectedApprovedIds.clear();
             } else {
                 selectedApprovedIds.clear();
-                currentApprovedPhotos.forEach(p => selectedApprovedIds.add(p.id || p.photo_id)); 
+                currentApprovedPhotos.forEach(p => selectedApprovedIds.add(p.id || p.photo_id));
             }
             renderGrid('approvedList', currentApprovedPhotos, 'approved');
         }
@@ -2046,17 +2046,21 @@
                 if (!res.ok) throw new Error('Load Trash Failed');
 
                 allTrashFiles = await res.json();
-                selectedTrashIds.clear(); 
+                selectedTrashIds.clear();
                 renderTrashGrid();
             } catch (err) {
                 console.error(err);
             }
         }
 
+        // ==========================================
+        // 🗑️ ฟังก์ชันแสดงผลถังขยะ (แก้ไขแล้ว: เพิ่ม trash-item)
+        // ==========================================
         function renderTrashGrid() {
             const container = document.getElementById('trashList');
             container.innerHTML = '';
 
+            // กรณีไม่มีไฟล์
             if (allTrashFiles.length === 0) {
                 container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">ไม่มีไฟล์ในถังขยะ</p>';
                 updateTrashToolbar();
@@ -2066,12 +2070,15 @@
             allTrashFiles.forEach(photo => {
                 const isSelected = selectedTrashIds.has(photo.id);
                 const div = document.createElement('div');
-                div.className = `approval-item ${isSelected ? 'selected' : ''}`;
 
-                // 🔥 เปลี่ยน Layout ให้เหมือนหน้า Gallery (ใช้ปุ่มไอคอนเล็ก)
+                // 🔥 จุดที่แก้ไข: เติม 'trash-item' ลงไปใน className
+                // เพื่อให้ CSS filter: grayscale(100%) ทำงาน (รูปจะเป็นขาวดำ)
+                div.className = `approval-item trash-item ${isSelected ? 'selected' : ''}`;
+
                 div.innerHTML = `
                     <div style="position: relative; width: 100%;" onclick="toggleTrashSelection(${photo.id})">
                         <span style="position:absolute; top:5px; left:5px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>
+                        
                         <img src="${photo.url}" 
                              class="clickable"
                              style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px;" 
@@ -2140,7 +2147,7 @@
                 });
                 Swal.fire({ text: 'กู้คืนเรียบร้อย', icon: 'success', heightAuto: false });
                 loadTrash();
-                loadApprovedPhotos(currentPage); 
+                loadApprovedPhotos(currentPage);
             }
         }
 
@@ -2174,7 +2181,7 @@
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'ยืนยัน',
-                heightAuto: false 
+                heightAuto: false
             });
             return result.isConfirmed;
         }
@@ -2182,7 +2189,7 @@
         async function reload() {
             await Promise.all([loadStats(), loadCategories(), loadApprovedPhotos(1)]);
             await loadStorageStats();
-            
+
             if (user.role === 'admin') {
                 await loadLogs();
                 await loadTrash();
@@ -2193,7 +2200,7 @@
             if (await cf('ลบรูปนี้?')) {
                 await fetch(`/photos/${id}/soft-delete`, { method: 'DELETE', headers: getAuthHeaders() });
                 loadApprovedPhotos(currentPage);
-                loadTrash(); 
+                loadTrash();
             }
         }
 
@@ -2225,8 +2232,8 @@
                     });
 
                     Swal.fire({ text: 'ย้ายไปถังขยะแล้ว', icon: 'success', heightAuto: false });
-                    loadApprovedPhotos(currentPage); 
-                    loadTrash(); 
+                    loadApprovedPhotos(currentPage);
+                    loadTrash();
                 } catch (e) {
                     Swal.fire({ text: 'ลบไม่สำเร็จ', icon: 'error', heightAuto: false });
                 }
@@ -2236,22 +2243,22 @@
         // ==========================================
         // 🔥 LOGS SECTION (Server-Side Pagination)
         // ==========================================
-        
+
         async function loadLogs(page = 1) {
             if (user.role !== 'admin') return;
-            
+
             currentLogPage = page;
-            
+
             try {
                 const res = await fetch(`/logs?page=${page}&limit=10&t=` + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) throw new Error();
-                
+
                 const responseData = await res.json();
                 const logs = responseData.data;
-                totalLogPages = responseData.totalPages; 
+                totalLogPages = responseData.totalPages;
 
                 renderLogs(logs);
-                updateLogPagination(); 
+                updateLogPagination();
             } catch (e) {
                 console.error(e);
                 document.getElementById('logTableBody').innerHTML = '<tr><td colspan="4" style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">โหลดประวัติไม่ได้</td></tr>';
@@ -2309,7 +2316,7 @@
         function changeLogPage(step) {
             const nextPage = currentLogPage + step;
             if (nextPage < 1 || nextPage > totalLogPages) return;
-            loadLogs(nextPage); 
+            loadLogs(nextPage);
         }
 
         // --- User Management ---
