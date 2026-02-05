@@ -579,10 +579,8 @@
             font-weight: bold;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             z-index: 100;
-            /* Ensure on top */
         }
 
-        /* 🔥 FIX: Strictly hide any old checkmarks or icons */
         .check-overlay,
         .approval-item .fa-check,
         .approval-item .fa-check-circle {
@@ -636,7 +634,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Container for Trash Buttons (Flex Row) */
+        /* Container for Trash Buttons */
         .trash-actions {
             display: flex;
             gap: 8px;
@@ -727,14 +725,12 @@
             border-collapse: separate;
             border-spacing: 0;
             margin-top: 10px !important;
-            /* 🔥 FIX Spacing */
             background: white;
         }
 
         .user-table th,
         .log-table th {
             padding: 8px 10px;
-            /* 🔥 Reduced vertical padding from 12px */
             border-bottom: 2px solid var(--border-color);
             text-align: left;
             font-size: 14px;
@@ -747,7 +743,6 @@
         .user-table td,
         .log-table td {
             padding: 8px 10px;
-            /* 🔥 Reduced vertical padding from 12px */
             border-bottom: 1px solid var(--border-color);
             font-size: 14px;
             vertical-align: middle;
@@ -801,14 +796,11 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            /* 🔥 Reduced from 15px */
         }
 
         .avatar {
             width: 36px;
-            /* 🔥 Reduced from 40px */
             height: 36px;
-            /* 🔥 Reduced from 40px */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -816,7 +808,6 @@
             color: white;
             font-weight: bold;
             font-size: 16px;
-            /* Adjusted size */
             text-transform: uppercase;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -1309,7 +1300,7 @@
         <div class="sidebar-header">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:24px;"><i class="fas fa-camera-retro"></i></span>
-                <h2>Admin Panel</h2>
+                <h2 id="sidebarTitle">Admin Panel</h2>
             </div>
             <button class="close-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         </div>
@@ -1350,7 +1341,7 @@
             </div>
         </div>
 
-        <div class="card admin-only" style="border-top: 5px solid #9b59b6;">
+        <div class="card" style="border-top: 5px solid #9b59b6;">
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                 <h3 style="margin:0; display:flex; align-items:center; gap:10px; font-size:20px; color: #9b59b6;">
@@ -1719,6 +1710,9 @@
             });
             document.getElementById('photoSectionTitle').innerText = '🖼️ ภาพที่อัปโหลดโดยคุณ';
             document.title = 'Uploader Dashboard';
+            
+            // 🔥 เพิ่มบรรทัดนี้: เปลี่ยนชื่อตรง Sidebar
+            document.getElementById('sidebarTitle').innerText = 'Uploader Panel'; 
         } else {
             document.title = 'Admin Panel';
         }
@@ -1749,11 +1743,15 @@
                 await loadStats();
                 await loadCategories();
                 await loadApprovedPhotos(1);
+                
+                // 🔥 แก้ไข: ย้ายมาตรงนี้ เพื่อให้ Uploader โหลดได้ด้วย
+                await loadStorageStats(); 
+
                 if (user.role === 'admin') {
                     await loadLogs();
                     await loadTrash();
                     await loadUsers();
-                    await loadStorageStats();
+                    // await loadStorageStats(); // <-- ของเดิมอยู่ตรงนี้ (ลบออก)
                 }
             } catch (error) {
                 console.error("Init Error:", error);
@@ -2182,10 +2180,12 @@
 
         async function reload() {
             await Promise.all([loadStats(), loadCategories(), loadApprovedPhotos(1)]);
+            // 🔥 โหลด storage ทุกครั้งที่มีการเปลี่ยนแปลง (เช่น อัปโหลดเสร็จ)
+            await loadStorageStats();
+            
             if (user.role === 'admin') {
                 await loadLogs();
                 await loadTrash();
-                await loadStorageStats();
             }
         }
 

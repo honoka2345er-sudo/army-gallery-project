@@ -610,7 +610,7 @@ app.get('/stats', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
+app.get('/storage/usage', authenticateToken, async (req, res) => {
     try {
         const c = await getCloudinaryUsage();
         const [photosCount] = await pool.query('SELECT COUNT(*) as total FROM Photos WHERE is_deleted = 0');
