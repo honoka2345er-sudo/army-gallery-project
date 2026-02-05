@@ -1601,33 +1601,70 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c; margin-top: 30px;">
-
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0; display:flex; align-items:center; gap:10px; font: 20px; color:#e74c3c;">
+            <div class="card-header-wrapper header-color-trash">
+                <h3 class="card-header-title" style="color: #e74c3c;">
                     <i class="fas fa-trash-alt"></i> ถังขยะ (กู้คืนได้)
                 </h3>
-
                 <button onclick="loadTrash()" class="btn-nav" style="padding: 4px 10px; font-size: 13px;">
                     <i class="fas fa-sync"></i> รีเฟรช
                 </button>
             </div>
 
             <div class="bulk-toolbar"
-                style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
+                style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; padding: 10px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px; gap: 10px;">
 
                 <button type="button" id="btnSelectAllTrash" onclick="toggleSelectAllTrash()"
-                    style="font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #333;">
+                    style="
+                        flex: 1 1 150px; /* ยืดหดได้ ขั้นต่ำ 150px */
+                        height: 40px; /* 🔥 กำหนดความสูงให้เท่ากันเป๊ะ */
+                        font-size: 13px; 
+                        padding: 0 15px; 
+                        border-radius: 6px; 
+                        border: 1px solid #ddd; 
+                        background: #fff; 
+                        cursor: pointer; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        gap: 8px; 
+                        color: #333;
+                        white-space: nowrap;
+                    ">
                     <i class="fas fa-check-square"></i> เลือกทั้งหมด
                 </button>
 
-                <div class="bulk-actions-right" style="display:flex; gap:5px;">
+                <div class="bulk-actions-right" style="display:flex; gap:10px; flex: 1 1 200px;">
                     <button onclick="restoreSelected()"
-                        style="font-size: 12px; padding: 6px 15px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        style="
+                            flex: 1; /* แบ่งพื้นที่เท่ากัน */
+                            height: 40px; /* 🔥 กำหนดความสูงให้เท่ากันเป๊ะ */
+                            font-size: 13px; 
+                            padding: 0 15px; 
+                            background: #3498db; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                            display: flex; align-items: center; justify-content: center; gap: 5px;
+                            white-space: nowrap;
+                        ">
                         <i class="fas fa-trash-restore"></i> กู้คืน
                     </button>
                     <button onclick="deletePermanentSelected()"
-                        style="font-size: 12px; padding: 6px 15px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                        <i class="fas fa-trash"></i> ลบถาวร
+                        style="
+                            flex: 1; /* แบ่งพื้นที่เท่ากัน */
+                            height: 40px; /* 🔥 กำหนดความสูงให้เท่ากันเป๊ะ */
+                            font-size: 13px; 
+                            padding: 0 15px; 
+                            background: #c0392b; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                            display: flex; align-items: center; justify-content: center; gap: 5px;
+                            white-space: nowrap;
+                        ">
+                        <i class="fas fa-times"></i> ลบถาวร
                     </button>
                 </div>
 
@@ -1636,7 +1673,6 @@
             <div id="trashList" class="approval-grid">
                 <p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">ไม่มีไฟล์ในถังขยะ</p>
             </div>
-
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #f39c12;">
