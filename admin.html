@@ -257,6 +257,23 @@
             border: 1px solid var(--border-color);
         }
 
+        /* 🔥🔥 Card Header Wrapper (New Class) 🔥🔥 */
+        .card-header-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px; 
+        }
+        
+        .card-header-title {
+            margin: 0 !important;
+            font-size: 20px !important;
+            font-weight: 700 !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .card h3 {
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 5px;
@@ -606,18 +623,23 @@
 
         /* 🔥🔥🔥 แก้ไขเฉพาะส่วนนี้ สำหรับรูปในถังขยะเท่านั้น 🔥🔥🔥 */
         .approval-item.trash-item img {
-            filter: grayscale(100%); /* สีขาวดำ */
+            filter: grayscale(100%);
+            /* สีขาวดำ */
             opacity: 0.85;
-            
+
             width: 100%;
-            height: auto !important; /* 🔥 สำคัญ: ยกเลิกความสูงคงที่จาก Gallery หลัก */
-            aspect-ratio: 4 / 3;     /* 🔥 บังคับสัดส่วน 4:3 ตามต้องการ */
-            object-fit: cover;       /* 🔥 ให้รูปเต็มกรอบสวยงาม ไม่เบี้ยว */
-            
+            height: auto !important;
+            /* 🔥 สำคัญ: ยกเลิกความสูงคงที่จาก Gallery หลัก */
+            aspect-ratio: 4 / 3;
+            /* 🔥 บังคับสัดส่วน 4:3 ตามต้องการ */
+            object-fit: cover;
+            /* 🔥 ให้รูปเต็มกรอบสวยงาม ไม่เบี้ยว */
+
             transition: all 0.3s ease;
             border-radius: 8px;
             margin-bottom: 10px;
         }
+
         /* 🔥🔥🔥 สิ้นสุดการแก้ไข 🔥🔥🔥 */
 
         .approval-item.trash-item:hover img {
@@ -1029,7 +1051,7 @@
             }
 
             .main-content {
-                padding: 80px 15px 30px 15px;
+                padding: 80px 10px 30px 10px; /* ลด padding ข้างนิดนึง */
                 width: 100%;
             }
 
@@ -1038,6 +1060,74 @@
                 gap: 15px;
             }
 
+            /* --- HEADER จัดเรียงแนวนอน --- */
+            .card-header-wrapper {
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 10px;
+                margin-bottom: 15px !important;
+            }
+            .card-header-title {
+                margin: 0 !important;
+                font-size: 18px !important; /* ลดขนาดฟอนต์หัวข้อหน่อย */
+                flex: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .card-header-wrapper button {
+                width: auto !important;
+                padding: 6px 10px !important;
+                font-size: 12px !important;
+                margin: 0 !important;
+            }
+
+            /* --- 🔥 แก้ไข TOOLBAR ถังขยะ (ให้ปุ่มเรียงแถวเดียว) --- */
+            .card .bulk-toolbar {
+                display: flex !important;
+                flex-direction: row !important; /* บังคับแนวนอน */
+                flex-wrap: nowrap !important;   /* ห้ามปัดบรรทัด */
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 8px !important;
+                padding: 10px !important;
+                overflow-x: auto; /* กันล้นจอเล็กมากๆ */
+            }
+
+            /* ปุ่มเลือกทั้งหมด (ฝั่งซ้าย) */
+            #btnSelectAllTrash {
+                width: auto !important;
+                flex: 1; /* ให้ยืดกินพื้นที่ว่าง */
+                margin: 0 !important;
+                height: 38px !important;
+                font-size: 12px !important;
+                padding: 0 10px !important;
+                white-space: nowrap;
+                justify-content: center;
+            }
+
+            /* กลุ่มปุ่ม Action (ฝั่งขวา) */
+            .bulk-actions-right {
+                width: auto !important;
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 5px !important;
+                margin: 0 !important;
+                flex-shrink: 0; /* ห้ามหด */
+            }
+
+            /* ปุ่ม กู้คืน/ลบถาวร */
+            .bulk-actions-right button {
+                width: auto !important;
+                height: 38px !important;
+                padding: 0 12px !important;
+                font-size: 12px !important;
+                white-space: nowrap;
+                border-radius: 6px !important;
+            }
+
+            /* ส่วนอื่นๆ คงเดิม */
             #uploadForm>div {
                 display: flex;
                 flex-direction: column !important;
@@ -1069,40 +1159,6 @@
                 align-items: center;
             }
 
-            .bulk-toolbar {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: stretch !important;
-                gap: 15px !important;
-                padding: 20px !important;
-                height: auto !important;
-            }
-
-            #btnSelectAllTrash,
-            #btnSelectAllApproved {
-                width: 100% !important;
-                height: 45px !important;
-                justify-content: center !important;
-                margin: 0 !important;
-            }
-
-            .bulk-actions-right,
-            .bulk-actions-right button,
-            .btn-bulk-restore,
-            .btn-bulk-delete {
-                width: 100% !important;
-                margin: 0 !important;
-                height: 45px !important;
-                border-radius: 8px !important;
-            }
-
-            .bulk-actions-right {
-                flex-direction: column;
-                display: flex;
-                gap: 10px;
-            }
-
-            /* --- 🔥 IMPROVED MOBILE GRID (2 Columns) --- */
             .approval-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 10px !important;
@@ -1119,7 +1175,6 @@
                 height: auto;
             }
 
-            /* Gallery Button Adjustments */
             .gallery-actions .btn-icon-action {
                 width: 28px !important;
                 height: 28px !important;
@@ -1140,13 +1195,11 @@
                 overflow-x: visible !important;
             }
 
-            /* Hide Table Header */
             .user-table thead,
             .log-table thead {
                 display: none;
             }
 
-            /* Turn Rows into Cards */
             .user-table tr,
             .log-table tr {
                 display: flex;
@@ -1172,7 +1225,6 @@
                 white-space: normal;
             }
 
-            /* Log Table Specifics */
             .log-table td:nth-child(2) {
                 font-weight: bold;
                 font-size: 15px;
@@ -1183,7 +1235,6 @@
                 margin: 5px 0;
             }
 
-            /* User Table Action Buttons */
             .user-table .action-btn-group {
                 justify-content: space-between;
                 margin-top: 10px;
@@ -1211,47 +1262,8 @@
                 justify-content: center;
                 height: 40px;
             }
-
-            /* --- 🔥 TRASH SECTION MOBILE FIX --- */
-            /* จัด Toolbar ให้ปุ่มเรียงแนวนอน ไม่ซ้อนกัน */
-            .card .bulk-toolbar {
-                flex-direction: row !important;
-                /* บังคับแนวนอน */
-                flex-wrap: wrap;
-                gap: 10px !important;
-                padding: 10px !important;
-                align-items: center !important;
-            }
-
-            /* ปุ่มเลือกทั้งหมด ให้กินพื้นที่ซ้าย */
-            #btnSelectAllTrash {
-                flex: 1;
-                width: auto !important;
-                margin: 0 !important;
-                height: 38px !important;
-                font-size: 13px !important;
-            }
-
-            /* กลุ่มปุ่ม Action (กู้คืน/ลบ) ให้ไปอยู่ขวา */
-            .bulk-actions-right {
-                display: flex !important;
-                flex-direction: row !important;
-                /* เรียงแนวนอน */
-                gap: 5px !important;
-                width: auto !important;
-                margin: 0 !important;
-            }
-
-            /* ปรับปุ่ม Action ให้เป็นไอคอน+ข้อความสั้นๆ หรือไอคอนอย่างเดียว */
-            .bulk-actions-right button {
-                width: auto !important;
-                height: 38px !important;
-                padding: 0 12px !important;
-                font-size: 13px !important;
-                white-space: nowrap;
-            }
-
-            /* ลดความสูงของการ์ดในถังขยะ */
+            
+             /* ลดความสูงของการ์ดในถังขยะ */
             #trashList .approval-item {
                 padding: 8px !important;
                 min-height: auto !important;
@@ -1380,12 +1392,13 @@
 
         <div class="card" style="border-top: 5px solid #9b59b6;">
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <h3 style="margin:0; display:flex; align-items:center; gap:10px; font-size:20px; color: #9b59b6;">
-                    <i class="fas fa-hdd"></i> พื้นที่จัดเก็บข้อมูล (Cloudinary)
+            <div class="card-header-wrapper header-color-storage">
+                <h3 class="card-header-title" style="color: #9b59b6;">
+                    <i class="fas fa-hdd"></i> พื้นที่จัดเก็บข้อมูล
                 </h3>
-                <button onclick="loadStorageStats()" class="btn-nav" style="padding: 4px 10px; font-size: 13px;"><i
-                        class="fas fa-sync"></i> รีเฟรช</button>
+                <button onclick="loadStorageStats()" class="btn-nav" style="padding: 6px 12px; font-size: 13px;">
+                    <i class="fas fa-sync"></i> รีเฟรช
+                </button>
             </div>
 
             <div
@@ -1446,8 +1459,8 @@
 
         <div class="card" style="border-top: 5px solid #3498db;">
 
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
-                <h3 style="margin:0; font-size:20px; color: #3498db;">
+            <div class="card-header-wrapper header-color-upload">
+                <h3 class="card-header-title" style="color: #3498db;">
                     <i class="fas fa-cloud-upload-alt"></i> อัปโหลดรูปภาพกิจกรรม
                 </h3>
             </div>
@@ -1466,7 +1479,7 @@
                         <label style="font-size:14px; color:#555; margin-bottom:5px;"><b>2. เลือกรูปภาพ</b></label>
 
                         <div class="file-upload-wrapper"
-                            style="min-height: 120px; padding: 15px; border: 2px dashed #3498db; background: #f0f8ff; border-radius: 8px;">
+                            style="min-height: 120px; padding: 15px;">
                             <div id="uploadPlaceholder" style="text-align: center;">
                                 <span class="upload-icon"
                                     style="font-size: 32px; color: #3498db; margin-bottom: 5px;"><i
@@ -1491,8 +1504,8 @@
 
         <div class="card" style="border-top: 5px solid #2ecc71;">
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 id="photoSectionTitle" style="margin:0; font-size:20px; color: #2ecc71;">
+            <div class="card-header-wrapper header-color-gallery">
+                <h3 id="photoSectionTitle" class="card-header-title" style="color: #2ecc71;">
                     <i class="fas fa-images"></i> จัดการรูปภาพ (แก้ไข/ลบ)
                 </h3>
             </div>
@@ -1601,54 +1614,76 @@
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #e74c3c; margin-top: 30px;">
-
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0; display:flex; align-items:center; gap:10px; font: 20px; color:#e74c3c;">
+            
+            <div class="card-header-wrapper header-color-trash">
+                <h3 class="card-header-title" style="color: #e74c3c;">
                     <i class="fas fa-trash-alt"></i> ถังขยะ (กู้คืนได้)
                 </h3>
-
-                <button onclick="loadTrash()" class="btn-nav" style="padding: 4px 10px; font-size: 13px;">
+                <button onclick="loadTrash()" class="btn-nav" style="padding: 6px 12px; font-size: 13px;">
                     <i class="fas fa-sync"></i> รีเฟรช
                 </button>
             </div>
 
             <div class="bulk-toolbar"
-                style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
+                style="display:flex; justify-content:space-between; align-items:center; padding: 10px; margin-bottom: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 8px; gap: 10px;">
 
                 <button type="button" id="btnSelectAllTrash" onclick="toggleSelectAllTrash()"
-                    style="font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #333;">
+                    style="
+                        padding: 8px 15px; 
+                        border-radius: 6px; 
+                        border: 1px solid #ddd; 
+                        background: #fff; 
+                        cursor: pointer; 
+                        display: flex; 
+                        align-items: center; 
+                        gap: 8px; 
+                        color: #333; 
+                        font-size: 13px;
+                    ">
                     <i class="fas fa-check-square"></i> เลือกทั้งหมด
                 </button>
 
-                <div class="bulk-actions-right" style="display:flex; gap:5px;">
+                <div class="bulk-actions-right" style="display:flex; gap:10px;">
                     <button onclick="restoreSelected()"
-                        style="font-size: 12px; padding: 6px 15px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        style="
+                            padding: 8px 15px; 
+                            background: #3498db; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer; 
+                            font-size: 13px; 
+                            display: flex; align-items: center; gap: 5px;
+                            white-space: nowrap;
+                        ">
                         <i class="fas fa-trash-restore"></i> กู้คืน
                     </button>
                     <button onclick="deletePermanentSelected()"
-                        style="font-size: 12px; padding: 6px 15px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                        <i class="fas fa-trash"></i> ลบถาวร
+                        style="
+                            padding: 8px 15px; 
+                            background: #c0392b; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer; 
+                            font-size: 13px; 
+                            display: flex; align-items: center; gap: 5px;
+                            white-space: nowrap;
+                        ">
+                        <i class="fas fa-times"></i> ลบถาวร
                     </button>
                 </div>
-
             </div>
 
             <div id="trashList" class="approval-grid">
                 <p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">ไม่มีไฟล์ในถังขยะ</p>
             </div>
-
         </div>
 
         <div class="card admin-only" style="border-top: 5px solid #f39c12;">
 
-            <div style="margin-bottom: 15px;">
-                <h3 style="
-                    display: inline-block !important; 
-                    border-bottom: 2px solid #f39c12 !important; 
-                    padding-bottom: 5px !important; 
-                    margin: 0 !important; 
-                    font-size: 20px;
-                    color: #f39c12;">
+            <div class="card-header-wrapper header-color-logs">
+                <h3 class="card-header-title" style="color: #f39c12;">
                     <i class="fas fa-history"></i> ประวัติการใช้งาน (Logs)
                 </h3>
             </div>
@@ -1681,17 +1716,10 @@
 
         <div class="card admin-only" style="border-top: 5px solid #8e44ad;">
 
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 10px;">
-                <h3 style="
-                    display: inline-block !important; 
-                    border-bottom: 2px solid #f0f0f0 !important; 
-                    padding-bottom: 5px !important; 
-                    margin: 0 !important; 
-                    font-size: 20px;
-                    color: #8e44ad;">
-                    <i class="fas fa-users-cog" style="color: #8e44ad;"></i> จัดการเจ้าหน้าที่
+            <div class="card-header-wrapper header-color-users">
+                <h3 class="card-header-title" style="color: #8e44ad;">
+                    <i class="fas fa-users-cog"></i> จัดการเจ้าหน้าที่
                 </h3>
-
                 <button onclick="openAddUserModal()" class="btn-primary"
                     style="background:#8e44ad; width:auto; display:flex; align-items:center; gap:6px; padding: 6px 14px; border-radius: 30px; box-shadow: 0 4px 6px rgba(142, 68, 173, 0.2);">
                     <span style="font-size:13px; line-height: 1;"><i class="fas fa-user-plus"></i></span>
@@ -2060,9 +2088,6 @@
             }
         }
 
-        // ==========================================
-        // 🗑️ ฟังก์ชันแสดงผลถังขยะ (แก้ไขแล้ว: เพิ่ม trash-item)
-        // ==========================================
         function renderTrashGrid() {
             const container = document.getElementById('trashList');
             container.innerHTML = '';
@@ -2077,7 +2102,7 @@
             allTrashFiles.forEach(photo => {
                 const isSelected = selectedTrashIds.has(photo.id);
                 const div = document.createElement('div');
-
+                
                 // 🔥 จุดที่แก้ไข: เติม 'trash-item' ลงไปใน className
                 // เพื่อให้ CSS filter: grayscale(100%) ทำงาน (รูปจะเป็นขาวดำ)
                 div.className = `approval-item trash-item ${isSelected ? 'selected' : ''}`;
@@ -2088,7 +2113,6 @@
                         
                         <img src="${photo.url}" 
                              class="clickable"
-                             style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px;" 
                              onclick="event.stopPropagation(); openImage('${photo.url}')">
                     </div>
                     
@@ -2188,8 +2212,8 @@
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'ยืนยัน',
-                cancelButtonText: 'ยกเลิก',
-                heightAuto: false
+                cancelButtonText: 'ยกเลิก', // 🔥 เปลี่ยนเป็นภาษาไทย
+                heightAuto: false 
             });
             return result.isConfirmed;
         }
@@ -2251,22 +2275,22 @@
         // ==========================================
         // 🔥 LOGS SECTION (Server-Side Pagination)
         // ==========================================
-
+        
         async function loadLogs(page = 1) {
             if (user.role !== 'admin') return;
-
+            
             currentLogPage = page;
-
+            
             try {
                 const res = await fetch(`/logs?page=${page}&limit=10&t=` + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) throw new Error();
-
+                
                 const responseData = await res.json();
                 const logs = responseData.data;
                 totalLogPages = responseData.totalPages;
 
                 renderLogs(logs);
-                updateLogPagination();
+                updateLogPagination(); 
             } catch (e) {
                 console.error(e);
                 document.getElementById('logTableBody').innerHTML = '<tr><td colspan="4" style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">โหลดประวัติไม่ได้</td></tr>';
@@ -2324,7 +2348,7 @@
         function changeLogPage(step) {
             const nextPage = currentLogPage + step;
             if (nextPage < 1 || nextPage > totalLogPages) return;
-            loadLogs(nextPage);
+            loadLogs(nextPage); 
         }
 
         // --- User Management ---
@@ -2424,7 +2448,7 @@
                 }
 
                 list.innerHTML = '';
-                // 🔥 แก้ไข: ใส่เลขลำดับ 1-5 และปลดล็อกความสูง
+                
                 data.latest_categories.forEach((c, index) => {
                     const dateStr = new Date(c.last_update).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
                     const rank = index + 1;
@@ -2469,7 +2493,7 @@
                 cancelButtonText: 'ยกเลิก',
                 confirmButtonColor: '#f39c12',
                 denyButtonColor: '#3498db',
-                heightAuto: false // 🔥 FIX SCROLL JUMP
+                heightAuto: false 
             });
 
             const h = getAuthHeaders();
@@ -2491,7 +2515,7 @@
                     title: 'เปลี่ยนรหัสผ่าน',
                     html: '<input id="swal-old-pass" class="swal2-input small-modal-input" type="password" placeholder="รหัสผ่านเดิม"><input id="swal-new-pass" class="swal2-input small-modal-input" type="password" placeholder="รหัสผ่านใหม่ (ขั้นต่ำ 8 ตัว)">',
                     focusConfirm: false,
-                    heightAuto: false, // 🔥 FIX SCROLL JUMP
+                    heightAuto: false, 
                     preConfirm: () => [document.getElementById('swal-old-pass').value, document.getElementById('swal-new-pass').value]
                 });
 
@@ -2528,7 +2552,7 @@
                     input: 'text',
                     inputValue: user.username,
                     showCancelButton: true,
-                    heightAuto: false // 🔥 FIX SCROLL JUMP
+                    heightAuto: false 
                 });
 
                 if (n) {
@@ -2567,7 +2591,7 @@
                 title: 'เพิ่มเจ้าหน้าที่ใหม่',
                 html: '<input id="swal-user" class="swal2-input small-modal-input" placeholder="Username"><input id="swal-pass" type="password" class="swal2-input small-modal-input" placeholder="Password"><select id="swal-role" class="swal2-input small-modal-input"><option value="uploader">Uploader</option><option value="admin">Admin</option></select>',
                 focusConfirm: false,
-                heightAuto: false, // 🔥 FIX SCROLL JUMP
+                heightAuto: false, 
                 preConfirm: () => [
                     document.getElementById('swal-user').value,
                     document.getElementById('swal-pass').value,
@@ -2614,7 +2638,7 @@
                 cancelButtonText: 'ยกเลิก',
                 title: 'แก้ไขรายละเอียด',
                 html: `<input id="swal-cat" class="swal2-input small-modal-input" value="${oldCat}"><input id="swal-date" type="datetime-local" class="swal2-input small-modal-input" value="${dateStr}">`,
-                heightAuto: false, // 🔥 FIX SCROLL JUMP
+                heightAuto: false, 
                 preConfirm: () => [document.getElementById('swal-cat').value, document.getElementById('swal-date').value]
             });
 
@@ -2655,7 +2679,7 @@
                 title: 'เปลี่ยนชื่อ Username',
                 input: 'text',
                 inputValue: o,
-                heightAuto: false // 🔥 FIX SCROLL JUMP
+                heightAuto: false 
             });
             if (n) {
                 await fetch(`/users/${id}/username`, { method: 'PUT', headers: h, body: JSON.stringify({ newUsername: n }) });
@@ -2683,7 +2707,7 @@
                 title: 'ตั้งรหัสผ่านใหม่',
                 input: 'text',
                 inputPlaceholder: 'พิมพ์รหัสใหม่...',
-                heightAuto: false // 🔥 FIX SCROLL JUMP
+                heightAuto: false 
             });
             if (p) {
                 await fetch(`/users/${id}/reset`, { method: 'PUT', headers: h, body: JSON.stringify({ newPassword: p }) });
@@ -2708,7 +2732,7 @@
                 title: 'เปลี่ยนชื่อไฟล์',
                 input: 'text',
                 inputValue: o,
-                heightAuto: false // 🔥 FIX SCROLL JUMP
+                heightAuto: false 
             });
             if (n) {
                 await fetch(`/photos/${id}/rename`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ new_name: n }) });
