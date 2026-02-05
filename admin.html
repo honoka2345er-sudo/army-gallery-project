@@ -560,7 +560,7 @@
             background-color: #e8f8f5;
         }
 
-        /* Checkmark - Updated for strict single display */
+        /* Checkmark */
         .approval-item.selected::after {
             content: '\f00c';
             font-family: 'Font Awesome 6 Free';
@@ -616,72 +616,6 @@
         .approval-item.trash-item:hover img {
             filter: grayscale(0%);
             opacity: 1;
-        }
-
-        .deleted-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(231, 76, 60, 0.9);
-            color: white;
-            font-size: 10px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 800;
-            z-index: 5;
-            pointer-events: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            letter-spacing: 0.5px;
-        }
-
-        /* Container for Trash Buttons */
-        .trash-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: auto;
-            padding-top: 10px;
-            border-top: 1px solid #f0e0e0;
-            width: 100%;
-            position: relative;
-            z-index: 20;
-        }
-
-        /* Button Style in Card */
-        .btn-trash-action {
-            flex: 1;
-            padding: 8px 4px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: all 0.2s;
-            font-family: 'Sarabun', sans-serif;
-            background: white;
-            white-space: nowrap;
-        }
-
-        .btn-trash-restore {
-            border: 1px solid #3498db;
-            color: #3498db;
-        }
-
-        .btn-trash-restore:hover {
-            background-color: #3498db;
-            color: white;
-        }
-
-        .btn-trash-delete {
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
-        }
-
-        .btn-trash-delete:hover {
-            background-color: #e74c3c;
-            color: white;
         }
 
         /* Standard Gallery Buttons */
@@ -1185,11 +1119,6 @@
                 font-size: 12px !important;
             }
 
-            .trash-actions .btn-trash-action {
-                font-size: 11px !important;
-                padding: 6px 2px !important;
-            }
-
             .card {
                 padding: 15px;
                 overflow: visible;
@@ -1205,12 +1134,14 @@
             }
 
             /* Hide Table Header */
-            .user-table thead, .log-table thead {
+            .user-table thead,
+            .log-table thead {
                 display: none;
             }
 
             /* Turn Rows into Cards */
-            .user-table tr, .log-table tr {
+            .user-table tr,
+            .log-table tr {
                 display: flex;
                 flex-direction: column;
                 background: white;
@@ -1225,7 +1156,8 @@
                 border-left: 4px solid var(--primary-color) !important;
             }
 
-            .user-table td, .log-table td {
+            .user-table td,
+            .log-table td {
                 display: block;
                 width: 100%;
                 padding: 5px 0;
@@ -1239,6 +1171,7 @@
                 font-size: 15px;
                 margin-top: 5px;
             }
+
             .log-table td:nth-child(3) {
                 margin: 5px 0;
             }
@@ -1270,6 +1203,51 @@
                 flex: 1;
                 justify-content: center;
                 height: 40px;
+            }
+
+            /* --- 🔥 TRASH SECTION MOBILE FIX --- */
+            /* จัด Toolbar ให้ปุ่มเรียงแนวนอน ไม่ซ้อนกัน */
+            .card .bulk-toolbar {
+                flex-direction: row !important;
+                /* บังคับแนวนอน */
+                flex-wrap: wrap;
+                gap: 10px !important;
+                padding: 10px !important;
+                align-items: center !important;
+            }
+
+            /* ปุ่มเลือกทั้งหมด ให้กินพื้นที่ซ้าย */
+            #btnSelectAllTrash {
+                flex: 1;
+                width: auto !important;
+                margin: 0 !important;
+                height: 38px !important;
+                font-size: 13px !important;
+            }
+
+            /* กลุ่มปุ่ม Action (กู้คืน/ลบ) ให้ไปอยู่ขวา */
+            .bulk-actions-right {
+                display: flex !important;
+                flex-direction: row !important;
+                /* เรียงแนวนอน */
+                gap: 5px !important;
+                width: auto !important;
+                margin: 0 !important;
+            }
+
+            /* ปรับปุ่ม Action ให้เป็นไอคอน+ข้อความสั้นๆ หรือไอคอนอย่างเดียว */
+            .bulk-actions-right button {
+                width: auto !important;
+                height: 38px !important;
+                padding: 0 12px !important;
+                font-size: 13px !important;
+                white-space: nowrap;
+            }
+
+            /* ลดความสูงของการ์ดในถังขยะ */
+            #trashList .approval-item {
+                padding: 8px !important;
+                min-height: auto !important;
             }
         }
 
@@ -2057,7 +2035,7 @@
         }
 
         // ==========================================
-        // 🗑️ 🔥 TRASH LOGIC
+        // 🗑️ 🔥 TRASH LOGIC (UPDATED UI)
         // ==========================================
         let allTrashFiles = [];
         let selectedTrashIds = new Set();
@@ -2088,23 +2066,24 @@
             allTrashFiles.forEach(photo => {
                 const isSelected = selectedTrashIds.has(photo.id);
                 const div = document.createElement('div');
-                div.className = `approval-item trash-item ${isSelected ? 'selected' : ''}`;
+                div.className = `approval-item ${isSelected ? 'selected' : ''}`;
 
+                // 🔥 เปลี่ยน Layout ให้เหมือนหน้า Gallery (ใช้ปุ่มไอคอนเล็ก)
                 div.innerHTML = `
-                    <div style="position: relative; width: 100%; cursor: pointer;" onclick="toggleTrashSelection(${photo.id})">
-                        <span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>
-                        
+                    <div style="position: relative; width: 100%;" onclick="toggleTrashSelection(${photo.id})">
+                        <span style="position:absolute; top:5px; left:5px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>
                         <img src="${photo.url}" 
                              class="clickable"
-                             style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px 4px 0 0;" 
+                             style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px;" 
                              onclick="event.stopPropagation(); openImage('${photo.url}')">
                     </div>
-                    <div class="trash-actions">
-                        <button onclick="event.stopPropagation(); restorePhoto(${photo.id})" class="btn-trash-action btn-trash-restore">
-                            <i class="fas fa-trash-restore"></i> กู้คืน
+                    
+                    <div class="gallery-actions" style="margin-top: 5px; gap: 5px;">
+                        <button onclick="event.stopPropagation(); restorePhoto(${photo.id})" class="btn-icon-action" style="background:#3498db; flex:1;" title="กู้คืน">
+                            <i class="fas fa-trash-restore"></i>
                         </button>
-                        <button onclick="event.stopPropagation(); permanentDelete(${photo.id})" class="btn-trash-action btn-trash-delete">
-                            <i class="fas fa-times-circle"></i> ลบถาวร
+                        <button onclick="event.stopPropagation(); permanentDelete(${photo.id})" class="btn-icon-action" style="background:#e74c3c; flex:1;" title="ลบถาวร">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                 `;
