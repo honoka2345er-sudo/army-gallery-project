@@ -1161,9 +1161,14 @@
                 gap: 10px;
             }
 
+            /* --- 🔥 IMPROVED MOBILE GRID (2 Columns) --- */
             .approval-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+
+            .approval-item {
+                padding: 5px !important;
             }
 
             .approval-item img {
@@ -1173,40 +1178,82 @@
                 height: auto;
             }
 
+            /* Gallery Button Adjustments */
+            .gallery-actions .btn-icon-action {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 12px !important;
+            }
+
+            .trash-actions .btn-trash-action {
+                font-size: 11px !important;
+                padding: 6px 2px !important;
+            }
+
             .card {
                 padding: 15px;
                 overflow: visible;
             }
 
+            /* --- 🔥 CARD VIEW FOR TABLES --- */
             .table-responsive,
             .user-table,
             .log-table {
                 display: block;
                 width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                white-space: nowrap;
+                overflow-x: visible !important;
             }
 
-            table {
-                min-width: 600px;
+            /* Hide Table Header */
+            .user-table thead, .log-table thead {
+                display: none;
             }
 
-            tr {
-                margin-bottom: 0;
-                box-shadow: none;
-                border: none;
-                padding: 0;
-                display: table-row;
+            /* Turn Rows into Cards */
+            .user-table tr, .log-table tr {
+                display: flex;
+                flex-direction: column;
                 background: white;
+                margin-bottom: 15px;
+                padding: 15px;
+                border-radius: 12px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                border: 1px solid #eee;
             }
 
-            td,
-            th {
-                display: table-cell;
+            .log-table tr {
+                border-left: 4px solid var(--primary-color) !important;
+            }
+
+            .user-table td, .log-table td {
+                display: block;
+                width: 100%;
+                padding: 5px 0;
+                border: none;
                 white-space: normal;
-                min-width: 120px;
-                border-bottom: 1px solid #eee;
+            }
+
+            /* Log Table Specifics */
+            .log-table td:nth-child(2) {
+                font-weight: bold;
+                font-size: 15px;
+                margin-top: 5px;
+            }
+            .log-table td:nth-child(3) {
+                margin: 5px 0;
+            }
+
+            /* User Table Action Buttons */
+            .user-table .action-btn-group {
+                justify-content: space-between;
+                margin-top: 10px;
+                border-top: 1px solid #f0f0f0;
+                padding-top: 10px;
+                width: 100%;
+            }
+
+            .user-table .action-btn-group button {
+                flex: 1;
             }
 
             .card h3 {
@@ -1215,9 +1262,14 @@
                 font-size: 18px;
             }
 
-            .btn-icon {
-                width: 36px;
-                height: 36px;
+            .pagination-container {
+                gap: 10px;
+            }
+
+            .btn-page {
+                flex: 1;
+                justify-content: center;
+                height: 40px;
             }
         }
 
@@ -1607,7 +1659,6 @@
             <div style="margin-bottom: 15px;">
                 <h3 style="
                     display: inline-block !important; 
-                    /* 🔥 แก้ตรงนี้: เปลี่ยนสีเส้นขีดจากสีเทา เป็นสีส้ม #f39c12 ให้เหมือนตัวหนังสือ */
                     border-bottom: 2px solid #f39c12 !important; 
                     padding-bottom: 5px !important; 
                     margin: 0 !important; 
@@ -1711,24 +1762,21 @@
             document.getElementById('photoSectionTitle').innerText = '🖼️ ภาพที่อัปโหลดโดยคุณ';
             document.title = 'Uploader Dashboard';
             
-            // 🔥 เพิ่มบรรทัดนี้: เปลี่ยนชื่อตรง Sidebar
             document.getElementById('sidebarTitle').innerText = 'Uploader Panel'; 
         } else {
             document.title = 'Admin Panel';
         }
 
         // --- Global Variables ---
-        // 🔥 แก้ไข: เอา allLogsData ออก เพราะไม่ได้ใช้แล้ว (เปลี่ยนเป็น Server-Side)
         let currentLogPage = 1;
-        let totalLogPages = 1; // 🔥 ตัวแปรใหม่: เก็บจำนวนหน้าทั้งหมดของ Logs
+        let totalLogPages = 1;
         let logsPerPage = 10;
         let currentPage = 1;
         let allUsersData = [];
         const itemsPerPage = 50;
 
-        // 🔥 เพิ่ม 2 ตัวนี้สำหรับหน้าจัดการรูปภาพ (ให้เหมือนถังขยะ)
-        let currentApprovedPhotos = [];     // เก็บรูปหน้าปัจจุบัน
-        let selectedApprovedIds = new Set(); // เก็บ ID ที่เลือก
+        let currentApprovedPhotos = [];     
+        let selectedApprovedIds = new Set(); 
 
         function getAuthHeaders() {
             return {
@@ -1743,15 +1791,12 @@
                 await loadStats();
                 await loadCategories();
                 await loadApprovedPhotos(1);
-                
-                // 🔥 แก้ไข: ย้ายมาตรงนี้ เพื่อให้ Uploader โหลดได้ด้วย
                 await loadStorageStats(); 
 
                 if (user.role === 'admin') {
                     await loadLogs();
                     await loadTrash();
                     await loadUsers();
-                    // await loadStorageStats(); // <-- ของเดิมอยู่ตรงนี้ (ลบออก)
                 }
             } catch (error) {
                 console.error("Init Error:", error);
@@ -1782,7 +1827,7 @@
         // --- Stats & Categories ---
         async function loadStats() {
             try {
-                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
+                const res = await fetch('/stats?t=' + Date.now(), { headers: getAuthHeaders() }); 
                 if (!res.ok) return;
                 const data = await res.json();
                 document.getElementById('statTotal').innerText = data.total_photos;
@@ -1795,7 +1840,7 @@
 
         async function loadCategories() {
             try {
-                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); // Added Header
+                const res = await fetch('/categories?t=' + Date.now(), { headers: getAuthHeaders() }); 
                 if (!res.ok) return;
                 const c = await res.json();
                 const dl = document.getElementById('categoryList');
@@ -1854,7 +1899,7 @@
                 title: 'กำลังอัปโหลด...',
                 html: 'กรุณารอสักครู่ ห้ามปิดหน้านี้',
                 allowOutsideClick: false,
-                heightAuto: false, // 🔥 FIX SCROLL JUMP
+                heightAuto: false, 
                 didOpen: () => Swal.showLoading()
             });
 
@@ -1893,7 +1938,7 @@
         }
 
         // ==========================================
-        // 🖼️ PHOTO MANAGEMENT LOGIC (ปรับปรุงใหม่ 🔥)
+        // 🖼️ PHOTO MANAGEMENT LOGIC 
         // ==========================================
 
         async function loadApprovedPhotos(page = 1) {
@@ -1905,13 +1950,11 @@
                 const res = await fetch(`/photos?page=${page}&limit=${itemsPerPage}&search=${search}&category=${category}&t=` + Date.now(), { headers: getAuthHeaders() });
                 const photos = await res.json();
 
-                // 🔥 เก็บข้อมูลลงตัวแปร Global และเคลียร์การเลือก
                 currentApprovedPhotos = photos;
                 selectedApprovedIds.clear();
 
                 renderGrid('approvedList', photos, 'approved');
 
-                // Pagination controls
                 document.getElementById('paginationControls').style.display = 'flex';
                 document.getElementById('pageIndicator').innerText = `หน้า ${currentPage}`;
                 document.getElementById('btnPrev').disabled = (currentPage <= 1);
@@ -1925,16 +1968,13 @@
             loadApprovedPhotos(nextPage);
         }
 
-        // 🔥 ฟังก์ชัน Render Grid (แก้ไข Logic Checkbox ออก)
         function renderGrid(elemId, photos, type) {
             const el = document.getElementById(elemId);
             el.innerHTML = '';
 
-            // เลือก Toolbar และ Set ที่จะใช้ตรวจสอบ
             const toolbar = document.getElementById(type === 'approved' ? 'approvedToolbar' : 'trashToolbar');
             const selectionSet = (type === 'trash') ? selectedTrashIds : selectedApprovedIds;
 
-            // แสดง/ซ่อน Toolbar
             if (toolbar && type === 'approved') {
                 toolbar.style.display = (user.role === 'admin' && photos.length > 0) ? 'flex' : 'none';
             }
@@ -1952,11 +1992,9 @@
                 const dateVal = p.date || '';
                 const actVal = p.activity || '';
 
-                // ตรวจสอบว่ารูปนี้ถูกเลือกอยู่หรือไม่
                 const isSelected = selectionSet.has(id);
 
                 let btns = '';
-                // สร้างปุ่มเครื่องมือ (เหมือนเดิม)
                 if (type === 'approved' && user.role === 'admin') {
                     btns = `<div class="gallery-actions">
                                 <button onclick="event.stopPropagation(); copyLink('${url}')" class="btn-icon-action" style="background:#3498db;" title="คัดลอกลิงก์"><i class="fas fa-link"></i></button>
@@ -1966,7 +2004,6 @@
                             </div>`;
                 }
 
-                // สร้างการ์ดรูปภาพ (ไม่มี Checkbox แล้ว)
                 el.innerHTML += `
                 <div class="approval-item ${isSelected ? 'selected' : ''}" onclick="toggleSelection(${id}, '${type}')" style="${isSelected ? 'border: 2px solid #27ae60; background: #e8f8f5;' : ''}">
                     <div style="position: relative;">
@@ -1976,13 +2013,10 @@
                 </div>`;
             });
 
-            // อัปเดตหน้าตาปุ่ม Toolbar หลังจาก Render เสร็จ
             if (type === 'approved') updateApprovedToolbar();
         }
 
-        // 🔥 ฟังก์ชันเลือกทีละรูป (ใช้ร่วมกัน แก้ไขไม่ให้หา Checkbox)
         function toggleSelection(id, type) {
-            // เช็คว่าคลิกที่ปุ่ม action หรือเปล่า ถ้าใช่ไม่ให้เลือก
             if (event.target.closest('button')) return;
 
             if (type === 'approved') {
@@ -1992,18 +2026,16 @@
             }
         }
 
-        // 🔥 ปุ่มเลือกทั้งหมดสำหรับ "จัดการรูปภาพ" (Logic เดียวกับถังขยะ)
         function toggleSelectAllApproved() {
             if (currentApprovedPhotos.length > 0 && selectedApprovedIds.size === currentApprovedPhotos.length) {
-                selectedApprovedIds.clear(); // ยกเลิกทั้งหมด
+                selectedApprovedIds.clear(); 
             } else {
                 selectedApprovedIds.clear();
-                currentApprovedPhotos.forEach(p => selectedApprovedIds.add(p.id || p.photo_id)); // เลือกทั้งหมด
+                currentApprovedPhotos.forEach(p => selectedApprovedIds.add(p.id || p.photo_id)); 
             }
             renderGrid('approvedList', currentApprovedPhotos, 'approved');
         }
 
-        // 🔥 อัปเดตหน้าตาปุ่ม Toolbar (สีเขียวสำหรับการจัดการรูปภาพ)
         function updateApprovedToolbar() {
             const btn = document.getElementById('btnSelectAllApproved');
             if (!btn) return;
@@ -2012,13 +2044,11 @@
             const selected = selectedApprovedIds.size;
 
             if (total > 0 && selected === total) {
-                // เลือกครบแล้ว -> เปลี่ยนเป็นสีเขียวอ่อน/เข้ม
                 btn.innerHTML = `<i class="fas fa-check-square" style="color: #27ae60;"></i> ยกเลิกเลือก (${selected})`;
                 btn.style.borderColor = '#27ae60';
                 btn.style.color = '#1e8449';
                 btn.style.background = '#e8f8f5';
             } else {
-                // ปกติ -> สีขาว
                 btn.innerHTML = `<i class="far fa-square" style="color: #aaa;"></i> เลือกทั้งหมด ${selected > 0 ? `(${selected})` : ''}`;
                 btn.style.borderColor = '#ddd';
                 btn.style.color = '#555';
@@ -2038,7 +2068,7 @@
                 if (!res.ok) throw new Error('Load Trash Failed');
 
                 allTrashFiles = await res.json();
-                selectedTrashIds.clear(); // Reset selection
+                selectedTrashIds.clear(); 
                 renderTrashGrid();
             } catch (err) {
                 console.error(err);
@@ -2060,7 +2090,6 @@
                 const div = document.createElement('div');
                 div.className = `approval-item trash-item ${isSelected ? 'selected' : ''}`;
 
-                // Single Item HTML
                 div.innerHTML = `
                     <div style="position: relative; width: 100%; cursor: pointer;" onclick="toggleTrashSelection(${photo.id})">
                         <span style="position:absolute; top:10px; left:10px; background:rgba(231,76,60,0.9); color:white; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; pointer-events:none; z-index:2;">DELETED</span>
@@ -2093,20 +2122,16 @@
             renderTrashGrid();
         }
 
-        // 🔥 ปุ่ม Select All แบบ Button Logic
         function toggleSelectAllTrash() {
             if (allTrashFiles.length > 0 && selectedTrashIds.size === allTrashFiles.length) {
-                // ถ้าเลือกครบแล้ว -> ยกเลิกทั้งหมด
                 selectedTrashIds.clear();
             } else {
-                // ถ้ายังไม่ครบ -> เลือกทั้งหมด
                 selectedTrashIds.clear();
                 allTrashFiles.forEach(f => selectedTrashIds.add(f.id));
             }
             renderTrashGrid();
         }
 
-        // 🔥 อัปเดตหน้าตาปุ่มตามสถานะ
         function updateTrashToolbar() {
             const btn = document.getElementById('btnSelectAllTrash');
             if (!btn) return;
@@ -2115,13 +2140,11 @@
             const selected = selectedTrashIds.size;
 
             if (total > 0 && selected === total) {
-                // สถานะ: เลือกครบแล้ว (เปลี่ยนปุ่มเป็นสีส้ม/แดง)
                 btn.innerHTML = `<i class="fas fa-check-square" style="color: #e74c3c;"></i> ยกเลิกเลือก (${selected})`;
                 btn.style.borderColor = '#e74c3c';
                 btn.style.color = '#c0392b';
                 btn.style.background = '#fdedec';
             } else {
-                // สถานะ: ปกติ
                 btn.innerHTML = `<i class="far fa-square" style="color: #aaa;"></i> เลือกทั้งหมด ${selected > 0 ? `(${selected})` : ''}`;
                 btn.style.borderColor = '#ddd';
                 btn.style.color = '#555';
@@ -2138,7 +2161,7 @@
                 });
                 Swal.fire({ text: 'กู้คืนเรียบร้อย', icon: 'success', heightAuto: false });
                 loadTrash();
-                loadApprovedPhotos(currentPage); // รีโหลดหน้ารูปภาพด้วยเผื่อมันกลับไป
+                loadApprovedPhotos(currentPage); 
             }
         }
 
@@ -2164,7 +2187,6 @@
             document.getElementById('imageModal').style.display = "none";
         }
 
-        // 🔥 FIX: Added heightAuto: false to prevent scroll jumping
         async function cf(msg) {
             const result = await Swal.fire({
                 title: msg,
@@ -2173,14 +2195,13 @@
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'ยืนยัน',
-                heightAuto: false // <--- This prevents the jump
+                heightAuto: false 
             });
             return result.isConfirmed;
         }
 
         async function reload() {
             await Promise.all([loadStats(), loadCategories(), loadApprovedPhotos(1)]);
-            // 🔥 โหลด storage ทุกครั้งที่มีการเปลี่ยนแปลง (เช่น อัปโหลดเสร็จ)
             await loadStorageStats();
             
             if (user.role === 'admin') {
@@ -2193,7 +2214,7 @@
             if (await cf('ลบรูปนี้?')) {
                 await fetch(`/photos/${id}/soft-delete`, { method: 'DELETE', headers: getAuthHeaders() });
                 loadApprovedPhotos(currentPage);
-                loadTrash(); // Refresh trash too
+                loadTrash(); 
             }
         }
 
@@ -2211,9 +2232,7 @@
             }
         }
 
-        // 🔥 ลบหลายรูป (แก้ให้ดึงจาก Set แทน querySelector)
         async function bulkDelete() {
-            // ดึง ID จาก Set โดยตรง (ไม่ต้องหา Checkbox ในหน้าเว็บ)
             const ids = Array.from(selectedApprovedIds);
 
             if (ids.length === 0) return Swal.fire({ text: 'กรุณาเลือกรูปที่จะลบ', icon: 'warning', heightAuto: false });
@@ -2227,8 +2246,8 @@
                     });
 
                     Swal.fire({ text: 'ย้ายไปถังขยะแล้ว', icon: 'success', heightAuto: false });
-                    loadApprovedPhotos(currentPage); // โหลดใหม่
-                    loadTrash(); // อัปเดตถังขยะด้วย
+                    loadApprovedPhotos(currentPage); 
+                    loadTrash(); 
                 } catch (e) {
                     Swal.fire({ text: 'ลบไม่สำเร็จ', icon: 'error', heightAuto: false });
                 }
@@ -2242,22 +2261,18 @@
         async function loadLogs(page = 1) {
             if (user.role !== 'admin') return;
             
-            // อัปเดตหน้าปัจจุบัน
             currentLogPage = page;
             
             try {
-                // 🔥 ส่งเลขหน้าไปขอข้อมูลจาก Server (Server จะส่งกลับมาแค่ 10 ตัว)
                 const res = await fetch(`/logs?page=${page}&limit=10&t=` + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) throw new Error();
                 
                 const responseData = await res.json();
-                
-                // รับค่ากลับมา (ข้อมูลLogs, จำนวนหน้าทั้งหมด)
                 const logs = responseData.data;
-                totalLogPages = responseData.totalPages; // อัปเดตจำนวนหน้าสูงสุด
+                totalLogPages = responseData.totalPages; 
 
                 renderLogs(logs);
-                updateLogPagination(); // เรียกฟังก์ชันจัดการปุ่มกด
+                updateLogPagination(); 
             } catch (e) {
                 console.error(e);
                 document.getElementById('logTableBody').innerHTML = '<tr><td colspan="4" style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">โหลดประวัติไม่ได้</td></tr>';
@@ -2276,7 +2291,6 @@
                 document.getElementById('logPaginationControls').style.display = 'flex';
             }
 
-            // 🔥 ไม่ต้อง slice แล้ว เพราะ Server ส่งมาแค่ 10 ตัวพอดีเป๊ะ
             logs.forEach(l => {
                 let badgeClass = 'bg-other';
                 let icon = '<i class="fas fa-info-circle"></i>';
@@ -2307,7 +2321,6 @@
             });
         }
 
-        // 🔥 ฟังก์ชันจัดการปุ่มกด (อัปเดตใหม่)
         function updateLogPagination() {
             document.getElementById('logPageIndicator').innerText = `หน้า ${currentLogPage} / ${totalLogPages}`;
             document.getElementById('btnLogPrev').disabled = (currentLogPage <= 1);
@@ -2316,9 +2329,8 @@
 
         function changeLogPage(step) {
             const nextPage = currentLogPage + step;
-            // เช็คขอบเขตหน้า (ห้ามต่ำกว่า 1 และห้ามเกินหน้าสูงสุด)
             if (nextPage < 1 || nextPage > totalLogPages) return;
-            loadLogs(nextPage); // โหลดข้อมูลใหม่จาก Server
+            loadLogs(nextPage); 
         }
 
         // --- User Management ---
