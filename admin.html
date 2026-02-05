@@ -1617,7 +1617,7 @@
                 <h3 style="
                     display: inline-block !important; 
                     /* 🔥 แก้ตรงนี้: เปลี่ยนสีเส้นขีดจากสีเทา เป็นสีส้ม #f39c12 ให้เหมือนตัวหนังสือ */
-                    border-bottom: 2px solid #f0f0f0 !important; 
+                    border-bottom: 2px solid #f39c12 !important; 
                     padding-bottom: 5px !important; 
                     margin: 0 !important; 
                     font-size: 20px;
@@ -1724,8 +1724,9 @@
         }
 
         // --- Global Variables ---
-        let allLogsData = [];
+        // 🔥 แก้ไข: เอา allLogsData ออก เพราะไม่ได้ใช้แล้ว (เปลี่ยนเป็น Server-Side)
         let currentLogPage = 1;
+        let totalLogPages = 1; // 🔥 ตัวแปรใหม่: เก็บจำนวนหน้าทั้งหมดของ Logs
         let logsPerPage = 10;
         let currentPage = 1;
         let allUsersData = [];
@@ -2234,24 +2235,40 @@
             }
         }
 
-        // --- Logs (With Pagination) ---
-        async function loadLogs() {
+        // ==========================================
+        // 🔥 LOGS SECTION (Server-Side Pagination)
+        // ==========================================
+        
+        async function loadLogs(page = 1) {
             if (user.role !== 'admin') return;
+            
+            // อัปเดตหน้าปัจจุบัน
+            currentLogPage = page;
+            
             try {
-                const res = await fetch('/logs?t=' + Date.now(), { headers: getAuthHeaders() });
+                // 🔥 ส่งเลขหน้าไปขอข้อมูลจาก Server (Server จะส่งกลับมาแค่ 10 ตัว)
+                const res = await fetch(`/logs?page=${page}&limit=10&t=` + Date.now(), { headers: getAuthHeaders() });
                 if (!res.ok) throw new Error();
-                allLogsData = await res.json();
-                renderLogs();
+                
+                const responseData = await res.json();
+                
+                // รับค่ากลับมา (ข้อมูลLogs, จำนวนหน้าทั้งหมด)
+                const logs = responseData.data;
+                totalLogPages = responseData.totalPages; // อัปเดตจำนวนหน้าสูงสุด
+
+                renderLogs(logs);
+                updateLogPagination(); // เรียกฟังก์ชันจัดการปุ่มกด
             } catch (e) {
+                console.error(e);
                 document.getElementById('logTableBody').innerHTML = '<tr><td colspan="4" style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">โหลดประวัติไม่ได้</td></tr>';
             }
         }
 
-        function renderLogs() {
+        function renderLogs(logs) {
             const tb = document.getElementById('logTableBody');
             tb.innerHTML = '';
 
-            if (!allLogsData || allLogsData.length === 0) {
+            if (!logs || logs.length === 0) {
                 tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#999;">ไม่มีประวัติการใช้งาน</td></tr>';
                 document.getElementById('logPaginationControls').style.display = 'none';
                 return;
@@ -2259,11 +2276,8 @@
                 document.getElementById('logPaginationControls').style.display = 'flex';
             }
 
-            const start = (currentLogPage - 1) * logsPerPage;
-            const end = start + logsPerPage;
-            const show = allLogsData.slice(start, end);
-
-            show.forEach(l => {
+            // 🔥 ไม่ต้อง slice แล้ว เพราะ Server ส่งมาแค่ 10 ตัวพอดีเป๊ะ
+            logs.forEach(l => {
                 let badgeClass = 'bg-other';
                 let icon = '<i class="fas fa-info-circle"></i>';
 
@@ -2291,16 +2305,20 @@
                     <td style="color:#555;">${l.details}</td>
                 </tr>`;
             });
+        }
 
-            const totalPages = Math.ceil(allLogsData.length / logsPerPage);
-            document.getElementById('logPageIndicator').innerText = `หน้า ${currentLogPage} / ${totalPages}`;
-            document.getElementById('btnLogPrev').disabled = (currentLogPage === 1);
-            document.getElementById('btnLogNext').disabled = (currentLogPage >= totalPages);
+        // 🔥 ฟังก์ชันจัดการปุ่มกด (อัปเดตใหม่)
+        function updateLogPagination() {
+            document.getElementById('logPageIndicator').innerText = `หน้า ${currentLogPage} / ${totalLogPages}`;
+            document.getElementById('btnLogPrev').disabled = (currentLogPage <= 1);
+            document.getElementById('btnLogNext').disabled = (currentLogPage >= totalLogPages);
         }
 
         function changeLogPage(step) {
-            currentLogPage += step;
-            renderLogs();
+            const nextPage = currentLogPage + step;
+            // เช็คขอบเขตหน้า (ห้ามต่ำกว่า 1 และห้ามเกินหน้าสูงสุด)
+            if (nextPage < 1 || nextPage > totalLogPages) return;
+            loadLogs(nextPage); // โหลดข้อมูลใหม่จาก Server
         }
 
         // --- User Management ---

@@ -137,7 +137,7 @@ const pool = mysql.createPool({
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    
+
     if (!token) return res.status(401).json({ message: 'No token provided' });
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -205,7 +205,7 @@ function formatBytes(bytes) {
 async function getCloudinaryUsage() {
     try {
         const r = await cloudinary.api.usage();
-        
+
         // 1. หาค่า Usage
         let usage = 0;
         if (r.storage && r.storage.usage) usage = r.storage.usage;
@@ -218,12 +218,12 @@ async function getCloudinaryUsage() {
 
         // 🔥 FIX: ถ้า Limit น้อยกว่า 1GB ให้สันนิษฐานว่าเป็นหน่วย GB หรือ Credits ให้แปลงเป็น Bytes
         if (limit > 0 && limit < 1073741824) {
-            limit = limit * 1024 * 1024 * 1024; 
+            limit = limit * 1024 * 1024 * 1024;
         }
 
         // Fallback: ถ้าหาไม่เจอจริงๆ ให้ใช้ค่า Default 25GB
         if (!limit || limit === 0) {
-            limit = 26843545600; 
+            limit = 26843545600;
         }
 
         const percent = ((usage / limit) * 100).toFixed(4);
@@ -238,13 +238,13 @@ async function getCloudinaryUsage() {
         };
     } catch (e) {
         console.error("⚠️ Cloudinary Usage Error:", e.message);
-        return { 
+        return {
             used_bytes: 0,
-            used_readable: '0 B', 
+            used_readable: '0 B',
             limit_bytes: 26843545600,
-            limit_readable: '25 GB (Est.)', 
-            usage_percent: 0, 
-            plan: 'Unknown' 
+            limit_readable: '25 GB (Est.)',
+            usage_percent: 0,
+            plan: 'Unknown'
         };
     }
 }
@@ -271,7 +271,7 @@ app.get('/public/photos', async (req, res) => {
             FROM Photos 
             LEFT JOIN Categories ON Photos.category_id = Categories.category_id 
             WHERE status='approved' AND is_deleted=0 
-            ORDER BY upload_date DESC LIMIT ? OFFSET ?`, 
+            ORDER BY upload_date DESC LIMIT ? OFFSET ?`,
             [limit, offset]
         );
 
@@ -599,10 +599,10 @@ app.get('/stats', authenticateToken, async (req, res) => {
         if (req.user.role === 'admin') {
             await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         }
-        
+
         let totalSql, trashSql, catSql;
         let params = [];
-        
+
         if (req.user.role === 'admin') {
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1';
@@ -610,14 +610,14 @@ app.get('/stats', authenticateToken, async (req, res) => {
         } else {
             totalSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 0 AND uploader_id = ?';
             trashSql = 'SELECT COUNT(*) as count FROM Photos WHERE is_deleted = 1 AND uploader_id = ?';
-            catSql = 'SELECT COUNT(*) as count FROM Categories'; 
+            catSql = 'SELECT COUNT(*) as count FROM Categories';
             params = [req.user.id];
         }
-        
+
         const [totalRes] = await pool.query(totalSql, params);
         const [trashRes] = await pool.query(trashSql, params);
         const [catRes] = await pool.query(catSql);
-        
+
         res.json({
             total_photos: totalRes[0].count,
             pending_photos: 0,
@@ -666,14 +666,14 @@ app.get('/storage/average', authenticateToken, async (req, res) => {
         const result = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 500 });
         let totalBytes = 0;
         let count = 0;
-        
+
         if (result.resources && result.resources.length > 0) {
             result.resources.forEach(res => {
                 totalBytes += res.bytes;
                 count++;
             });
         }
-        
+
         const avg = count > 0 ? totalBytes / count : 0;
         res.json({
             average_bytes: Math.round(avg),
@@ -697,15 +697,36 @@ app.get('/categories', authenticateToken, async (req, res) => {
     }
 });
 
+// 🔥 API Logs แบบมี Pagination (ตัดหน้าจาก Server)
 app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
+    // 1. รับค่า page (ถ้าไม่ส่งมา ให้เริ่มหน้า 1) และ limit (หน้าละ 10 ตัว)
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
     try {
-        const [results] = await pool.query('SELECT * FROM Logs ORDER BY created_at DESC LIMIT 100');
-        res.json(results);
+        // 2. Query แรก: นับจำนวน Logs ทั้งหมดในฐานข้อมูล (เพื่อเอาไปคำนวณว่ามีกี่หน้า)
+        const [countResult] = await pool.query('SELECT COUNT(*) as total FROM Logs');
+        const totalLogs = countResult[0].total;
+
+        // 3. Query สอง: ดึงข้อมูลเฉพาะหน้านั้นๆ (ใช้ LIMIT และ OFFSET)
+        const [results] = await pool.query(
+            'SELECT * FROM Logs ORDER BY created_at DESC LIMIT ? OFFSET ?',
+            [limit, offset]
+        );
+
+        // 4. ส่งกลับไปทั้ง ข้อมูลLogs, จำนวนรวม, และจำนวนหน้าทั้งหมด
+        res.json({
+            data: results,
+            total: totalLogs,
+            totalPages: Math.ceil(totalLogs / limit),
+            currentPage: page
+        });
     } catch (err) {
+        console.error('Logs Error:', err);
         res.status(500).json({ error: 'Failed to fetch logs' });
     }
 });
-
 // --- User Management ---
 
 app.get('/users', authenticateToken, adminOnly, async (req, res) => {
@@ -767,7 +788,7 @@ app.get('/download-zip/:categoryName', async (req, res) => {
 
         // 🔥 FIX: แก้บั๊ก c[0] เป็น cats[0] เรียบร้อย
         const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status="approved" AND is_deleted = 0', [cats[0].category_id]);
-        
+
         if (!photos.length) return res.status(404).send('No photos in this category');
 
         const archive = archiver('zip', { zlib: { level: 9 } });
@@ -786,9 +807,9 @@ app.get('/download-zip/:categoryName', async (req, res) => {
             });
         }
         archive.finalize();
-    } catch (e) { 
+    } catch (e) {
         console.error('Zip Error:', e);
-        if (!res.headersSent) res.status(500).send('Error creating zip'); 
+        if (!res.headersSent) res.status(500).send('Error creating zip');
     }
 });
 
