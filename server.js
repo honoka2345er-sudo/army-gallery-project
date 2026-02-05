@@ -33,7 +33,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-// Security Headers (ปรับปรุงให้รองรับการโหลดรูปและ Blob สำหรับ Admin Preview)
+// Security Headers
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -57,7 +57,7 @@ app.use(
                     "'self'",
                     "data:",
                     "https://res.cloudinary.com",
-                    "blob:" // 🔥 สำคัญ: รองรับ blob: สำหรับ Preview รูปก่อนอัปโหลด
+                    "blob:"
                 ],
                 fontSrc: [
                     "'self'",
@@ -103,7 +103,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB Limit
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 const pool = mysql.createPool({
@@ -201,27 +201,20 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 🔥🔥🔥 ฟังก์ชันดึงข้อมูล Storage (แก้บั๊กหน่วย 25 Bytes / GB) 🔥🔥🔥
 async function getCloudinaryUsage() {
     try {
         const r = await cloudinary.api.usage();
-
-        // 1. หาค่า Usage
         let usage = 0;
         if (r.storage && r.storage.usage) usage = r.storage.usage;
         else if (r.credits && r.credits.usage) usage = r.credits.usage;
 
-        // 2. หาค่า Limit (แก้ปัญหาค่า Limit ส่งมาผิดหน่วย)
         let limit = 0;
         if (r.storage && r.storage.limit) limit = r.storage.limit;
         else if (r.credits && r.credits.limit) limit = r.credits.limit;
 
-        // 🔥 FIX: ถ้า Limit น้อยกว่า 1GB ให้สันนิษฐานว่าเป็นหน่วย GB หรือ Credits ให้แปลงเป็น Bytes
         if (limit > 0 && limit < 1073741824) {
             limit = limit * 1024 * 1024 * 1024;
         }
-
-        // Fallback: ถ้าหาไม่เจอจริงๆ ให้ใช้ค่า Default 25GB
         if (!limit || limit === 0) {
             limit = 26843545600;
         }
@@ -259,7 +252,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 1. ดึงรูปภาพทั้งหมด (ไม่ต้องล็อกอิน)
 app.get('/public/photos', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
@@ -290,7 +282,6 @@ app.get('/public/photos', async (req, res) => {
     }
 });
 
-// 2. ดึงหมวดหมู่ทั้งหมด (ไม่ต้องล็อกอิน)
 app.get('/public/categories', async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Categories ORDER BY created_at DESC');
@@ -301,7 +292,7 @@ app.get('/public/categories', async (req, res) => {
     }
 });
 
-// --- Authentication (Admin/Uploader) ---
+// --- Authentication ---
 
 app.post('/register', async (req, res) => {
     const { username, password, role } = req.body;
@@ -367,11 +358,9 @@ app.post('/upload', uploadLimiter, authenticateToken, upload.array('photos', 30)
     if (!category_name) return res.status(400).json({ message: 'กรุณาระบุชื่อกิจกรรม' });
 
     try {
-        // หา username
         const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [uploader_id]);
         const uploaderName = users[0] ? users[0].username : 'Unknown';
 
-        // จัดการ Category
         let catId;
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [category_name]);
         if (cats.length > 0) {
@@ -419,7 +408,6 @@ app.get('/photos', authenticateToken, async (req, res) => {
 
     const params = [];
 
-    // ถ้าไม่ใช่ Admin ให้เห็นแค่ของตัวเอง
     if (req.user.role !== 'admin') {
         sql += ` AND Photos.uploader_id = ?`;
         params.push(req.user.id);
@@ -491,9 +479,8 @@ app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => 
     }
 });
 
-// --- DELETE / RESTORE Operations (สำหรับ Trash) ---
+// --- DELETE / RESTORE Operations ---
 
-// 1. ย้ายลงถังขยะ (Soft Delete)
 app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
@@ -503,7 +490,6 @@ app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, 
     }
 });
 
-// 2. ย้ายหลายรายการลงถังขยะ (Bulk Soft Delete)
 app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
@@ -515,7 +501,6 @@ app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) =
     }
 });
 
-// 3. ดึงรายการในถังขยะ (Get Trash)
 app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [results] = await pool.query('SELECT * FROM Photos WHERE is_deleted = 1 ORDER BY upload_date DESC');
@@ -526,7 +511,6 @@ app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
-// 4. กู้คืนจากถังขยะ (Restore)
 app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
@@ -538,12 +522,10 @@ app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res)
     }
 });
 
-// 5. ลบถาวรจากถังขยะ (Empty Trash / Delete Permanent)
 app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
     try {
-        // Delete from Cloudinary first
         const [photos] = await pool.query('SELECT file_path FROM Photos WHERE photo_id IN (?)', [photo_ids]);
         for (const photo of photos) {
             const publicId = getPublicIdFromUrl(photo.file_path);
@@ -551,7 +533,6 @@ app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res)
                 cloudinary.uploader.destroy(publicId).catch(err => console.error('Cloudinary del error:', err.message));
             }
         }
-        // Then delete from DB
         await pool.query('DELETE FROM Photos WHERE photo_id IN (?)', [photo_ids]);
         res.json({ message: 'Permanently deleted' });
     } catch (err) {
@@ -595,7 +576,6 @@ app.put('/profile/username', authenticateToken, async (req, res) => {
 
 app.get('/stats', authenticateToken, async (req, res) => {
     try {
-        // Clear unused categories (Admin only side-effect)
         if (req.user.role === 'admin') {
             await pool.query('DELETE FROM Categories WHERE category_id NOT IN (SELECT DISTINCT category_id FROM Photos)');
         }
@@ -630,7 +610,6 @@ app.get('/stats', authenticateToken, async (req, res) => {
     }
 });
 
-// 🔥 Storage Usage
 app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     try {
         const c = await getCloudinaryUsage();
@@ -660,7 +639,6 @@ app.get('/storage/usage', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
-// 🔥 Storage Average (Fix for 0B)
 app.get('/storage/average', authenticateToken, async (req, res) => {
     try {
         const result = await cloudinary.api.resources({ type: 'upload', prefix: 'army_gallery/', max_results: 500 });
@@ -697,25 +675,20 @@ app.get('/categories', authenticateToken, async (req, res) => {
     }
 });
 
-// 🔥 API Logs แบบมี Pagination (ตัดหน้าจาก Server)
 app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
-    // 1. รับค่า page (ถ้าไม่ส่งมา ให้เริ่มหน้า 1) และ limit (หน้าละ 10 ตัว)
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
     try {
-        // 2. Query แรก: นับจำนวน Logs ทั้งหมดในฐานข้อมูล (เพื่อเอาไปคำนวณว่ามีกี่หน้า)
         const [countResult] = await pool.query('SELECT COUNT(*) as total FROM Logs');
         const totalLogs = countResult[0].total;
 
-        // 3. Query สอง: ดึงข้อมูลเฉพาะหน้านั้นๆ (ใช้ LIMIT และ OFFSET)
         const [results] = await pool.query(
             'SELECT * FROM Logs ORDER BY created_at DESC LIMIT ? OFFSET ?',
             [limit, offset]
         );
 
-        // 4. ส่งกลับไปทั้ง ข้อมูลLogs, จำนวนรวม, และจำนวนหน้าทั้งหมด
         res.json({
             data: results,
             total: totalLogs,
@@ -727,6 +700,7 @@ app.get('/logs', authenticateToken, adminOnly, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch logs' });
     }
 });
+
 // --- User Management ---
 
 app.get('/users', authenticateToken, adminOnly, async (req, res) => {
@@ -786,7 +760,6 @@ app.get('/download-zip/:categoryName', async (req, res) => {
         const [cats] = await pool.query('SELECT category_id FROM Categories WHERE name = ?', [req.params.categoryName]);
         if (cats.length === 0) return res.status(404).send('Category not found');
 
-        // 🔥 FIX: แก้บั๊ก c[0] เป็น cats[0] เรียบร้อย
         const [photos] = await pool.query('SELECT file_path, file_name FROM Photos WHERE category_id = ? AND status="approved" AND is_deleted = 0', [cats[0].category_id]);
 
         if (!photos.length) return res.status(404).send('No photos in this category');
@@ -812,6 +785,34 @@ app.get('/download-zip/:categoryName', async (req, res) => {
         if (!res.headersSent) res.status(500).send('Error creating zip');
     }
 });
+
+// ==========================================
+// 🔥 ระบบทำความสะอาด Logs อัตโนมัติ (Log Retention)
+// ==========================================
+// ฟังก์ชันนี้จะลบ Logs ที่เก่ากว่า 90 วัน ทิ้งอัตโนมัติ ทุกครั้งที่เริ่ม Server และวนซ้ำทุก 24 ชม.
+async function cleanOldLogs() {
+    try {
+        // ตั้งค่าอายุ Logs (เช่น 90 วัน)
+        const DAYS_TO_KEEP = 90; 
+        
+        const [result] = await pool.query(
+            'DELETE FROM Logs WHERE created_at < NOW() - INTERVAL ? DAY', 
+            [DAYS_TO_KEEP]
+        );
+        
+        if (result.affectedRows > 0) {
+            console.log(`🧹 Auto-Clean: ลบ Logs เก่าเกิน ${DAYS_TO_KEEP} วัน จำนวน ${result.affectedRows} รายการ`);
+        }
+    } catch (err) {
+        console.error('❌ Auto-Clean Logs Error:', err.message);
+    }
+}
+
+// สั่งให้รันทันทีที่เปิด Server
+cleanOldLogs();
+
+// และสั่งให้รันซ้ำทุกๆ 24 ชั่วโมง (วันละครั้ง)
+setInterval(cleanOldLogs, 24 * 60 * 60 * 1000);
 
 // 404 & Error Handler
 app.use((req, res) => { res.status(404).json({ message: 'Route not found' }); });
