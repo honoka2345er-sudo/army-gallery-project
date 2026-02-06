@@ -1193,38 +1193,7 @@
                 display: none;
             }
 
-            .user-table tr {
-                display: flex;
-                flex-direction: column;
-                background: white;
-                margin-bottom: 15px;
-                padding: 15px;
-                border-radius: 12px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-                border: 1px solid #eee;
-            }
-
-            .user-table td {
-                display: block;
-                width: 100%;
-                padding: 5px 0;
-                border: none;
-                white-space: normal;
-            }
-
-            .user-table .action-btn-group {
-                justify-content: space-between;
-                margin-top: 10px;
-                border-top: 1px solid #f0f0f0;
-                padding-top: 10px;
-                width: 100%;
-            }
-
-            .user-table .action-btn-group button {
-                flex: 1;
-            }
-
-            /* --- 🔥 IMPROVED MOBILE LOGS (FORCE STYLE) --- */
+            /* --- 🔥 IMPROVED MOBILE LOGS (CSS GRID LAYOUT) --- */
             /* 1. ล้างค่าพื้นฐานของตารางออกให้หมด */
             .log-table, .log-table tbody, .log-table tr, .log-table td {
                 display: block !important;
@@ -1232,7 +1201,7 @@
                 box-sizing: border-box !important;
             }
 
-            /* 2. จัด Layout ของ Card (tr) */
+            /* 2. จัด Layout ของ Card (tr) เป็น Grid */
             .log-table tr {
                 display: grid !important;
                 /* ซ้าย: ชื่อ User, ขวา: Badge Action */
@@ -1241,23 +1210,29 @@
                     "datetime datetime"
                     "user badge"
                     "details details";
-                gap: 5px 10px !important;
                 
                 background: white !important;
                 margin-bottom: 15px !important;
-                padding: 15px !important;
+                /* 🔥 (สำคัญ) ปรับ Padding เป็น 0 เพื่อให้ขีดชนขอบ */
+                padding: 0 !important; 
+                padding-bottom: 20px !important;
+                
                 border-radius: 12px !important;
                 box-shadow: 0 4px 8px rgba(0,0,0,0.08) !important;
                 border: 1px solid #eee !important;
-                border-left: 5px solid var(--primary-color) !important;
+                /* 🔥 ขอบสีฟ้าซ้ายมือ */
+                border-left: 6px solid var(--primary-color) !important;
+                overflow: hidden; 
             }
 
-            /* Cell 1: Date & Time -> พื้นที่ด้านบนสุด */
+            /* Cell 1: Date & Time (Header) */
             .log-table td:nth-child(1) {
                 grid-area: datetime !important;
-                border-bottom: 1px solid #f0f0f0 !important;
-                margin-bottom: 8px !important;
-                padding-bottom: 8px !important;
+                /* 🔥 ขีดติดขอบ เพราะ parent ไม่มี padding แล้ว */
+                border-bottom: 1px solid #f0f0f0 !important; 
+                margin: 0 !important;
+                /* 🔥 Padding ข้างใน */
+                padding: 12px 20px !important;
             }
             /* จัดให้วันที่กับเวลาอยู่คนละฝั่ง */
             .log-table td:nth-child(1) > div {
@@ -1266,40 +1241,124 @@
                 width: 100% !important;
             }
             
-            /* Cell 2: Username -> ซ้าย */
+            /* Cell 2: Username (Left) */
             .log-table td:nth-child(2) {
                 grid-area: user !important;
                 font-weight: bold;
                 font-size: 15px !important;
                 display: flex; 
-                align-items: center;
-                gap: 8px;
+                align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+                /* 🔥 เพิ่มระยะห่างระหว่างไอคอนกับชื่อให้กว้างขึ้นชัดเจน */
+                gap: 30px !important; 
+                /* Padding ซ้าย/ขวา/บน */
+                padding: 20px 0 0 25px !important;
             }
-            /* Add User Icon */
+            /* User Icon (ทำให้ใหญ่ขึ้นนิดนึง) */
             .log-table td:nth-child(2)::before {
                 content: '\f007'; 
                 font-family: "Font Awesome 6 Free"; 
                 font-weight: 900;
                 color: #bdc3c7;
+                font-size: 20px; /* เพิ่มขนาดไอคอน */
             }
 
-            /* Cell 3: Action Badge -> ขวา */
+            /* Cell 3: Action Badge (Right) */
             .log-table td:nth-child(3) {
                 grid-area: badge !important;
-                text-align: right !important;
-                justify-self: end !important;
+                /* จัดให้อยู่ตรงกลางแนวตั้ง */
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                padding: 20px 25px 0 0 !important;
             }
 
-            /* Cell 4: Details -> ล่างสุดเต็มจอ */
+            /* Cell 4: Details (Bottom) */
             .log-table td:nth-child(4) {
                 grid-area: details !important;
                 background-color: #f8f9fa !important;
                 border-radius: 8px !important;
-                padding: 10px 12px !important;
+                padding: 12px 15px !important;
                 font-size: 13px !important;
                 color: #555 !important;
-                margin-top: 10px !important;
+                /* 🔥 เว้นขอบให้สวยงาม */
+                margin: 20px 25px 0 25px !important; 
                 border: 1px solid #eee !important;
+            }
+
+            /* --- 🔥 USER TABLE REDESIGN (GRID + FULL WIDTH) --- */
+            /* ใช้โครงสร้างเดียวกับ Logs แต่ปรับแต่งให้เหมาะกับข้อมูล User */
+            .user-table, .user-table tbody, .user-table tr, .user-table td {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .user-table tr {
+                display: grid !important;
+                /* แบ่งเป็น 2 คอลัมน์ (Info | Role) และ 2 แถว (Info+Role | Actions) */
+                grid-template-columns: 1fr auto !important; 
+                grid-template-areas: 
+                    "user role"
+                    "actions actions";
+                
+                background: white !important;
+                margin-bottom: 15px !important;
+                padding: 0 !important; /* 🔥 สำคัญ: ลบ Padding ออกเพื่อให้ขีดชนขอบ */
+                padding-bottom: 0 !important; 
+                
+                border-radius: 12px !important;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.08) !important;
+                border: 1px solid #eee !important;
+                border-left: 6px solid #8e44ad !important; /* สีม่วงตามธีม Users */
+                overflow: hidden;
+            }
+
+            /* 1. User Info (Avatar + Name) -> ซ้ายบน */
+            .user-table td:nth-child(1) {
+                grid-area: user !important;
+                padding: 15px 0 15px 20px !important; /* Padding ซ้าย */
+                border-bottom: 1px solid #f0f0f0 !important;
+                border-right: none !important;
+            }
+            /* จัดระยะห่างใน Cell ให้สวยงาม */
+            .user-cell {
+                gap: 15px !important;
+            }
+
+            /* 2. Role Badge -> ขวาบน */
+            .user-table td:nth-child(2) {
+                grid-area: role !important;
+                padding: 15px 20px 15px 0 !important; /* Padding ขวา */
+                border-bottom: 1px solid #f0f0f0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-end !important;
+            }
+
+            /* 3. Action Buttons -> แถวล่างสุด (เต็มความกว้าง) */
+            .user-table td:nth-child(3) {
+                grid-area: actions !important;
+                padding: 12px 15px !important;
+                background-color: #fdfdfd !important; /* สีพื้นหลังจางๆ ให้ดูแยกส่วน */
+                border-top: 1px solid #f0f0f0 !important;
+            }
+
+            /* จัดกลุ่มปุ่มให้เต็มความกว้าง */
+            .user-table .action-btn-group {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+                justify-content: space-between !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+            
+            /* ปุ่มกดให้ใหญ่ขึ้น */
+            .user-table .action-btn-group button {
+                flex: 1 !important; /* ยืดเต็มพื้นที่เท่าๆ กัน */
+                height: 40px !important;
+                border-radius: 8px !important;
             }
 
             .card h3 {
