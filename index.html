@@ -26,6 +26,7 @@
         }
 
         :root {
+            /* ☀️ Light Mode */
             --primary: #c0392b;
             --bg-body: #ffffff;
             --bg-card: #ffffff;
@@ -40,6 +41,7 @@
             --theme-icon-color: #333;
         }
 
+        /* 🌙 Dark Mode */
         [data-theme="dark"] {
             --primary: #ff6b6b;
             --bg-body: #111827;
@@ -206,7 +208,7 @@
             margin: 0;
         }
 
-        /* 🔥 ปุ่ม Download ZIP (ใช้ button แทน a เพื่อคุมด้วย JS) */
+        /* 🔥 ปุ่ม Download ZIP (ใช้ button เพื่อคุมด้วย JS) */
         .btn-download-zip {
             font-size: 13px;
             color: var(--primary);
@@ -734,15 +736,24 @@
 
         // 🔥 ฟังก์ชันโหลด ZIP แบบฉลาด (Smart Download)
         function downloadZip(activityName) {
-            const url = `/download-zip/${encodeURIComponent(activityName)}`;
+            let url = `/download-zip/${encodeURIComponent(activityName)}`;
             
-            // เช็คว่าเปิดในแอป LINE หรือ Facebook ไหม
+            // 1. ตรวจจับ LINE User Agent (เติม ?openExternalBrowser=1 เพื่อบังคับเปิด Chrome)
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            if (/Line|FBAN|FBAV|Instagram/i.test(userAgent)) {
-                alert('⚠️ หากกดแล้วเงียบ (โหลดไม่ได้)\n\nกรุณากดที่เมนู "..." (มุมขวาบน)\nแล้วเลือก "เปิดในเบราว์เซอร์" (Open in Browser/Chrome/Safari) นะครับ');
+            if (/Line/i.test(userAgent)) {
+                if (url.indexOf('?') === -1) url += '?openExternalBrowser=1';
+                else url += '&openExternalBrowser=1';
+                window.location.href = url;
+                return;
             }
 
-            // บังคับให้โหลดในหน้าเดิม (Window Location) ซึ่ง Webview มือถือชอบวิธีนี้มากกว่า _blank
+            // 2. ตรวจจับ Facebook/Instagram (บังคับไม่ได้ ต้องแจ้งเตือน)
+            if (/FBAN|FBAV|Instagram/i.test(userAgent)) {
+                alert('⚠️ แอปนี้บล็อกการดาวน์โหลดไฟล์\n\n1. กดที่จุด 3 จุดมุมขวาบน (...)\n2. เลือก "เปิดในเบราว์เซอร์" (Open in Browser/Chrome/Safari)\n3. กดดาวน์โหลดอีกครั้งครับ');
+                return;
+            }
+
+            // 3. ปกติ (Chrome/Safari)
             window.location.href = url;
         }
 
