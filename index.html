@@ -226,9 +226,20 @@
             .skeleton-img { height: 130px; }
             .flatpickr-calendar { left: 50% !important; transform: translateX(-50%) !important; max-width: 90vw; }
             #btnBackToTop { bottom: 20px; right: 20px; width: 45px; height: 45px; font-size: 20px; }
-            /* ปุ่ม Theme ในมือถือ เลื่อนลงมาหน่อยไม่ให้บัง header */
             #btnThemeToggle { top: 20px; right: 20px; width: 40px; height: 40px; }
             .sl-download-btn { bottom: 15px; right: 15px; padding: 8px 15px; font-size: 14px; }
+
+            /* 🔥 แก้ไขใหม่: หัวข้อกิจกรรมกับปุ่ม Download ZIP */
+            .activity-header {
+                flex-direction: column; /* เรียงเป็นแนวตั้ง */
+                align-items: flex-start; /* ชิดซ้าย */
+                gap: 10px; /* เว้นระยะ */
+            }
+            .btn-download-zip {
+                width: 100%; /* ปุ่มกว้างเต็ม */
+                justify-content: center; /* ตัวหนังสือกลาง */
+                margin-top: 5px; 
+            }
         }
     </style>
 </head>
