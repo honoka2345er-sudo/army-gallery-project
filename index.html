@@ -431,11 +431,11 @@
 
         /* ขนาดไอคอน SVG */
 
-        /* 💻 PC: ปุ่ม Download (อยู่มุมขวาล่างเหมือนเดิม) */
+        /* 🔥 Download Button (Default PC Style: Bottom-Right) */
         .sl-download-btn {
             position: fixed;
             bottom: 20px;
-            right: 20px; /* ยึดมุมขวา */
+            right: 20px; /* PC: อยู่มุมขวา */
             z-index: 10060;
             background: var(--primary);
             color: white;
@@ -575,22 +575,18 @@
                 height: 40px;
             }
 
-            /* 🔥 Mobile Override: ย้ายปุ่ม Download มาตรงกลาง */
+            /* 🔥 Mobile Override: ย้ายปุ่ม Download มาตรงกลาง (ใช้ !important บังคับ) */
             .sl-download-btn {
-                bottom: 35px; /* ยกสูงขึ้น */
-                right: auto;  /* ยกเลิกชิดขวา */
-                left: 50%;    /* ย้ายมากลาง */
-                transform: translateX(-50%); /* จัดกึ่งกลางจอ */
-                width: max-content;
-                padding: 8px 24px;
+                bottom: 40px !important;      /* ยกสูงขึ้น */
+                right: auto !important;       /* ยกเลิกชิดขวา */
+                left: 50% !important;         /* ย้ายมาซ้าย 50% ของจอ */
+                transform: translateX(-50%) !important; /* ดึงกลับมาครึ่งนึงของปุ่ม ให้กลางเป๊ะ */
+                width: max-content !important;
+                padding: 10px 25px !important;
             }
 
             .sl-download-btn:hover {
-                transform: translateX(-50%) scale(1.05) translateY(-2px); /* คงตำแหน่งกลางไว้ */
-            }
-
-            .sl-download-btn:active {
-                transform: translateX(-50%) scale(0.95);
+                transform: translateX(-50%) scale(1.05) !important; /* คงตำแหน่งกลางไว้ตอนกด */
             }
 
             /* 🔥 แก้ไขใหม่: หัวข้อกิจกรรมกับปุ่ม Download ZIP */
