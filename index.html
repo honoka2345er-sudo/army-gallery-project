@@ -11,12 +11,12 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="libs/simple-lightbox.min.css" />
+    <link rel="stylesheet" href="libs/flatpickr.min.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <script src="libs/flatpickr.js"></script>
+    <script src="libs/th.js"></script>
+    <script src="libs/simple-lightbox.min.js"></script>
 
     <style>
         /* --- Global Reset & Variables --- */
@@ -206,7 +206,7 @@
             margin: 0;
         }
 
-        /* 🔥 ปุ่ม Download ZIP (Link ธรรมดา) */
+        /* 🔥 ปุ่ม Download ZIP (Button Style) */
         .btn-download-zip {
             font-size: 13px;
             color: var(--primary);
@@ -222,12 +222,20 @@
             transition: all 0.2s;
             white-space: nowrap;
             font-family: 'Sarabun', sans-serif;
+            cursor: pointer;
         }
 
         .btn-download-zip:hover {
             border-color: var(--primary);
             background: var(--bg-search);
             transform: translateY(-2px);
+        }
+
+        /* Animation ตอนกำลังโหลด */
+        .btn-download-zip.loading {
+            opacity: 0.7;
+            cursor: wait;
+            pointer-events: none;
         }
 
         .sub-gallery {
@@ -419,7 +427,7 @@
             fill: currentColor;
         }
 
-        /* 🔥 Download Button (Lightbox) - Version Mobile Friendly */
+        /* 🔥 Download Button (Lightbox) */
         .sl-download-btn {
             position: fixed;
             bottom: 20px;
@@ -544,7 +552,7 @@
                 height: 40px;
             }
 
-            /* 🔥 Mobile Override: กลับมาอยู่ "ด้านล่าง" แต่ลอยสูงขึ้น */
+            /* 🔥 Mobile Override: ปุ่ม Lightbox */
             .sl-download-btn {
                 right: auto !important; 
                 top: auto !important;
@@ -617,7 +625,6 @@
     <button id="btnThemeToggle" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง">
     </button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.14.2/simple-lightbox.min.js"></script>
     <script>
         let allPhotos = [];
         let filteredPhotos = [];
@@ -731,6 +738,61 @@
             }
         }
 
+        // 🔥 ฟังก์ชันโหลด ZIP แบบ "ดูดไฟล์มาเงียบๆ" (AJAX) 
+        // วิธีนี้ Browser ในแอปส่วนใหญ่จะยอม เพราะไม่ได้เปลี่ยนหน้า (Navigation)
+        async function downloadZip(activityName) {
+            // 1. หาปุ่มที่ถูกกด เพื่อเปลี่ยนสถานะเป็น Loading
+            // (ใช้เทคนิคหาปุ่มที่มี onclick ตรงกับชื่อกิจกรรม)
+            const btn = document.querySelector(`button[onclick*="${activityName}"]`);
+            let originalText = "📥 Download ZIP";
+            if(btn) {
+                originalText = btn.innerHTML;
+                btn.innerHTML = "⏳ กำลังโหลด...";
+                btn.classList.add("loading");
+            }
+
+            try {
+                // 2. สั่ง Fetch ไปที่ Server (Server จะส่งไฟล์มาเป็น Stream)
+                const response = await fetch(`/download-zip/${encodeURIComponent(activityName)}`);
+                
+                if (!response.ok) throw new Error("Network response was not ok");
+
+                // 3. แปลงข้อมูลที่ได้เป็น BLOB (ก้อนไฟล์ในเมมโมรี่)
+                const blob = await response.blob();
+
+                // 4. สร้าง URL ปลอมๆ ขึ้นมาใน Browser
+                const url = window.URL.createObjectURL(blob);
+
+                // 5. สร้าง <a> Tag ล่องหน เพื่อสั่งกดดาวน์โหลด
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `${activityName}.zip`; // ตั้งชื่อไฟล์ที่นี่
+                document.body.appendChild(a);
+                a.click(); // สั่งคลิก!
+
+                // 6. เก็บกวาด
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                if(btn) {
+                    btn.innerHTML = "✅ เรียบร้อย";
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.remove("loading");
+                    }, 2000);
+                }
+
+            } catch (error) {
+                console.error("Download Failed:", error);
+                alert("เกิดข้อผิดพลาดในการดาวน์โหลด หรือแอปนี้บล็อกการดาวน์โหลดไฟล์");
+                if(btn) {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove("loading");
+                }
+            }
+        }
+
         function loadMore() {
             if (isLoading) return;
             isLoading = true;
@@ -762,11 +824,11 @@
                         section.className = 'activity-section';
                         section.id = `sec-${activityName}`;
                         
-                        // 🔥 ปุ่ม ZIP แบบ Clean: ใช้ <a> ลิ้งค์ตรง + target="_blank"
+                        // 🔥 ปุ่มเรียกใช้ JS ฟังก์ชัน downloadZip()
                         section.innerHTML = `
                             <div class="activity-header">
                                 <h2 class="activity-title">${activityName}</h2>
-                                <a href="/download-zip/${encodeURIComponent(activityName)}" target="_blank" class="btn-download-zip">📥 Download ZIP</a>
+                                <button onclick="downloadZip('${activityName}')" class="btn-download-zip">📥 Download ZIP</button>
                             </div>
                             <div class="sub-gallery"></div>
                         `;
