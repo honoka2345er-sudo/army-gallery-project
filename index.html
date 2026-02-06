@@ -431,30 +431,42 @@
 
         /* ขนาดไอคอน SVG */
 
-        /* Download Button in Lightbox */
+        /* 🔥 Download Button in Lightbox (New Style) */
         .sl-download-btn {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 10060;
-            background: var(--primary);
+            background: var(--primary); /* สีแดงตามธีม */
             color: white;
             text-decoration: none;
-            padding: 10px 20px;
+            padding: 10px 24px; /* ปรับความกว้างนิดหน่อยให้สวย */
             border-radius: 30px;
             font-family: 'Sarabun';
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            font-size: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: transform 0.2s;
+            gap: 10px; /* ระยะห่างระหว่างไอคอนกับตัวหนังสือ */
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* เด้งดึ๋งเล็กน้อย */
         }
 
         .sl-download-btn:hover {
-            transform: scale(1.05);
-            background: #ff5252;
+            transform: scale(1.05) translateY(-2px);
+            background: #ef4444; /* สีแดงสว่างขึ้นตอนชี้ */
             color: white;
+            box-shadow: 0 8px 20px rgba(192, 57, 43, 0.4);
+        }
+
+        .sl-download-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* จัดการขนาดไอคอน SVG ในปุ่ม */
+        .sl-download-btn svg {
+            width: 20px;
+            height: 20px;
         }
 
         /* Flatpickr Dark Mode Override */
@@ -566,7 +578,7 @@
             .sl-download-btn {
                 bottom: 15px;
                 right: 15px;
-                padding: 8px 15px;
+                padding: 8px 20px; /* ปรับ Padding สำหรับมือถือ */
                 font-size: 14px;
             }
 
@@ -840,7 +852,17 @@
                                 if (img) {
                                     const btn = document.createElement('a');
                                     btn.className = 'sl-download-btn';
-                                    btn.innerHTML = '⬇ Download';
+                                    
+                                    // 🔥 ใช้ SVG Icon แทนตัวหนังสือธรรมดา
+                                    btn.innerHTML = `
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                        Download
+                                    `;
+                                    
                                     btn.href = img.src;
                                     btn.target = '_blank';
                                     btn.download = '';
