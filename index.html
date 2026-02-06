@@ -125,6 +125,7 @@
             background: var(--bg-card); border: 1px solid var(--border-color); padding: 8px 15px;
             border-radius: 30px; font-weight: 500; display: flex; align-items: center; gap: 5px;
             transition: all 0.2s;
+            white-space: nowrap; /* ป้องกันข้อความในปุ่มขึ้นบรรทัดใหม่ */
         }
         .btn-download-zip:hover { border-color: var(--primary); background: var(--bg-search); transform: translateY(-2px); }
 
@@ -233,12 +234,15 @@
             .activity-header {
                 flex-direction: column; /* เรียงเป็นแนวตั้ง */
                 align-items: flex-start; /* ชิดซ้าย */
-                gap: 10px; /* เว้นระยะ */
+                gap: 15px; /* เพิ่มช่องว่างระหว่างชื่อกับปุ่ม */
+            }
+            .activity-title {
+                line-height: 1.4; /* เพิ่มระยะห่างบรรทัดสำหรับชื่อยาวๆ */
             }
             .btn-download-zip {
-                width: 100%; /* ปุ่มกว้างเต็ม */
-                justify-content: center; /* ตัวหนังสือกลาง */
-                margin-top: 5px; 
+                width: 100%; /* ปุ่มกว้างเต็มจอ */
+                justify-content: center; /* จัดตัวหนังสือให้อยู่ตรงกลาง */
+                margin-top: 0; 
             }
         }
     </style>
