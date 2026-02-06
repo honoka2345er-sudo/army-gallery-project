@@ -431,12 +431,13 @@
 
         /* ขนาดไอคอน SVG */
 
-        /* 🔥 Download Button (Default PC Style: Bottom-Right) */
+        /* 🔥 Download Button in Lightbox (Default PC Style: Bottom-Right) */
         .sl-download-btn {
             position: fixed;
             bottom: 20px;
             right: 20px; /* PC: อยู่มุมขวา */
-            z-index: 10060;
+            /* 🔥 Z-Index ทะลุจักรวาล */
+            z-index: 2147483647 !important; 
             background: var(--primary);
             color: white;
             text-decoration: none;
@@ -586,11 +587,14 @@
                 right: 0 !important;
                 margin-left: auto !important;
                 margin-right: auto !important;
-                width: fit-content !important;
+                width: fit-content !important; /* ให้กรอบหดเท่าตัวหนังสือ */
+                
+                /* เผื่อมือถือมี Notch/Home Bar */
+                padding-bottom: env(safe-area-inset-bottom);
                 
                 /* ตกแต่ง */
                 padding: 10px 25px !important;
-                z-index: 99999 !important;
+                z-index: 2147483647 !important; /* สูงที่สุดที่เป็นไปได้ใน Browser */
                 transform: none !important;
             }
 
@@ -838,7 +842,7 @@
                 document.getElementById('loader').style.display = 'none';
                 isLoading = false;
 
-                // 🔥 แก้ไขใหม่: วนลูปสร้าง Lightbox + ฟังก์ชันอัปเดตปุ่มโหลด
+                // 🔥 แก้ไขใหม่: วนลูปสร้าง Lightbox + ฟังก์ชันอัปเดตปุ่มโหลด (Logic Update Link ไม่ลบปุ่ม)
                 const galleries = document.querySelectorAll('.sub-gallery');
                 galleries.forEach(gallery => {
                     if (gallery.myLightbox) {
@@ -850,20 +854,20 @@
                             animationSpeed: 200
                         });
 
-                        // ฟังก์ชันสร้างปุ่ม Download (เรียกใช้ซ้ำได้)
+                        // ฟังก์ชันสร้างหรืออัปเดตปุ่ม Download (แบบไม่ลบของเก่าทิ้ง)
                         const updateDownloadButton = () => {
-                            // ลบปุ่มเก่าออกก่อนเสมอ เพื่อไม่ให้ซ้ำ
-                            const oldBtn = document.querySelector('.sl-download-btn');
-                            if (oldBtn) oldBtn.remove();
-
-                            // รอสักนิด (50ms) ให้รูปโหลดเข้า DOM
                             setTimeout(() => {
                                 const img = document.querySelector('.sl-image img');
-                                if (img) {
-                                    const btn = document.createElement('a');
+                                if (!img) return; // ถ้าไม่เจอรูป หยุดทำงาน
+
+                                let btn = document.querySelector('.sl-download-btn');
+                                
+                                // ถ้ายังไม่มีปุ่ม ให้สร้างใหม่
+                                if (!btn) {
+                                    btn = document.createElement('a');
                                     btn.className = 'sl-download-btn';
                                     
-                                    // 🔥 ใช้ SVG Icon แทนตัวหนังสือธรรมดา
+                                    // 🔥 ใช้ SVG Icon
                                     btn.innerHTML = `
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -873,21 +877,24 @@
                                         Download
                                     `;
                                     
-                                    btn.href = img.src;
                                     btn.target = '_blank';
                                     btn.download = '';
                                     document.body.appendChild(btn);
                                 }
-                            }, 50);
+
+                                // อัปเดตลิงก์รูปภาพเสมอ (ไม่ว่าจะสร้างใหม่หรือมีอยู่แล้ว)
+                                btn.href = img.src;
+                                btn.style.display = 'flex'; // บังคับโชว์
+                            }, 100); // รอสักนิด 100ms ให้ DOM นิ่ง
                         };
 
-                        // ผูก Event ทั้งตอนเปิด (shown) และตอนเปลี่ยนรูป (changed)
+                        // ผูก Event
                         gallery.myLightbox.on('shown.simplelightbox', updateDownloadButton);
                         gallery.myLightbox.on('changed.simplelightbox', updateDownloadButton);
 
                         gallery.myLightbox.on('close.simplelightbox', function () {
                             const btn = document.querySelector('.sl-download-btn');
-                            if (btn) btn.remove();
+                            if (btn) btn.style.display = 'none'; // ซ่อนปุ่มแทนการลบ
                         });
                     }
                 });
