@@ -582,15 +582,14 @@
                 top: auto !important;
                 
                 position: fixed !important;
-                bottom: 30px !important;
+                bottom: 50px !important; /* 🔥 ดันขึ้นสูงอีกนิด หนีขอบล่าง */
                 left: 0 !important;
                 right: 0 !important;
                 margin-left: auto !important;
                 margin-right: auto !important;
                 width: fit-content !important; /* ให้กรอบหดเท่าตัวหนังสือ */
-                
-                /* เผื่อมือถือมี Notch/Home Bar */
-                padding-bottom: env(safe-area-inset-bottom);
+                min-width: 140px; /* ให้ปุ่มกว้างหน่อย กดง่าย */
+                justify-content: center;
                 
                 /* ตกแต่ง */
                 padding: 10px 25px !important;
