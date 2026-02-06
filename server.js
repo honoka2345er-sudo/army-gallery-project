@@ -444,6 +444,7 @@ app.get('/photos', authenticateToken, async (req, res) => {
     }
 });
 
+// 🔥 แก้ไขข้อมูลรูป (เพิ่ม logAction)
 app.put('/photos/:id/details', authenticateToken, adminOnly, async (req, res) => {
     const { category_name, custom_date } = req.body;
     const photoId = req.params.id;
@@ -461,6 +462,12 @@ app.put('/photos/:id/details', authenticateToken, adminOnly, async (req, res) =>
         }
 
         await pool.query('UPDATE Photos SET category_id = ?, upload_date = ? WHERE photo_id = ?', [catId, custom_date, photoId]);
+
+        // ✅ บันทึก Log
+        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
+        const actor = users[0] ? users[0].username : 'Admin';
+        await logAction(req.user.id, actor, 'Edit', `แก้ไขข้อมูลรูป ID: ${photoId}`, req);
+
         res.json({ message: 'แก้ไขข้อมูลเรียบร้อย' });
     } catch (err) {
         console.error('Edit details error:', err);
@@ -468,11 +475,18 @@ app.put('/photos/:id/details', authenticateToken, adminOnly, async (req, res) =>
     }
 });
 
+// 🔥 เปลี่ยนชื่อรูป (เพิ่ม logAction)
 app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => {
     const newName = req.body.new_name?.trim();
     if (!newName) return res.status(400).json({ message: 'New name required' });
     try {
         await pool.query('UPDATE Photos SET file_name = ? WHERE photo_id = ?', [newName, req.params.id]);
+
+        // ✅ บันทึก Log
+        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
+        const actor = users[0] ? users[0].username : 'Admin';
+        await logAction(req.user.id, actor, 'Rename', `เปลี่ยนชื่อรูป ID: ${req.params.id} เป็น "${newName}"`, req);
+
         res.json({ message: 'Renamed successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Rename failed' });
@@ -481,20 +495,34 @@ app.put('/photos/:id/rename', authenticateToken, adminOnly, async (req, res) => 
 
 // --- DELETE / RESTORE Operations ---
 
+// 🔥 ลบลงถังขยะ (เพิ่ม logAction)
 app.delete('/photos/:id/soft-delete', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id = ?', [req.params.id]);
+
+        // ✅ บันทึก Log
+        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
+        const actor = users[0] ? users[0].username : 'Admin';
+        await logAction(req.user.id, actor, 'Delete', `ลบรูป ID: ${req.params.id} ลงถังขยะ`, req);
+
         res.json({ message: 'Moved to trash' });
     } catch (err) {
         res.status(500).json({ error: 'Delete failed' });
     }
 });
 
+// 🔥 ลบหลายรูป (เพิ่ม logAction)
 app.post('/photos/bulk-delete', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos selected' });
     try {
         await pool.query('UPDATE Photos SET is_deleted = 1 WHERE photo_id IN (?)', [photo_ids]);
+
+        // ✅ บันทึก Log
+        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
+        const actor = users[0] ? users[0].username : 'Admin';
+        await logAction(req.user.id, actor, 'Bulk Delete', `ลบรูปจำนวน ${photo_ids.length} รูป ลงถังขยะ`, req);
+
         res.json({ message: 'Bulk deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Bulk delete failed' });
@@ -511,17 +539,25 @@ app.get('/photos/trash', authenticateToken, adminOnly, async (req, res) => {
     }
 });
 
+// 🔥 กู้คืนรูป (เพิ่ม logAction)
 app.post('/photos/trash/restore', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to restore' });
     try {
         await pool.query('UPDATE Photos SET is_deleted = 0 WHERE photo_id IN (?)', [photo_ids]);
+
+        // ✅ บันทึก Log
+        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
+        const actor = users[0] ? users[0].username : 'Admin';
+        await logAction(req.user.id, actor, 'Restore', `กู้คืนรูปจำนวน ${photo_ids.length} รูป`, req);
+
         res.json({ message: 'Restored successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Restore failed' });
     }
 });
 
+// 🔥 ลบถาวร (เพิ่ม logAction)
 app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res) => {
     const { photo_ids } = req.body;
     if (!photo_ids || !photo_ids.length) return res.status(400).json({ message: 'No photos to delete' });
@@ -534,6 +570,12 @@ app.delete('/photos/trash/empty', authenticateToken, adminOnly, async (req, res)
             }
         }
         await pool.query('DELETE FROM Photos WHERE photo_id IN (?)', [photo_ids]);
+
+        // ✅ บันทึก Log
+        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
+        const actor = users[0] ? users[0].username : 'Admin';
+        await logAction(req.user.id, actor, 'Permanent Delete', `ลบรูปถาวรจำนวน ${photo_ids.length} รูป`, req);
+
         res.json({ message: 'Permanently deleted' });
     } catch (err) {
         console.error('Permanent delete error:', err);
@@ -554,6 +596,9 @@ app.put('/profile/password', authenticateToken, async (req, res) => {
         if (!isMatch) return res.status(400).json({ message: 'รหัสผ่านเดิมไม่ถูกต้อง' });
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         await pool.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, req.user.id]);
+        
+        await logAction(req.user.id, user.username, 'Change Password', 'เปลี่ยนรหัสผ่านส่วนตัว', req);
+        
         res.json({ message: 'เปลี่ยนรหัสผ่านสำเร็จ' });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -564,7 +609,13 @@ app.put('/profile/username', authenticateToken, async (req, res) => {
     const { newUsername } = req.body;
     if (!newUsername) return res.status(400).json({ message: 'กรุณากรอกชื่อใหม่' });
     try {
+        const [users] = await pool.query('SELECT username FROM Users WHERE user_id = ?', [req.user.id]);
+        const oldUsername = users[0] ? users[0].username : 'Unknown';
+
         await pool.query('UPDATE Users SET username = ? WHERE user_id = ?', [newUsername, req.user.id]);
+        
+        await logAction(req.user.id, newUsername, 'Change Username', `เปลี่ยนชื่อจาก "${oldUsername}" เป็น "${newUsername}"`, req);
+
         res.json({ message: 'เปลี่ยนชื่อสำเร็จ' });
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'ชื่อนี้มีคนใช้แล้ว' });
@@ -718,6 +769,9 @@ app.post('/users', authenticateToken, adminOnly, async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         await pool.query('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [req.body.username, hashedPassword, req.body.role]);
+        
+        await logAction(req.user.id, 'Admin', 'Create User', `สร้างผู้ใช้ใหม่: ${req.body.username}`, req);
+
         res.json({ message: 'User added successfully' });
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Username already exists' });
@@ -728,6 +782,9 @@ app.post('/users', authenticateToken, adminOnly, async (req, res) => {
 app.delete('/users/:id', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('DELETE FROM Users WHERE user_id = ?', [req.params.id]);
+        
+        await logAction(req.user.id, 'Admin', 'Delete User', `ลบผู้ใช้ ID: ${req.params.id}`, req);
+
         res.json({ message: 'User deleted' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete user' });
@@ -738,6 +795,9 @@ app.put('/users/:id/reset', authenticateToken, adminOnly, async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
         await pool.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, req.params.id]);
+        
+        await logAction(req.user.id, 'Admin', 'Reset Password', `รีเซ็ตรหัสผ่านผู้ใช้ ID: ${req.params.id}`, req);
+
         res.json({ message: 'Password reset successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Password reset failed' });
@@ -747,6 +807,9 @@ app.put('/users/:id/reset', authenticateToken, adminOnly, async (req, res) => {
 app.put('/users/:id/username', authenticateToken, adminOnly, async (req, res) => {
     try {
         await pool.query('UPDATE Users SET username = ? WHERE user_id = ?', [req.body.newUsername, req.params.id]);
+        
+        await logAction(req.user.id, 'Admin', 'Change Username', `เปลี่ยนชื่อผู้ใช้ ID: ${req.params.id} เป็น "${req.body.newUsername}"`, req);
+
         res.json({ message: 'Username changed' });
     } catch (err) {
         res.status(500).json({ error: 'Username change failed' });
