@@ -576,25 +576,27 @@
                 height: 40px;
             }
 
-            /* 🔥 Mobile Override: บังคับให้อยู่ตรงกลางด้วยท่าไม้ตาย margin: auto */
+            /* 🔥 Mobile Override: ปรับให้ลอยสูงขึ้นและเด่นขึ้น */
             .sl-download-btn {
                 right: auto !important; 
                 top: auto !important;
                 
                 position: fixed !important;
-                bottom: 50px !important; /* 🔥 ดันขึ้นสูงอีกนิด หนีขอบล่าง */
+                bottom: 80px !important; /* 🔥 ดันขึ้นสูงอีก (จาก 50 เป็น 80) */
                 left: 0 !important;
                 right: 0 !important;
                 margin-left: auto !important;
                 margin-right: auto !important;
-                width: fit-content !important; /* ให้กรอบหดเท่าตัวหนังสือ */
-                min-width: 140px; /* ให้ปุ่มกว้างหน่อย กดง่าย */
+                width: fit-content !important; 
+                min-width: 140px;
                 justify-content: center;
                 
-                /* ตกแต่ง */
+                /* ตกแต่งเพิ่มให้ปุ่มดูเด้ง */
                 padding: 10px 25px !important;
-                z-index: 2147483647 !important; /* สูงที่สุดที่เป็นไปได้ใน Browser */
+                z-index: 2147483647 !important;
                 transform: none !important;
+                border: 2px solid rgba(255, 255, 255, 0.9) !important; /* เพิ่มขอบขาว */
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; /* เงาเข้มขึ้น */
             }
 
             .sl-download-btn:hover {
