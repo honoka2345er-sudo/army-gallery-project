@@ -1224,7 +1224,7 @@
                 flex: 1;
             }
 
-            /* --- 🔥 IMPROVED MOBILE LOGS (FORCE STYLE) --- */
+            /* --- 🔥 IMPROVED MOBILE LOGS (FORCE STYLE - ZERO PADDING) --- */
             /* 1. ล้างค่าพื้นฐานของตารางออกให้หมด */
             .log-table, .log-table tbody, .log-table tr, .log-table td {
                 display: block !important;
@@ -1241,11 +1241,11 @@
                     "datetime datetime"
                     "user badge"
                     "details details";
-                gap: 5px 10px !important;
+                gap: 0 !important; /* 🔥 ลบ Gap ออก เพื่อให้จัดการ Space ด้วย Padding */
                 
                 background: white !important;
                 margin-bottom: 15px !important;
-                /* 🔥 ลบ padding ของ TR ออก เพื่อให้ Border เส้นขีดชนขอบ */
+                /* 🔥 (สำคัญ) ปรับ Padding เป็น 0 เพื่อให้ขีดชนขอบ */
                 padding: 0 !important; 
                 padding-bottom: 15px !important;
                 
@@ -1259,8 +1259,9 @@
             /* Cell 1: Date & Time -> พื้นที่ด้านบนสุด */
             .log-table td:nth-child(1) {
                 grid-area: datetime !important;
-                border-bottom: 1px solid #f0f0f0 !important;
-                margin-bottom: 8px !important;
+                /* 🔥 ขีดติดขอบ เพราะ parent ไม่มี padding แล้ว */
+                border-bottom: 1px solid #eee !important; 
+                margin: 0 !important;
                 /* 🔥 ย้าย Padding มาใส่ตรงนี้แทน */
                 padding: 12px 15px !important;
             }
@@ -1279,8 +1280,8 @@
                 display: flex; 
                 align-items: center;
                 /* 🔥 ปรับ Gap และ Padding ตามที่ขอ */
-                gap: 12px !important; 
-                padding-left: 15px !important;
+                gap: 15px !important; 
+                padding: 10px 0 0 15px !important; /* เว้นซ้ายเยอะหน่อย */
             }
             /* Add User Icon */
             .log-table td:nth-child(2)::before {
@@ -1295,7 +1296,7 @@
                 grid-area: badge !important;
                 text-align: right !important;
                 justify-self: end !important;
-                padding-right: 15px !important;
+                padding: 10px 15px 0 0 !important;
             }
 
             /* Cell 4: Details -> ล่างสุดเต็มจอ */
@@ -1306,7 +1307,8 @@
                 padding: 10px 12px !important;
                 font-size: 13px !important;
                 color: #555 !important;
-                margin: 10px 15px 0 15px !important; /* เว้นขอบนิดหน่อยให้สวยงาม */
+                /* 🔥 ปรับ margin ให้สวยงาม ไม่ชิดขอบจนเกินไป */
+                margin: 10px 15px 0 15px !important; 
                 border: 1px solid #eee !important;
             }
 
