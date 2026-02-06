@@ -576,35 +576,32 @@
                 height: 40px;
             }
 
-            /* 🔥 Mobile Override: ย้ายไปอยู่ "ด้านบนตรงกลาง" แทน (หนีปัญหาขอบล่าง) */
+            /* 🔥 Mobile Override: กลับมาอยู่ "ด้านล่าง" แต่ลอยสูงขึ้น */
             .sl-download-btn {
-                /* ยกเลิกค่าของ PC */
-                bottom: auto !important;
-                right: auto !important;
-
-                /* ตั้งค่าใหม่สำหรับมือถือ */
+                right: auto !important; 
+                top: auto !important;
+                
                 position: fixed !important;
-                top: 70px !important; /* อยู่ด้านบน ถัดลงมาจากขอบบนนิดหน่อย */
+                /* 🔥 ดันขึ้นมาสูง 80px (พ้นกรอบบังแน่นอน) */
+                bottom: 80px !important; 
                 left: 0 !important;
                 right: 0 !important;
                 margin-left: auto !important;
                 margin-right: auto !important;
-                width: fit-content !important;
-                min-width: 130px;
+                width: fit-content !important; 
+                min-width: 140px;
                 justify-content: center;
-
-                /* ตกแต่งให้น่ากด */
-                padding: 8px 20px !important;
-                z-index: 2147483647 !important;
-                background: rgba(192, 57, 43, 0.9) !important; /* สีแดงโปร่งแสงนิดนึง */
-                backdrop-filter: blur(5px); /* เบลอหลังปุ่ม */
-                border: 1px solid rgba(255, 255, 255, 0.5) !important;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+                
+                /* ตกแต่งเพิ่มให้ปุ่มดูเด้งสู้พื้นหลัง */
+                padding: 10px 25px !important;
+                z-index: 2147483647 !important; /* ชั้นสูงเสียดฟ้า */
+                transform: none !important;
+                border: 2px solid rgba(255, 255, 255, 0.9) !important; /* ขอบขาวกันจม */
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important; /* เงาเข้ม */
             }
 
             .sl-download-btn:hover {
                 transform: scale(1.05) !important;
-                background: var(--primary) !important;
             }
 
             /* 🔥 แก้ไขใหม่: หัวข้อกิจกรรมกับปุ่ม Download ZIP */
@@ -863,7 +860,7 @@
                         const updateDownloadButton = () => {
                             setTimeout(() => {
                                 const img = document.querySelector('.sl-image img');
-                                if (!img) return; // ถ้าไม่เจอรูป หยุดทำงาน
+                                if (!img) return; 
 
                                 let btn = document.querySelector('.sl-download-btn');
                                 
@@ -884,13 +881,14 @@
                                     
                                     btn.target = '_blank';
                                     btn.download = '';
+                                    // Append to body (safer)
                                     document.body.appendChild(btn);
                                 }
 
-                                // อัปเดตลิงก์รูปภาพเสมอ (ไม่ว่าจะสร้างใหม่หรือมีอยู่แล้ว)
+                                // อัปเดตลิงก์รูปภาพเสมอ
                                 btn.href = img.src;
                                 btn.style.display = 'flex'; // บังคับโชว์
-                            }, 100); // รอสักนิด 100ms ให้ DOM นิ่ง
+                            }, 100); 
                         };
 
                         // ผูก Event
