@@ -26,7 +26,6 @@
         }
 
         :root {
-            /* ☀️ Light Mode */
             --primary: #c0392b;
             --bg-body: #ffffff;
             --bg-card: #ffffff;
@@ -39,10 +38,8 @@
             --input-bg: #ffffff;
             --input-border: #e2e8f0;
             --theme-icon-color: #333;
-            /* สีไอคอน Theme */
         }
 
-        /* 🌙 Dark Mode */
         [data-theme="dark"] {
             --primary: #ff6b6b;
             --bg-body: #111827;
@@ -56,7 +53,6 @@
             --input-bg: #374151;
             --input-border: #4b5563;
             --theme-icon-color: #fbbf24;
-            /* สีเหลืองทองสำหรับดวงจันทร์ */
         }
 
         body {
@@ -77,7 +73,6 @@
             gap: 25px;
             border-bottom: 1px solid var(--border-color);
             position: relative;
-            /* เพื่อให้ปุ่ม Theme อิงตำแหน่งได้ถ้าอยากใส่ในนี้ */
         }
 
         .logo-link {
@@ -211,6 +206,7 @@
             margin: 0;
         }
 
+        /* ปุ่ม Download ZIP (ใช้ <a> tag ปกติ ลิ้งค์ไปหา server) */
         .btn-download-zip {
             font-size: 13px;
             color: var(--primary);
@@ -225,7 +221,7 @@
             gap: 5px;
             transition: all 0.2s;
             white-space: nowrap;
-            /* ป้องกันข้อความในปุ่มขึ้นบรรทัดใหม่ */
+            font-family: 'Sarabun', sans-serif;
         }
 
         .btn-download-zip:hover {
@@ -357,7 +353,7 @@
             }
         }
 
-        /* 🔥 BACK TO TOP BUTTON (Bottom-Right) */
+        /* 🔥 BACK TO TOP BUTTON */
         #btnBackToTop {
             position: fixed;
             bottom: 30px;
@@ -382,12 +378,11 @@
             transform: scale(1.1);
         }
 
-        /* 🔥 MINIMAL THEME TOGGLE (Top-Right) */
+        /* 🔥 MINIMAL THEME TOGGLE */
         #btnThemeToggle {
             position: fixed;
             top: 25px;
             right: 25px;
-            /* มุมขวาบน */
             width: 45px;
             height: 45px;
             border-radius: 50%;
@@ -398,9 +393,7 @@
             justify-content: center;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.1);
-            /* โปร่งแสง */
             backdrop-filter: blur(8px);
-            /* เบลอพื้นหลัง */
             color: var(--theme-icon-color);
             transition: all 0.2s ease;
         }
@@ -410,13 +403,10 @@
             color: #333;
         }
 
-        /* Light mode ให้ปุ่มเทาจางๆ */
         [data-theme="dark"] #btnThemeToggle {
             background: rgba(255, 255, 255, 0.1);
             color: #fbbf24;
         }
-
-        /* Dark mode โปร่งแสง */
 
         #btnThemeToggle:hover {
             transform: scale(1.1);
@@ -429,14 +419,11 @@
             fill: currentColor;
         }
 
-        /* ขนาดไอคอน SVG */
-
-        /* 🔥 Download Button in Lightbox (Default PC Style: Bottom-Right) */
+        /* 🔥 Download Button (Lightbox) - Version Mobile Friendly */
         .sl-download-btn {
             position: fixed;
             bottom: 20px;
-            right: 20px; /* PC: อยู่มุมขวา */
-            /* 🔥 Z-Index ทะลุจักรวาล */
+            right: 20px;
             z-index: 2147483647 !important; 
             background: var(--primary);
             color: white;
@@ -470,32 +457,27 @@
             height: 20px;
         }
 
-        /* Flatpickr Dark Mode Override */
+        /* Flatpickr */
         [data-theme="dark"] .flatpickr-calendar {
             background: #1f2937;
             border: 1px solid #374151;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
-
         [data-theme="dark"] .flatpickr-monthDropdown-months,
         [data-theme="dark"] .year-dropdown {
             color: #f3f4f6 !important;
             background: #1f2937;
         }
-
         [data-theme="dark"] .flatpickr-monthDropdown-months:hover,
         [data-theme="dark"] .year-dropdown:hover {
             background: #374151;
         }
-
         [data-theme="dark"] .flatpickr-day {
             color: #f3f4f6;
         }
-
         [data-theme="dark"] .flatpickr-day:hover {
             background: #374151 !important;
         }
-
         [data-theme="dark"] .flatpickr-day.selected {
             background: var(--primary) !important;
             border-color: var(--primary) !important;
@@ -510,57 +492,44 @@
                 gap: 15px;
                 padding: 25px 20px;
             }
-
             .header-title {
                 font-size: 24px;
             }
-
             .header-logo {
                 width: 65px;
             }
-
             .search-section {
                 padding: 15px;
                 position: static;
             }
-
             .search-container {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 10px;
             }
-
-            .search-input,
-            .date-input,
-            .btn-clear {
+            .search-input, .date-input, .btn-clear {
                 width: 100% !important;
                 min-width: 0;
                 margin: 0;
             }
-
             .sub-gallery {
                 grid-template-columns: 1fr 1fr;
                 gap: 12px;
             }
-
             .news-img-wrapper {
                 height: 130px;
             }
-
             .skeleton-card {
                 height: 200px;
             }
-
             .skeleton-img {
                 height: 130px;
             }
-
             .flatpickr-calendar {
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 max-width: 90vw;
             }
-
             #btnBackToTop {
                 bottom: 20px;
                 right: 20px;
@@ -568,7 +537,6 @@
                 height: 45px;
                 font-size: 20px;
             }
-
             #btnThemeToggle {
                 top: 20px;
                 right: 20px;
@@ -580,9 +548,7 @@
             .sl-download-btn {
                 right: auto !important; 
                 top: auto !important;
-                
                 position: fixed !important;
-                /* 🔥 ดันขึ้นมาสูง 80px (พ้นกรอบบังแน่นอน) */
                 bottom: 80px !important; 
                 left: 0 !important;
                 right: 0 !important;
@@ -591,30 +557,24 @@
                 width: fit-content !important; 
                 min-width: 140px;
                 justify-content: center;
-                
-                /* ตกแต่งเพิ่มให้ปุ่มดูเด้งสู้พื้นหลัง */
                 padding: 10px 25px !important;
-                z-index: 2147483647 !important; /* ชั้นสูงเสียดฟ้า */
+                z-index: 2147483647 !important;
                 transform: none !important;
-                border: 2px solid rgba(255, 255, 255, 0.9) !important; /* ขอบขาวกันจม */
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important; /* เงาเข้ม */
+                border: 2px solid rgba(255, 255, 255, 0.9) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
             }
-
             .sl-download-btn:hover {
                 transform: scale(1.05) !important;
             }
 
-            /* 🔥 แก้ไขใหม่: หัวข้อกิจกรรมกับปุ่ม Download ZIP */
             .activity-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
             }
-
             .activity-title {
                 line-height: 1.4;
             }
-
             .btn-download-zip {
                 width: 100%;
                 justify-content: center;
@@ -667,7 +627,6 @@
         let isLoading = false;
         let searchTimeout;
 
-        // --- 🌙 New Minimal Theme Logic ---
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -682,11 +641,9 @@
         }
         function updateThemeIcon(theme) {
             const btn = document.getElementById('btnThemeToggle');
-            // SVG Icons: Moon (for Dark) / Sun (for Light)
             if (theme === 'light') {
                 btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"></path></svg>`;
             } else {
-                // Dark Mode active -> Show Moon
                 btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg>`;
             }
         }
@@ -728,7 +685,6 @@
             try {
                 showSkeleton();
                 const response = await fetch('/public/photos?limit=100&t=' + Date.now());
-
                 if (!response.ok) throw new Error('Network Error');
                 allPhotos = await response.json();
                 filteredPhotos = allPhotos;
@@ -805,10 +761,11 @@
                         section = document.createElement('div');
                         section.className = 'activity-section';
                         section.id = `sec-${activityName}`;
+                        // 🔥 แก้ปุ่ม ZIP: ใช้ <a> ลิ้งค์ไปหา server.js ตรงๆ
                         section.innerHTML = `
                             <div class="activity-header">
                                 <h2 class="activity-title">${activityName}</h2>
-                                <a href="/download-zip/${encodeURIComponent(activityName)}" class="btn-download-zip">📥 Download ZIP</a>
+                                <a href="/download-zip/${encodeURIComponent(activityName)}" target="_blank" class="btn-download-zip">📥 Download ZIP</a>
                             </div>
                             <div class="sub-gallery"></div>
                         `;
@@ -844,7 +801,7 @@
                 document.getElementById('loader').style.display = 'none';
                 isLoading = false;
 
-                // 🔥 แก้ไขใหม่: วนลูปสร้าง Lightbox + ฟังก์ชันอัปเดตปุ่มโหลด (Logic Update Link ไม่ลบปุ่ม)
+                // Lightbox & Download Button
                 const galleries = document.querySelectorAll('.sub-gallery');
                 galleries.forEach(gallery => {
                     if (gallery.myLightbox) {
@@ -856,7 +813,6 @@
                             animationSpeed: 200
                         });
 
-                        // ฟังก์ชันสร้างหรืออัปเดตปุ่ม Download (แบบไม่ลบของเก่าทิ้ง)
                         const updateDownloadButton = () => {
                             setTimeout(() => {
                                 const img = document.querySelector('.sl-image img');
@@ -864,12 +820,9 @@
 
                                 let btn = document.querySelector('.sl-download-btn');
                                 
-                                // ถ้ายังไม่มีปุ่ม ให้สร้างใหม่
                                 if (!btn) {
                                     btn = document.createElement('a');
                                     btn.className = 'sl-download-btn';
-                                    
-                                    // 🔥 ใช้ SVG Icon
                                     btn.innerHTML = `
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -878,26 +831,20 @@
                                         </svg>
                                         Download
                                     `;
-                                    
                                     btn.target = '_blank';
                                     btn.download = '';
-                                    // Append to body (safer)
                                     document.body.appendChild(btn);
                                 }
-
-                                // อัปเดตลิงก์รูปภาพเสมอ
                                 btn.href = img.src;
-                                btn.style.display = 'flex'; // บังคับโชว์
+                                btn.style.display = 'flex'; 
                             }, 100); 
                         };
 
-                        // ผูก Event
                         gallery.myLightbox.on('shown.simplelightbox', updateDownloadButton);
                         gallery.myLightbox.on('changed.simplelightbox', updateDownloadButton);
-
                         gallery.myLightbox.on('close.simplelightbox', function () {
                             const btn = document.querySelector('.sl-download-btn');
-                            if (btn) btn.style.display = 'none'; // ซ่อนปุ่มแทนการลบ
+                            if (btn) btn.style.display = 'none';
                         });
                     }
                 });
