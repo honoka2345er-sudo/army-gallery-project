@@ -1245,11 +1245,15 @@
                 
                 background: white !important;
                 margin-bottom: 15px !important;
-                padding: 15px !important;
+                /* 🔥 ลบ padding ของ TR ออก เพื่อให้ Border เส้นขีดชนขอบ */
+                padding: 0 !important; 
+                padding-bottom: 15px !important;
+                
                 border-radius: 12px !important;
                 box-shadow: 0 4px 8px rgba(0,0,0,0.08) !important;
                 border: 1px solid #eee !important;
                 border-left: 5px solid var(--primary-color) !important;
+                overflow: hidden; /* กันลูกล้น */
             }
 
             /* Cell 1: Date & Time -> พื้นที่ด้านบนสุด */
@@ -1257,7 +1261,8 @@
                 grid-area: datetime !important;
                 border-bottom: 1px solid #f0f0f0 !important;
                 margin-bottom: 8px !important;
-                padding-bottom: 8px !important;
+                /* 🔥 ย้าย Padding มาใส่ตรงนี้แทน */
+                padding: 12px 15px !important;
             }
             /* จัดให้วันที่กับเวลาอยู่คนละฝั่ง */
             .log-table td:nth-child(1) > div {
@@ -1273,7 +1278,9 @@
                 font-size: 15px !important;
                 display: flex; 
                 align-items: center;
-                gap: 8px;
+                /* 🔥 ปรับ Gap และ Padding ตามที่ขอ */
+                gap: 12px !important; 
+                padding-left: 15px !important;
             }
             /* Add User Icon */
             .log-table td:nth-child(2)::before {
@@ -1288,6 +1295,7 @@
                 grid-area: badge !important;
                 text-align: right !important;
                 justify-self: end !important;
+                padding-right: 15px !important;
             }
 
             /* Cell 4: Details -> ล่างสุดเต็มจอ */
@@ -1298,7 +1306,7 @@
                 padding: 10px 12px !important;
                 font-size: 13px !important;
                 color: #555 !important;
-                margin-top: 10px !important;
+                margin: 10px 15px 0 15px !important; /* เว้นขอบนิดหน่อยให้สวยงาม */
                 border: 1px solid #eee !important;
             }
 
