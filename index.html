@@ -431,16 +431,13 @@
 
         /* ขนาดไอคอน SVG */
 
-        /* 🔥 Download Button in Lightbox (แก้ไข: ย้ายมาตรงกลางล่าง) */
+        /* 💻 PC: ปุ่ม Download (อยู่มุมขวาล่างเหมือนเดิม) */
         .sl-download-btn {
             position: fixed;
-            /* ย้ายจาก bottom: 20px; right: 20px; มาเป็นข้างล่างนี้ */
-            bottom: 40px; 
-            left: 50%;
-            transform: translateX(-50%); /* จัดกึ่งกลางจอ */
-            
+            bottom: 20px;
+            right: 20px; /* ยึดมุมขวา */
             z-index: 10060;
-            background: var(--primary); /* สีแดงตามธีม */
+            background: var(--primary);
             color: white;
             text-decoration: none;
             padding: 10px 24px;
@@ -457,18 +454,16 @@
         }
 
         .sl-download-btn:hover {
-            /* เวลา Hover ต้องใส่ translateX(-50%) ไว้ด้วย ไม่งั้นปุ่มจะเด้งไปขวา */
-            transform: translateX(-50%) scale(1.05) translateY(-2px);
+            transform: scale(1.05) translateY(-2px);
             background: #ef4444;
             color: white;
             box-shadow: 0 8px 20px rgba(192, 57, 43, 0.4);
         }
 
         .sl-download-btn:active {
-            transform: translateX(-50%) scale(0.95);
+            transform: scale(0.95);
         }
 
-        /* จัดการขนาดไอคอน SVG ในปุ่ม */
         .sl-download-btn svg {
             width: 20px;
             height: 20px;
@@ -506,7 +501,7 @@
             color: white;
         }
 
-        /* Mobile */
+        /* 📱 Mobile: Style Override */
         @media (max-width: 768px) {
             .header-container {
                 flex-direction: column;
@@ -580,33 +575,38 @@
                 height: 40px;
             }
 
+            /* 🔥 Mobile Override: ย้ายปุ่ม Download มาตรงกลาง */
             .sl-download-btn {
-                /* บนมือถือยกขึ้นอีกนิดเผื่อปุ่ม Swipe ของ iPhone */
-                bottom: 35px;
-                padding: 8px 20px;
-                font-size: 14px;
+                bottom: 35px; /* ยกสูงขึ้น */
+                right: auto;  /* ยกเลิกชิดขวา */
+                left: 50%;    /* ย้ายมากลาง */
+                transform: translateX(-50%); /* จัดกึ่งกลางจอ */
+                width: max-content;
+                padding: 8px 24px;
+            }
+
+            .sl-download-btn:hover {
+                transform: translateX(-50%) scale(1.05) translateY(-2px); /* คงตำแหน่งกลางไว้ */
+            }
+
+            .sl-download-btn:active {
+                transform: translateX(-50%) scale(0.95);
             }
 
             /* 🔥 แก้ไขใหม่: หัวข้อกิจกรรมกับปุ่ม Download ZIP */
             .activity-header {
                 flex-direction: column;
-                /* เรียงเป็นแนวตั้ง */
                 align-items: flex-start;
-                /* ชิดซ้าย */
                 gap: 15px;
-                /* เพิ่มช่องว่างระหว่างชื่อกับปุ่ม */
             }
 
             .activity-title {
                 line-height: 1.4;
-                /* เพิ่มระยะห่างบรรทัดสำหรับชื่อยาวๆ */
             }
 
             .btn-download-zip {
                 width: 100%;
-                /* ปุ่มกว้างเต็มจอ */
                 justify-content: center;
-                /* จัดตัวหนังสือให้อยู่ตรงกลาง */
                 margin-top: 0;
             }
         }
