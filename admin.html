@@ -257,7 +257,7 @@
             border: 1px solid var(--border-color);
         }
 
-        /* 🔥🔥 Card Header Wrapper (New Class) 🔥🔥 */
+        /* Card Header Wrapper */
         .card-header-wrapper {
             display: flex;
             justify-content: space-between;
@@ -624,23 +624,15 @@
         /* 🔥🔥🔥 แก้ไขเฉพาะส่วนนี้ สำหรับรูปในถังขยะเท่านั้น 🔥🔥🔥 */
         .approval-item.trash-item img {
             filter: grayscale(100%);
-            /* สีขาวดำ */
             opacity: 0.85;
-
             width: 100%;
             height: auto !important;
-            /* 🔥 สำคัญ: ยกเลิกความสูงคงที่จาก Gallery หลัก */
             aspect-ratio: 4 / 3;
-            /* 🔥 บังคับสัดส่วน 4:3 ตามต้องการ */
             object-fit: cover;
-            /* 🔥 ให้รูปเต็มกรอบสวยงาม ไม่เบี้ยว */
-
             transition: all 0.3s ease;
             border-radius: 8px;
             margin-bottom: 10px;
         }
-
-        /* 🔥🔥🔥 สิ้นสุดการแก้ไข 🔥🔥🔥 */
 
         .approval-item.trash-item:hover img {
             filter: grayscale(0%);
@@ -1200,8 +1192,7 @@
                 display: none;
             }
 
-            .user-table tr,
-            .log-table tr {
+            .user-table tr {
                 display: flex;
                 flex-direction: column;
                 background: white;
@@ -1212,27 +1203,12 @@
                 border: 1px solid #eee;
             }
 
-            .log-table tr {
-                border-left: 4px solid var(--primary-color) !important;
-            }
-
-            .user-table td,
-            .log-table td {
+            .user-table td {
                 display: block;
                 width: 100%;
                 padding: 5px 0;
                 border: none;
                 white-space: normal;
-            }
-
-            .log-table td:nth-child(2) {
-                font-weight: bold;
-                font-size: 15px;
-                margin-top: 5px;
-            }
-
-            .log-table td:nth-child(3) {
-                margin: 5px 0;
             }
 
             .user-table .action-btn-group {
@@ -1245,6 +1221,79 @@
 
             .user-table .action-btn-group button {
                 flex: 1;
+            }
+
+            /* --- 🔥 IMPROVED MOBILE LOGS (GRID LAYOUT) --- */
+            .log-table tr {
+                display: grid !important;
+                grid-template-columns: 1fr auto;
+                gap: 12px;
+                padding: 15px !important;
+                border-radius: 12px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                border: 1px solid #eee;
+                background: white;
+                margin-bottom: 15px;
+                border-left: 5px solid var(--primary-color) !important;
+                align-items: center;
+            }
+
+            /* Cell 1: Date & Time (Top Full Width) */
+            .log-table td:nth-child(1) {
+                grid-column: 1 / -1;
+                border: none;
+                border-bottom: 1px solid #f0f0f0;
+                padding: 0 !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 5px;
+                width: 100% !important;
+            }
+            /* Force horizontal layout for date/time */
+            .log-table td:nth-child(1) > div {
+                flex-direction: row !important;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+            
+            /* Cell 2: Username (Left) */
+            .log-table td:nth-child(2) {
+                grid-column: 1 / 2;
+                font-size: 15px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            /* Add Icon */
+            .log-table td:nth-child(2)::before {
+                content: '\f007'; /* FontAwesome User */
+                font-family: "Font Awesome 6 Free"; 
+                font-weight: 900;
+                color: #bdc3c7;
+            }
+
+            /* Cell 3: Action Badge (Right) */
+            .log-table td:nth-child(3) {
+                grid-column: 2 / 3;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none;
+                text-align: right;
+            }
+
+            /* Cell 4: Details (Bottom Full Width Box) */
+            .log-table td:nth-child(4) {
+                grid-column: 1 / -1;
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                padding: 10px 12px !important;
+                font-size: 13px !important;
+                color: #555;
+                margin-top: 0 !important;
+                border: 1px solid #eee;
             }
 
             .card h3 {
