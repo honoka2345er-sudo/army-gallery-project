@@ -431,16 +431,19 @@
 
         /* ขนาดไอคอน SVG */
 
-        /* 🔥 Download Button in Lightbox (New Style) */
+        /* 🔥 Download Button in Lightbox (แก้ไข: ย้ายมาตรงกลางล่าง) */
         .sl-download-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            /* ย้ายจาก bottom: 20px; right: 20px; มาเป็นข้างล่างนี้ */
+            bottom: 40px; 
+            left: 50%;
+            transform: translateX(-50%); /* จัดกึ่งกลางจอ */
+            
             z-index: 10060;
             background: var(--primary); /* สีแดงตามธีม */
             color: white;
             text-decoration: none;
-            padding: 10px 24px; /* ปรับความกว้างนิดหน่อยให้สวย */
+            padding: 10px 24px;
             border-radius: 30px;
             font-family: 'Sarabun';
             font-weight: 600;
@@ -448,19 +451,21 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             display: flex;
             align-items: center;
-            gap: 10px; /* ระยะห่างระหว่างไอคอนกับตัวหนังสือ */
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* เด้งดึ๋งเล็กน้อย */
+            gap: 10px;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .sl-download-btn:hover {
-            transform: scale(1.05) translateY(-2px);
-            background: #ef4444; /* สีแดงสว่างขึ้นตอนชี้ */
+            /* เวลา Hover ต้องใส่ translateX(-50%) ไว้ด้วย ไม่งั้นปุ่มจะเด้งไปขวา */
+            transform: translateX(-50%) scale(1.05) translateY(-2px);
+            background: #ef4444;
             color: white;
             box-shadow: 0 8px 20px rgba(192, 57, 43, 0.4);
         }
 
         .sl-download-btn:active {
-            transform: scale(0.95);
+            transform: translateX(-50%) scale(0.95);
         }
 
         /* จัดการขนาดไอคอน SVG ในปุ่ม */
@@ -576,9 +581,9 @@
             }
 
             .sl-download-btn {
-                bottom: 15px;
-                right: 15px;
-                padding: 8px 20px; /* ปรับ Padding สำหรับมือถือ */
+                /* บนมือถือยกขึ้นอีกนิดเผื่อปุ่ม Swipe ของ iPhone */
+                bottom: 35px;
+                padding: 8px 20px;
                 font-size: 14px;
             }
 
