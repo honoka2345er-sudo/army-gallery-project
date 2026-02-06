@@ -1278,11 +1278,11 @@
                 font-weight: bold;
                 font-size: 15px !important;
                 display: flex; 
-                align-items: center;
-                /* 🔥 เพิ่ม Gap ตามที่ขอ */
-                gap: 15px !important; 
+                align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+                /* 🔥 เพิ่มระยะห่างระหว่างไอคอนกับชื่อให้กว้างขึ้นชัดเจน */
+                gap: 30px !important; 
                 /* Padding ซ้าย/ขวา/บน */
-                padding: 15px 0 0 20px !important;
+                padding: 20px 0 0 25px !important;
             }
             /* User Icon (ทำให้ใหญ่ขึ้นนิดนึง) */
             .log-table td:nth-child(2)::before {
@@ -1290,15 +1290,17 @@
                 font-family: "Font Awesome 6 Free"; 
                 font-weight: 900;
                 color: #bdc3c7;
-                font-size: 18px;
+                font-size: 20px; /* เพิ่มขนาดไอคอน */
             }
 
             /* Cell 3: Action Badge (Right) */
             .log-table td:nth-child(3) {
                 grid-area: badge !important;
-                text-align: right !important;
-                justify-self: end !important;
-                padding: 15px 20px 0 0 !important;
+                /* จัดให้อยู่ตรงกลางแนวตั้ง */
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                padding: 20px 25px 0 0 !important;
             }
 
             /* Cell 4: Details (Bottom) */
@@ -1310,7 +1312,7 @@
                 font-size: 13px !important;
                 color: #555 !important;
                 /* 🔥 เว้นขอบให้สวยงาม */
-                margin: 15px 20px 0 20px !important; 
+                margin: 20px 25px 0 25px !important; 
                 border: 1px solid #eee !important;
             }
 
