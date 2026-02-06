@@ -575,18 +575,27 @@
                 height: 40px;
             }
 
-            /* 🔥 Mobile Override: ย้ายปุ่ม Download มาตรงกลาง (ใช้ !important บังคับ) */
+            /* 🔥 Mobile Override: บังคับให้อยู่ตรงกลางด้วยท่าไม้ตาย margin: auto */
             .sl-download-btn {
-                bottom: 40px !important;      /* ยกสูงขึ้น */
-                right: auto !important;       /* ยกเลิกชิดขวา */
-                left: 50% !important;         /* ย้ายมาซ้าย 50% ของจอ */
-                transform: translateX(-50%) !important; /* ดึงกลับมาครึ่งนึงของปุ่ม ให้กลางเป๊ะ */
-                width: max-content !important;
+                right: auto !important; 
+                top: auto !important;
+                
+                position: fixed !important;
+                bottom: 30px !important;
+                left: 0 !important;
+                right: 0 !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                width: fit-content !important;
+                
+                /* ตกแต่ง */
                 padding: 10px 25px !important;
+                z-index: 99999 !important;
+                transform: none !important;
             }
 
             .sl-download-btn:hover {
-                transform: translateX(-50%) scale(1.05) !important; /* คงตำแหน่งกลางไว้ตอนกด */
+                transform: scale(1.05) !important;
             }
 
             /* 🔥 แก้ไขใหม่: หัวข้อกิจกรรมกับปุ่ม Download ZIP */
