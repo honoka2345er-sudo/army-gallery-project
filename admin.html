@@ -1224,7 +1224,7 @@
                 flex: 1;
             }
 
-            /* --- 🔥 IMPROVED MOBILE LOGS (CSS GRID LAYOUT) --- */
+            /* --- 🔥 IMPROVED MOBILE LOGS (FORCE STYLE - ZERO PADDING) --- */
             /* 1. ล้างค่าพื้นฐานของตารางออกให้หมด */
             .log-table, .log-table tbody, .log-table tr, .log-table td {
                 display: block !important;
@@ -1232,7 +1232,7 @@
                 box-sizing: border-box !important;
             }
 
-            /* 2. จัด Layout ของ Card (tr) เป็น Grid */
+            /* 2. จัด Layout ของ Card (tr) */
             .log-table tr {
                 display: grid !important;
                 /* ซ้าย: ชื่อ User, ขวา: Badge Action */
@@ -1241,29 +1241,29 @@
                     "datetime datetime"
                     "user badge"
                     "details details";
+                gap: 0 !important; /* 🔥 ลบ Gap ออก เพื่อให้จัดการ Space ด้วย Padding */
                 
                 background: white !important;
                 margin-bottom: 15px !important;
                 /* 🔥 (สำคัญ) ปรับ Padding เป็น 0 เพื่อให้ขีดชนขอบ */
                 padding: 0 !important; 
-                padding-bottom: 20px !important;
+                padding-bottom: 15px !important;
                 
                 border-radius: 12px !important;
                 box-shadow: 0 4px 8px rgba(0,0,0,0.08) !important;
                 border: 1px solid #eee !important;
-                /* 🔥 ขอบสีฟ้าซ้ายมือ */
-                border-left: 6px solid var(--primary-color) !important;
-                overflow: hidden; 
+                border-left: 5px solid var(--primary-color) !important;
+                overflow: hidden; /* กันลูกล้น */
             }
 
-            /* Cell 1: Date & Time (Header) */
+            /* Cell 1: Date & Time -> พื้นที่ด้านบนสุด */
             .log-table td:nth-child(1) {
                 grid-area: datetime !important;
                 /* 🔥 ขีดติดขอบ เพราะ parent ไม่มี padding แล้ว */
-                border-bottom: 1px solid #f0f0f0 !important; 
+                border-bottom: 1px solid #eee !important; 
                 margin: 0 !important;
-                /* 🔥 Padding ข้างใน */
-                padding: 12px 20px !important;
+                /* 🔥 ย้าย Padding มาใส่ตรงนี้แทน */
+                padding: 12px 15px !important;
             }
             /* จัดให้วันที่กับเวลาอยู่คนละฝั่ง */
             .log-table td:nth-child(1) > div {
@@ -1272,45 +1272,43 @@
                 width: 100% !important;
             }
             
-            /* Cell 2: Username (Left) */
+            /* Cell 2: Username -> ซ้าย */
             .log-table td:nth-child(2) {
                 grid-area: user !important;
                 font-weight: bold;
                 font-size: 15px !important;
                 display: flex; 
                 align-items: center;
-                /* 🔥 เพิ่ม Gap ตามที่ขอ */
+                /* 🔥 ปรับ Gap และ Padding ตามที่ขอ */
                 gap: 15px !important; 
-                /* Padding ซ้าย/ขวา/บน */
-                padding: 15px 0 0 20px !important;
+                padding: 10px 0 0 15px !important; /* เว้นซ้ายเยอะหน่อย */
             }
-            /* User Icon (ทำให้ใหญ่ขึ้นนิดนึง) */
+            /* Add User Icon */
             .log-table td:nth-child(2)::before {
                 content: '\f007'; 
                 font-family: "Font Awesome 6 Free"; 
                 font-weight: 900;
                 color: #bdc3c7;
-                font-size: 18px;
             }
 
-            /* Cell 3: Action Badge (Right) */
+            /* Cell 3: Action Badge -> ขวา */
             .log-table td:nth-child(3) {
                 grid-area: badge !important;
                 text-align: right !important;
                 justify-self: end !important;
-                padding: 15px 20px 0 0 !important;
+                padding: 10px 15px 0 0 !important;
             }
 
-            /* Cell 4: Details (Bottom) */
+            /* Cell 4: Details -> ล่างสุดเต็มจอ */
             .log-table td:nth-child(4) {
                 grid-area: details !important;
                 background-color: #f8f9fa !important;
                 border-radius: 8px !important;
-                padding: 12px 15px !important;
+                padding: 10px 12px !important;
                 font-size: 13px !important;
                 color: #555 !important;
-                /* 🔥 เว้นขอบให้สวยงาม */
-                margin: 15px 20px 0 20px !important; 
+                /* 🔥 ปรับ margin ให้สวยงาม ไม่ชิดขอบจนเกินไป */
+                margin: 10px 15px 0 15px !important; 
                 border: 1px solid #eee !important;
             }
 
