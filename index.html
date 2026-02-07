@@ -157,19 +157,24 @@
             height: 48px;
         }
 
-        /* 🔥 แก้ไข CSS ส่วน Dark Mode ให้ไอคอนและตัวหนังสือขาวจั๊วะ */
-        [data-theme="dark"] .search-input {
-            color: #ffffff !important; /* บังคับตัวหนังสือค้นหาให้ขาว */
-        }
-
-        [data-theme="dark"] .search-input::placeholder {
-            color: #cbd5e1; /* สี placeholder ขาวจางๆ */
-            opacity: 1;
-        }
-
+        /* 🚨 --- แก้ไขจุดนี้: บังคับสีขาวใน Dark Mode --- 🚨 */
+        
+        /* 1. บังคับตัวหนังสือในช่องค้นหาให้ขาว */
+        [data-theme="dark"] .search-input,
         [data-theme="dark"] .date-input {
-            color: #ffffff !important; /* บังคับตัวเลขวันที่ให้ขาว */
-            /* เปลี่ยน SVG stroke เป็นสีขาว (#ffffff) */
+            color: #ffffff !important; /* ขาวแน่นอน */
+            -webkit-text-fill-color: #ffffff !important; /* แก้ปัญหา Chrome/Safari */
+        }
+
+        /* 2. บังคับ Placeholder (ตัวหนังสือจางๆ) ให้ขาว */
+        [data-theme="dark"] .search-input::placeholder,
+        [data-theme="dark"] .date-input::placeholder {
+            color: rgba(255, 255, 255, 0.7) !important;
+            opacity: 1; 
+        }
+
+        /* 3. บังคับไอคอนปฏิทินให้ขาว */
+        [data-theme="dark"] .date-input {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
         }
 
