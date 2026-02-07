@@ -424,10 +424,9 @@
 
         /* 🔥 Download Button (Lightbox) - Version Mobile Friendly */
         .sl-download-btn {
-            position: absolute;
-            bottom: -60px;
-            right: 50%;
-            transform: translateX(50%);
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
             z-index: 2147483647 !important; 
             background: var(--primary);
             color: white;
@@ -446,14 +445,14 @@
         }
 
         .sl-download-btn:hover {
-            transform: translateX(50%) scale(1.05) translateY(-2px);
+            transform: scale(1.05) translateY(-2px);
             background: #ef4444;
             color: white;
             box-shadow: 0 8px 20px rgba(192, 57, 43, 0.4);
         }
 
         .sl-download-btn:active {
-            transform: translateX(50%) scale(0.95);
+            transform: scale(0.95);
         }
 
         .sl-download-btn svg {
@@ -622,6 +621,29 @@
                 right: 20px;
                 width: 40px;
                 height: 40px;
+            }
+
+            /* 🔥 Mobile Override: กลับมาอยู่ "ด้านล่าง" แต่ลอยสูงขึ้น */
+            .sl-download-btn {
+                right: auto !important; 
+                top: auto !important;
+                position: fixed !important;
+                bottom: 80px !important; 
+                left: 0 !important;
+                right: 0 !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                width: fit-content !important; 
+                min-width: 140px;
+                justify-content: center;
+                padding: 10px 25px !important;
+                z-index: 2147483647 !important;
+                transform: none !important;
+                border: 2px solid rgba(255, 255, 255, 0.9) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+            }
+            .sl-download-btn:hover {
+                transform: scale(1.05) !important;
             }
 
             .activity-header {
@@ -896,11 +918,10 @@
 
                         const updateDownloadButton = () => {
                             setTimeout(() => {
-                                const imgWrapper = document.querySelector('.sl-wrapper');
                                 const img = document.querySelector('.sl-image img');
-                                if (!img || !imgWrapper) return; 
+                                if (!img) return; 
 
-                                let btn = imgWrapper.querySelector('.sl-download-btn');
+                                let btn = document.querySelector('.sl-download-btn');
                                 
                                 if (!btn) {
                                     btn = document.createElement('a');
@@ -915,7 +936,7 @@
                                     `;
                                     btn.target = '_blank';
                                     btn.download = '';
-                                    imgWrapper.appendChild(btn);
+                                    document.body.appendChild(btn);
                                 }
                                 btn.href = img.src;
                                 btn.style.display = 'flex'; 
