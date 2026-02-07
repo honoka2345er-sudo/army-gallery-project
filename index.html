@@ -460,31 +460,107 @@
             height: 20px;
         }
 
-        /* Flatpickr */
+        /* 🔥 Flatpickr Dark Mode - แก้ไขให้ครบถ้วน */
         [data-theme="dark"] .flatpickr-calendar {
             background: #1f2937;
             border: 1px solid #374151;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
-        [data-theme="dark"] .flatpickr-monthDropdown-months,
-        [data-theme="dark"] .year-dropdown {
+
+        [data-theme="dark"] .flatpickr-months {
+            background: #1f2937;
+        }
+
+        [data-theme="dark"] .flatpickr-month {
+            background: #1f2937;
+            color: #f3f4f6;
+        }
+
+        [data-theme="dark"] .flatpickr-current-month {
+            color: #f3f4f6;
+        }
+
+        [data-theme="dark"] .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: #1f2937 !important;
+            color: #f3f4f6 !important;
+        }
+
+        [data-theme="dark"] .flatpickr-current-month .numInputWrapper {
+            background: #1f2937;
+        }
+
+        [data-theme="dark"] .flatpickr-current-month input.cur-year {
             color: #f3f4f6 !important;
             background: #1f2937;
         }
-        [data-theme="dark"] .flatpickr-monthDropdown-months:hover,
-        [data-theme="dark"] .year-dropdown:hover {
-            background: #374151;
+
+        [data-theme="dark"] .flatpickr-monthDropdown-months,
+        [data-theme="dark"] .flatpickr-monthDropdown-month {
+            background: #1f2937 !important;
+            color: #f3f4f6 !important;
         }
+
+        [data-theme="dark"] select.flatpickr-monthDropdown-months {
+            background: #1f2937 !important;
+            color: #f3f4f6 !important;
+            border-color: #4b5563;
+        }
+
+        [data-theme="dark"] .flatpickr-monthDropdown-months option {
+            background: #1f2937 !important;
+            color: #f3f4f6 !important;
+        }
+
+        [data-theme="dark"] .flatpickr-monthDropdown-months:hover,
+        [data-theme="dark"] .numInputWrapper:hover {
+            background: #374151 !important;
+        }
+
         [data-theme="dark"] .flatpickr-day {
             color: #f3f4f6;
         }
+
         [data-theme="dark"] .flatpickr-day:hover {
             background: #374151 !important;
+            border-color: #4b5563 !important;
         }
-        [data-theme="dark"] .flatpickr-day.selected {
+
+        [data-theme="dark"] .flatpickr-day.selected,
+        [data-theme="dark"] .flatpickr-day.selected:hover {
             background: var(--primary) !important;
             border-color: var(--primary) !important;
-            color: white;
+            color: white !important;
+        }
+
+        [data-theme="dark"] .flatpickr-day.inRange {
+            background: rgba(255, 107, 107, 0.2) !important;
+            border-color: transparent !important;
+        }
+
+        [data-theme="dark"] .arrowUp,
+        [data-theme="dark"] .arrowDown {
+            border-bottom-color: #f3f4f6 !important;
+        }
+
+        [data-theme="dark"] span.arrowUp:after {
+            border-bottom-color: #f3f4f6 !important;
+        }
+
+        [data-theme="dark"] span.arrowDown:after {
+            border-top-color: #f3f4f6 !important;
+        }
+
+        [data-theme="dark"] .flatpickr-weekdays {
+            background: #1f2937;
+        }
+
+        [data-theme="dark"] .flatpickr-weekday {
+            background: #1f2937;
+            color: #9ca3af;
+        }
+
+        [data-theme="dark"] .flatpickr-days {
+            background: #1f2937;
         }
 
         /* 📱 Mobile: Style Override */
