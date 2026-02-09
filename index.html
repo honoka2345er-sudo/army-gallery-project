@@ -424,9 +424,10 @@
 
         /* 🔥 Download Button (Lightbox) - Version Mobile Friendly */
         .sl-download-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+            position: absolute;
+            bottom: -60px;
+            right: 50%;
+            transform: translateX(50%);
             z-index: 2147483647 !important; 
             background: var(--primary);
             color: white;
@@ -442,17 +443,19 @@
             gap: 10px;
             white-space: nowrap;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            cursor: pointer;
         }
 
         .sl-download-btn:hover {
-            transform: scale(1.05) translateY(-2px);
+            transform: translateX(50%) scale(1.05) translateY(-2px);
             background: #ef4444;
             color: white;
             box-shadow: 0 8px 20px rgba(192, 57, 43, 0.4);
         }
 
         .sl-download-btn:active {
-            transform: scale(0.95);
+            transform: translateX(50%) scale(0.95);
         }
 
         .sl-download-btn svg {
@@ -621,29 +624,6 @@
                 right: 20px;
                 width: 40px;
                 height: 40px;
-            }
-
-            /* 🔥 Mobile Override: กลับมาอยู่ "ด้านล่าง" แต่ลอยสูงขึ้น */
-            .sl-download-btn {
-                right: auto !important; 
-                top: auto !important;
-                position: fixed !important;
-                bottom: 80px !important; 
-                left: 0 !important;
-                right: 0 !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-                width: fit-content !important; 
-                min-width: 140px;
-                justify-content: center;
-                padding: 10px 25px !important;
-                z-index: 2147483647 !important;
-                transform: none !important;
-                border: 2px solid rgba(255, 255, 255, 0.9) !important;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
-            }
-            .sl-download-btn:hover {
-                transform: scale(1.05) !important;
             }
 
             .activity-header {
@@ -918,13 +898,14 @@
 
                         const updateDownloadButton = () => {
                             setTimeout(() => {
+                                const imgWrapper = document.querySelector('.sl-wrapper');
                                 const img = document.querySelector('.sl-image img');
-                                if (!img) return; 
+                                if (!img || !imgWrapper) return; 
 
-                                let btn = document.querySelector('.sl-download-btn');
+                                let btn = imgWrapper.querySelector('.sl-download-btn');
                                 
                                 if (!btn) {
-                                    btn = document.createElement('a');
+                                    btn = document.createElement('button');
                                     btn.className = 'sl-download-btn';
                                     btn.innerHTML = `
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -934,11 +915,60 @@
                                         </svg>
                                         Download
                                     `;
-                                    btn.target = '_blank';
-                                    btn.download = '';
-                                    document.body.appendChild(btn);
+                                    btn.onclick = async function(e) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const imageUrl = img.src;
+                                        const fileName = imageUrl.split('/').pop().split('?')[0] || 'photo.jpg';
+                                        
+                                        try {
+                                            // Show loading
+                                            btn.innerHTML = `
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10" opacity="0.25"/>
+                                                    <path d="M12 2a10 10 0 0 1 10 10" opacity="1">
+                                                        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                                                    </path>
+                                                </svg>
+                                                กำลังโหลด...
+                                            `;
+                                            
+                                            const response = await fetch(imageUrl);
+                                            const blob = await response.blob();
+                                            const blobUrl = window.URL.createObjectURL(blob);
+                                            
+                                            const a = document.createElement('a');
+                                            a.href = blobUrl;
+                                            a.download = fileName;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                            window.URL.revokeObjectURL(blobUrl);
+                                            
+                                            // Restore button
+                                            btn.innerHTML = `
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                                </svg>
+                                                Download
+                                            `;
+                                        } catch (error) {
+                                            console.error('Download failed:', error);
+                                            alert('ไม่สามารถดาวน์โหลดได้ กรุณาลองใหม่อีกครั้ง');
+                                            btn.innerHTML = `
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                                </svg>
+                                                Download
+                                            `;
+                                        }
+                                    };
+                                    imgWrapper.appendChild(btn);
                                 }
-                                btn.href = img.src;
                                 btn.style.display = 'flex'; 
                             }, 100); 
                         };
