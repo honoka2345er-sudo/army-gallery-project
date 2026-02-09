@@ -424,10 +424,9 @@
 
         /* 🔥 Download Button (Lightbox) - Version Mobile Friendly */
         .sl-download-btn {
-            position: absolute;
-            bottom: -60px;
-            right: 50%;
-            transform: translateX(50%);
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
             z-index: 2147483647 !important; 
             background: var(--primary);
             color: white;
@@ -448,14 +447,19 @@
         }
 
         .sl-download-btn:hover {
-            transform: translateX(50%) scale(1.05) translateY(-2px);
+            transform: scale(1.05) translateY(-2px);
             background: #ef4444;
             color: white;
             box-shadow: 0 8px 20px rgba(192, 57, 43, 0.4);
         }
 
         .sl-download-btn:active {
-            transform: translateX(50%) scale(0.95);
+            transform: scale(0.95);
+        }
+
+        .sl-download-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .sl-download-btn svg {
@@ -624,6 +628,29 @@
                 right: 20px;
                 width: 40px;
                 height: 40px;
+            }
+
+            /* 🔥 Mobile Override: ปุ่ม Download อยู่ล่างกลาง */
+            .sl-download-btn {
+                right: auto !important; 
+                top: auto !important;
+                position: fixed !important;
+                bottom: 80px !important; 
+                left: 0 !important;
+                right: 0 !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                width: fit-content !important; 
+                min-width: 140px;
+                justify-content: center;
+                padding: 10px 25px !important;
+                z-index: 2147483647 !important;
+                transform: none !important;
+                border: 2px solid rgba(255, 255, 255, 0.9) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+            }
+            .sl-download-btn:hover {
+                transform: scale(1.05) !important;
             }
 
             .activity-header {
@@ -898,11 +925,10 @@
 
                         const updateDownloadButton = () => {
                             setTimeout(() => {
-                                const imgWrapper = document.querySelector('.sl-wrapper');
                                 const img = document.querySelector('.sl-image img');
-                                if (!img || !imgWrapper) return; 
+                                if (!img) return; 
 
-                                let btn = imgWrapper.querySelector('.sl-download-btn');
+                                let btn = document.querySelector('.sl-download-btn');
                                 
                                 if (!btn) {
                                     btn = document.createElement('button');
@@ -923,6 +949,7 @@
                                         
                                         try {
                                             // Show loading
+                                            const originalHTML = btn.innerHTML;
                                             btn.innerHTML = `
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <circle cx="12" cy="12" r="10" opacity="0.25"/>
@@ -932,6 +959,7 @@
                                                 </svg>
                                                 กำลังโหลด...
                                             `;
+                                            btn.disabled = true;
                                             
                                             const response = await fetch(imageUrl);
                                             const blob = await response.blob();
@@ -946,14 +974,8 @@
                                             window.URL.revokeObjectURL(blobUrl);
                                             
                                             // Restore button
-                                            btn.innerHTML = `
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                    <polyline points="7 10 12 15 17 10"></polyline>
-                                                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                                                </svg>
-                                                Download
-                                            `;
+                                            btn.innerHTML = originalHTML;
+                                            btn.disabled = false;
                                         } catch (error) {
                                             console.error('Download failed:', error);
                                             alert('ไม่สามารถดาวน์โหลดได้ กรุณาลองใหม่อีกครั้ง');
@@ -965,9 +987,10 @@
                                                 </svg>
                                                 Download
                                             `;
+                                            btn.disabled = false;
                                         }
                                     };
-                                    imgWrapper.appendChild(btn);
+                                    document.body.appendChild(btn);
                                 }
                                 btn.style.display = 'flex'; 
                             }, 100); 
